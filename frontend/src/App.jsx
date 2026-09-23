@@ -49,12 +49,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-900 text-slate-100 flex flex-col relative overflow-hidden">
-      {/* Background Cyber Accents */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-1/3 right-10 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-rose-600/5 rounded-full blur-3xl pointer-events-none -z-10" />
-
+    <div className="min-h-screen bg-[#0B0F17] text-slate-100 flex flex-col relative">
       {/* Main Top Navigation */}
       <Navbar 
         activeTab={activeTab} 
@@ -104,7 +99,9 @@ export default function App() {
         )}
 
         {activeTab === 'customer' && (
-          <CustomerPortal />
+          <CustomerPortal 
+            onInspectTicket={handleInspectTicket}
+          />
         )}
 
         {activeTab === 'analytics' && (

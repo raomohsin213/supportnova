@@ -11,7 +11,8 @@ import {
   Globe,
   Users,
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  ShoppingBag
 } from 'lucide-react';
 
 export function Navbar({ 
@@ -26,7 +27,7 @@ export function Navbar({
     { id: 'workspace', label: 'Diff Inspector', icon: SplitSquareVertical },
     { id: 'queue', label: 'Review Queue', icon: AlertCircle, badge: blockedCount },
     { id: 'submit', label: 'Intake Portal', icon: Send },
-    { id: 'customer', label: 'Customer Portal', icon: Globe },
+    { id: 'customer', label: 'NovaStore & Orders', icon: ShoppingBag },
     { id: 'analytics', label: 'Executive Dashboard', icon: BarChart3 },
     { id: 'policies', label: 'Policy Registry', icon: FileText },
     { id: 'rules', label: 'Rule Matrix', icon: Database },

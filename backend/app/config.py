@@ -9,10 +9,14 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     THEME: str = "Aptech TechWiz 7 - ResponseX Intelligence (Generative AI PowerPlay)"
     
-    # API & Gemini Keys
+    # API & GenAI Keys
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_DEFAULT_MODEL: str = os.getenv("OPENROUTER_DEFAULT_MODEL", "nvidia/nemotron-3.5-lightning:free")
     
     # Database
     DATABASE_PATH: Path = BASE_DIR / "support_nova.db"
@@ -33,7 +37,7 @@ class Settings(BaseSettings):
     ]
     
     model_config = {
-        "env_file": ".env",
+        "env_file": [str(BASE_DIR / ".env"), str(BASE_DIR.parent / ".env")],
         "extra": "ignore"
     }
 
