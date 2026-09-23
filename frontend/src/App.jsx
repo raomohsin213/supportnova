@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
+import { JudgeGuideModal } from './components/JudgeGuideModal';
 import { PublicComplaintSubmission } from './views/PublicComplaintSubmission';
 import { SupportAgentWorkspace } from './views/SupportAgentWorkspace';
 import { ManualReviewQueue } from './views/ManualReviewQueue';
@@ -14,6 +15,7 @@ export default function App() {
   const [selectedTicketId, setSelectedTicketId] = useState('TC-ADV-001');
   const [blockedCount, setBlockedCount] = useState(0);
   const [activeRole, setActiveRole] = useState('system_admin');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const refreshBadgeCount = async () => {
     try {
@@ -41,6 +43,11 @@ export default function App() {
     setActiveTab('workspace');
   };
 
+  const handleSelectScenario = (scenarioId) => {
+    setSelectedTicketId(scenarioId);
+    setActiveTab('workspace');
+  };
+
   return (
     <div className="min-h-screen bg-dark-900 text-slate-100 flex flex-col relative overflow-hidden">
       {/* Background Cyber Accents */}
@@ -64,6 +71,14 @@ export default function App() {
             setActiveTab('workspace');
           }
         }}
+        onOpenGuide={() => setIsGuideOpen(true)}
+      />
+
+      {/* Evaluator / Judge Interactive Walkthrough Modal */}
+      <JudgeGuideModal 
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        onSelectScenario={handleSelectScenario}
       />
 
       {/* View Container */}
@@ -72,6 +87,7 @@ export default function App() {
           <SupportAgentWorkspace 
             selectedTicketId={selectedTicketId}
             onSelectTicket={(id) => setSelectedTicketId(id)}
+            onOpenGuide={() => setIsGuideOpen(true)}
           />
         )}
 

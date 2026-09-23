@@ -9,7 +9,9 @@ import {
   Send,
   UserCheck,
   Globe,
-  Users
+  Users,
+  Sparkles,
+  HelpCircle
 } from 'lucide-react';
 
 export function Navbar({ 
@@ -17,7 +19,8 @@ export function Navbar({
   setActiveTab, 
   blockedCount = 0,
   activeRole = 'system_admin',
-  onRoleChange = () => {}
+  onRoleChange = () => {},
+  onOpenGuide = () => {}
 }) {
   const navItems = [
     { id: 'workspace', label: 'Diff Inspector', icon: SplitSquareVertical },
@@ -90,8 +93,19 @@ export function Navbar({
             })}
           </nav>
 
-          {/* RBAC Role Persona Selector (FR i, FR ii) */}
+          {/* Right Action Controls: Judge Guide & Role Switcher */}
           <div className="hidden lg:flex items-center gap-3 pl-3 border-l border-slate-800">
+            {/* Interactive Judge Guide Button */}
+            <button
+              onClick={onOpenGuide}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-indigo-500/20 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/30 transition-all shadow-[0_0_12px_rgba(6,182,212,0.15)]"
+              title="Click for Evaluator Walkthrough & Quick Scenarios"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '4s' }} />
+              <span>Judge Guide</span>
+            </button>
+
+            {/* RBAC Role Persona Selector (FR i, FR ii) */}
             <div className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-slate-400" />
               <select
@@ -100,6 +114,7 @@ export function Navbar({
                 className={`text-[11px] font-mono font-semibold rounded-lg px-2.5 py-1.5 border focus:outline-none transition-colors cursor-pointer ${
                   roleColors[activeRole] || 'text-slate-300 bg-slate-900 border-slate-700'
                 }`}
+                title="Switch persona to test Role-Based Access Control"
               >
                 <option value="system_admin" className="bg-dark-900 text-white">Role: System Admin</option>
                 <option value="support_manager" className="bg-dark-900 text-white">Role: Support Manager</option>
