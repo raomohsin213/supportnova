@@ -1,5 +1,6 @@
 # SupportNova — Enterprise AI Complaint Intelligence & Autonomous Governance System
-**Aptech TechWiz 7 — ResponseX Intelligence (Theme: Generative AI PowerPlay)**
+**Aptech TechWiz 7 — ResponseX Intelligence (Theme: Generative AI PowerPlay)**  
+**Official Repository:** [https://github.com/raomohsin213/supportnova](https://github.com/raomohsin213/supportnova)
 
 SupportNova is a production-grade AI complaint intelligence and autonomous governance system built around a strict **Dual-Pipeline Architecture**:
 - **Pipeline 1 (GenAI Intelligence)**: Probabilistic triage, sentiment and urgency classification, active policy citation, and professional response drafting powered by Google Gemini (with structured JSON enforcement and delimiter isolation).
