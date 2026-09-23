@@ -1,42 +1,42 @@
 import React from 'react';
-import { CheckCircle2, AlertTriangle, AlertOctagon, XCircle, ShieldAlert, Clock, HelpCircle, FileX } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, AlertOctagon, ShieldAlert, Clock, HelpCircle, FileX } from 'lucide-react';
 
 export function StatusBadge({ status, className = '' }) {
-  let badgeStyle = "bg-slate-800 text-slate-300 border-slate-700";
+  let badgeStyle = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
   let Icon = HelpCircle;
 
   switch (status) {
     case 'Verified':
-      badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]";
+      badgeStyle = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800";
       Icon = CheckCircle2;
       break;
     case 'Verified with Warning':
-      badgeStyle = "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.15)]";
+      badgeStyle = "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800";
       Icon = AlertTriangle;
       break;
     case 'Partially Verified':
-      badgeStyle = "bg-blue-500/10 text-blue-400 border-blue-500/30";
+      badgeStyle = "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800";
       Icon = Clock;
       break;
     case 'Source Support Missing':
-      badgeStyle = "bg-purple-500/10 text-purple-400 border-purple-500/30 animate-pulse";
+      badgeStyle = "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800";
       Icon = FileX;
       break;
     case 'Requirement Missing':
-      badgeStyle = "bg-amber-500/10 text-amber-400 border-amber-500/30";
+      badgeStyle = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800";
       Icon = AlertTriangle;
       break;
     case 'Outdated Source':
-      badgeStyle = "bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse";
+      badgeStyle = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800";
       Icon = AlertOctagon;
       break;
     case 'Manual Review Required':
     case 'Contradiction Detected':
-      badgeStyle = "bg-red-500/15 text-red-400 border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-pulse";
+      badgeStyle = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800";
       Icon = ShieldAlert;
       break;
     default:
-      badgeStyle = "bg-slate-800 text-slate-300 border-slate-700";
+      badgeStyle = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
       Icon = HelpCircle;
   }
 
@@ -50,11 +50,11 @@ export function StatusBadge({ status, className = '' }) {
 
 export function DiffPill({ variant = 'green', children, className = '' }) {
   const styles = {
-    green: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-    red: "bg-red-500/15 text-red-400 border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.15)]",
-    amber: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-    blue: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    slate: "bg-slate-800 text-slate-400 border-slate-700"
+    green: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800",
+    red: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800",
+    amber: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
+    blue: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800",
+    slate: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
   };
 
   return (
@@ -66,10 +66,10 @@ export function DiffPill({ variant = 'green', children, className = '' }) {
 
 export function PriorityBadge({ priority, className = '' }) {
   const map = {
-    P1: "bg-red-500/20 text-red-400 border-red-500/50 animate-pulse",
-    P2: "bg-amber-500/20 text-amber-400 border-amber-500/50",
-    P3: "bg-blue-500/20 text-blue-400 border-blue-500/50",
-    P4: "bg-slate-700 text-slate-300 border-slate-600"
+    P1: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800",
+    P2: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
+    P3: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800",
+    P4: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded font-mono font-bold text-xs border ${map[priority] || map.P3} ${className}`}>
@@ -77,3 +77,4 @@ export function PriorityBadge({ priority, className = '' }) {
     </span>
   );
 }
+

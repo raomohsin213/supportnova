@@ -100,14 +100,14 @@ export function PolicyRegistryManager() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800 text-xs font-mono font-semibold uppercase tracking-wider mb-2">
             <FileText className="w-3.5 h-3.5" />
             Module 1: Traceable Chunking & Policy Registry
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Corporate Policy Document Manager
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Documents parsed by logical section headings into traceable citations stored in SQLite and indexed in the vector store.
           </p>
         </div>
@@ -115,7 +115,7 @@ export function PolicyRegistryManager() {
         <div className="flex items-center gap-3">
           <button
             onClick={loadPolicies}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer shadow-xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -123,7 +123,7 @@ export function PolicyRegistryManager() {
 
           <button
             onClick={() => setUploadModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all"
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Upload New Policy</span>
@@ -138,21 +138,23 @@ export function PolicyRegistryManager() {
           return (
             <div
               key={p.doc_id}
-              className={`glass-panel p-6 rounded-2xl border transition-all space-y-4 flex flex-col justify-between ${
-                isActive ? 'border-slate-800 hover:border-slate-700' : 'border-rose-900/40 bg-rose-950/10'
+              className={`p-6 rounded-2xl border transition-all space-y-4 flex flex-col justify-between shadow-xs ${
+                isActive 
+                  ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700' 
+                  : 'bg-rose-50/40 dark:bg-rose-950/15 border-rose-200 dark:border-rose-900/50'
               }`}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                  <span className="font-mono text-xs font-bold px-2.5 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                     {p.doc_id}
                   </span>
                   <button
                     onClick={() => handleStatusToggle(p.doc_id, p.status)}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase transition-colors ${
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase transition-colors cursor-pointer ${
                       isActive
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25'
-                        : 'bg-rose-500/15 text-rose-400 border border-rose-500/30 hover:bg-rose-500/25'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-100'
+                        : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800 hover:bg-rose-100'
                     }`}
                   >
                     {p.status} (Toggle)
@@ -160,27 +162,27 @@ export function PolicyRegistryManager() {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-white leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
                     {p.doc_title}
                   </h3>
-                  <div className="flex items-center gap-3 text-xs text-slate-400 mt-2">
+                  <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-2">
                     <span className="flex items-center gap-1 font-mono text-[11px]">
-                      <Tag className="w-3.5 h-3.5 text-slate-500" />
+                      <Tag className="w-3.5 h-3.5 text-slate-400" />
                       {p.category}
                     </span>
                     <span className="flex items-center gap-1 font-mono text-[11px]">
-                      <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
                       {p.effective_date}
                     </span>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-dark-900/80 border border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                     Logical Traceable Chunks:
                   </span>
-                  <span className="font-mono font-bold text-white">{p.chunk_count} Sections</span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white">{p.chunk_count} Sections</span>
                 </div>
               </div>
 
@@ -189,10 +191,10 @@ export function PolicyRegistryManager() {
                   setActivePolicyId(p.doc_id);
                   setDrawerOpen(true);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-cyan-500/10 text-slate-300 hover:text-cyan-400 border border-slate-700/80 hover:border-cyan-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-2"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200 dark:border-slate-700/80 text-xs font-semibold flex items-center justify-center gap-2 transition-all mt-2 cursor-pointer shadow-2xs"
               >
                 <span>Browse Chunks in Drawer</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
               </button>
             </div>
           );
@@ -201,20 +203,20 @@ export function PolicyRegistryManager() {
 
       {/* UPLOAD POLICY MODAL */}
       {uploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
-          <div className="w-full max-w-lg bg-dark-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-sm font-bold text-white">Upload New Corporate Policy</h3>
+                <UploadCloud className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Upload New Corporate Policy</h3>
               </div>
-              <button onClick={() => setUploadModalOpen(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setUploadModalOpen(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {uploadSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>{uploadSuccess}</span>
               </div>
@@ -223,59 +225,59 @@ export function PolicyRegistryManager() {
             <form onSubmit={handleUploadSubmit} className="space-y-4">
               {/* File selector */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Document File (.pdf or .docx) <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Document File (.pdf or .docx) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="file"
                   required
                   accept=".pdf,.docx,.doc,.txt"
                   onChange={(e) => setSelectedFile(e.target.files[0])}
-                  className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20"
+                  className="w-full text-xs text-slate-700 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-950/60 dark:file:text-indigo-300 hover:file:bg-indigo-100 cursor-pointer"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Document ID</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Document ID</label>
                   <input
                     type="text"
                     placeholder="e.g. SEC-POL-08"
                     value={docId}
                     onChange={(e) => setDocId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Version</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Version</label>
                   <input
                     type="text"
                     placeholder="e.g. v1.0-Active"
                     value={version}
                     onChange={(e) => setVersion(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Document Title</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Document Title</label>
                 <input
                   type="text"
                   placeholder="e.g. Data Security & Incident Protocol"
                   value={docTitle}
                   onChange={(e) => setDocTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Category / Domain</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category / Domain</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="Delivery">Delivery</option>
                     <option value="Billing & Refunds">Billing & Refunds</option>
@@ -285,28 +287,28 @@ export function PolicyRegistryManager() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Effective Date</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Effective Date</label>
                   <input
                     type="date"
                     value={effectiveDate}
                     onChange={(e) => setEffectiveDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-700">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setUploadModalOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   {uploading ? (
                     <>

@@ -49,7 +49,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-100 flex flex-col relative">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col relative transition-colors duration-200">
       {/* Main Top Navigation */}
       <Navbar 
         activeTab={activeTab} 
@@ -118,16 +118,16 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-dark-900/90 py-4 px-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto w-full">
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs py-4 px-6 text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto w-full mt-auto">
         <div>
           SupportNova Autonomous Governance Engine — Aptech TechWiz 7 (ResponseX Intelligence)
         </div>
         <div className="flex items-center gap-4 font-mono text-[11px]">
-          <span className="text-cyan-400">Pipeline 1: GenAI Flash</span>
+          <span className="text-indigo-600 dark:text-indigo-400 font-semibold">Pipeline 1: GenAI Flash</span>
           <span>•</span>
-          <span className="text-emerald-400">Pipeline 2: Zero-AI Python</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Pipeline 2: Zero-AI Python</span>
           <span>•</span>
-          <span className="text-slate-400">SQLite + ChromaDB</span>
+          <span className="text-slate-500 dark:text-slate-400">SQLite + ChromaDB</span>
         </div>
       </footer>
     </div>
