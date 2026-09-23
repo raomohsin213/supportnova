@@ -12,7 +12,10 @@ import {
   Lock,
   RefreshCw,
   Download,
-  FileSpreadsheet
+  FileSpreadsheet,
+  FlaskConical,
+  CopyCheck,
+  Repeat
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -35,7 +38,7 @@ const SENTIMENT_COLORS = {
   'Severely Distressed': '#EF4444' // Red
 };
 
-export function ExecutiveDashboard() {
+export function ExecutiveDashboard({ onNavigateToBenchmark }) {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -82,6 +85,16 @@ export function ExecutiveDashboard() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          {onNavigateToBenchmark && (
+            <button
+              onClick={onNavigateToBenchmark}
+              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+              title="Launch the 100-Case Automated Evaluation & Comparison Cockpit"
+            >
+              <FlaskConical className="w-3.5 h-3.5" />
+              <span>100-Case Audit Cockpit</span>
+            </button>
+          )}
           <a
             href={getExportUrl('csv')}
             download="supportnova_complaint_report.csv"
@@ -105,6 +118,37 @@ export function ExecutiveDashboard() {
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Refresh</span>
           </button>
+        </div>
+      </div>
+
+      {/* TechWiz 7 Full Scale Compliance Banner */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-900/10 via-slate-900/10 to-emerald-900/10 dark:from-indigo-950/40 dark:via-slate-900/40 dark:to-emerald-950/40 border border-indigo-200 dark:border-indigo-800 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs flex-shrink-0">
+            SRS
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span>Full Scale Enterprise Knowledge Base Online</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                100% Deterministic Ground-Truth
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+              Seeded with 500 complaint cases, 20 corporate policies across 8 departments, 100 validation rules matrix, and pure-Python duplicate & repeat escalation scanners.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500 dark:text-slate-400 flex-shrink-0">
+          <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-slate-200">
+            500 Tickets
+          </span>
+          <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-slate-200">
+            20 Policies
+          </span>
+          <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-slate-200">
+            100 Rules
+          </span>
         </div>
       </div>
 

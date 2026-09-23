@@ -11,4 +11,5 @@ class ComplaintInput(BaseModel):
     product_or_service: Optional[str] = Field(None, description="Product or service in dispute")
     order_reference: Optional[str] = Field(None, description="Order, shipment, or invoice reference ID")
     transaction_date: Optional[str] = Field(None, description="Date of the purchase or incident")
+    customer_email: Optional[str] = Field(None, description="Customer email address for identification")
     previous_complaints_count: int = Field(0, ge=0, description="Customer past ticket count")

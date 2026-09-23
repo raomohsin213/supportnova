@@ -12,7 +12,8 @@ import {
   Users,
   Sparkles,
   HelpCircle,
-  ShoppingBag
+  ShoppingBag,
+  FlaskConical
 } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
 
@@ -27,6 +28,7 @@ export function Navbar({
   const navItems = [
     { id: 'workspace', label: 'Diff Inspector', icon: SplitSquareVertical },
     { id: 'queue', label: 'Review Queue', icon: AlertCircle, badge: blockedCount },
+    { id: 'benchmark', label: '100-Case Audit', icon: FlaskConical, badge: 'SRS 8' },
     { id: 'submit', label: 'Intake Portal', icon: Send },
     { id: 'customer', label: 'NovaStore & Orders', icon: ShoppingBag },
     { id: 'analytics', label: 'Executive Dashboard', icon: BarChart3 },
@@ -84,8 +86,12 @@ export function Navbar({
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`} />
                   <span>{item.label}</span>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-rose-600 text-white animate-pulse">
+                  {item.badge !== undefined && (typeof item.badge === 'number' ? item.badge > 0 : Boolean(item.badge)) && (
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold tracking-tight ${
+                      typeof item.badge === 'string'
+                        ? 'bg-indigo-600 text-white dark:bg-indigo-500'
+                        : 'bg-rose-600 text-white animate-pulse'
+                    }`}>
                       {item.badge}
                     </span>
                   )}

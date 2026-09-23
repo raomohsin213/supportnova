@@ -34,20 +34,34 @@ class ComplaintTicket(Base):
     
     # Ground-truth consolidated fields
     assigned_department = Column(String(100), nullable=True)
+    primary_department = Column(String(100), nullable=True)
+    supporting_departments_json = Column(Text, nullable=True)
+    primary_issue = Column(String(150), nullable=True)
+    secondary_issue = Column(String(150), nullable=True)
+    product_or_service = Column(String(150), nullable=True)
     final_priority = Column(String(10), nullable=True)  # P1, P2, P3, P4
     final_urgency = Column(String(20), nullable=True)   # Low, Medium, High, Critical
     final_sentiment = Column(String(30), nullable=True)
+    escalation_level = Column(String(60), default="No Escalation")  # No Escalation, Supervisor Review, Department Manager, Specialist Team, Compliance Review, Critical Management Escalation
     
     # Governance & Dispatch Control
     is_automated_dispatch_blocked = Column(Boolean, default=False)
     human_reviewer_action = Column(String(50), default="Pending")  # Pending, Approved, Overridden, Escalated
     human_reviewer_notes = Column(Text, nullable=True)
     
-    # Advanced SLA, PII & Repeat Tracking
+    # Advanced SLA, PII, Duplicates & Repeat Tracking
     pii_masked_description = Column(Text, nullable=True)
     sla_target_hours = Column(Integer, default=24)
     is_sla_at_risk = Column(Boolean, default=False)
+    is_duplicate = Column(Boolean, default=False)
+    duplicate_of_id = Column(String(50), nullable=True)
     is_repeat_complaint = Column(Boolean, default=False)
+    repeat_count = Column(Integer, default=0)
+    
+    # Actionable Communication & Entities
+    extracted_entities_json = Column(Text, nullable=True)
+    clarification_questions_json = Column(Text, nullable=True)
+    follow_up_message = Column(Text, nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -76,6 +90,30 @@ class ComplaintTicket(Base):
     def diff_summary(self, val: dict):
         self.diff_summary_json = json.dumps(val)
 
+    @property
+    def supporting_departments(self) -> list:
+        return json.loads(self.supporting_departments_json) if self.supporting_departments_json else []
+
+    @supporting_departments.setter
+    def supporting_departments(self, val: list):
+        self.supporting_departments_json = json.dumps(val)
+
+    @property
+    def extracted_entities(self) -> dict:
+        return json.loads(self.extracted_entities_json) if self.extracted_entities_json else {}
+
+    @extracted_entities.setter
+    def extracted_entities(self, val: dict):
+        self.extracted_entities_json = json.dumps(val)
+
+    @property
+    def clarification_questions(self) -> list:
+        return json.loads(self.clarification_questions_json) if self.clarification_questions_json else []
+
+    @clarification_questions.setter
+    def clarification_questions(self, val: list):
+        self.clarification_questions_json = json.dumps(val)
+
     def to_customer_dict(self) -> dict:
         """Safe customer-facing view excluding internal diff scores and validation engine logs."""
         genai = self.genai_output
@@ -84,11 +122,15 @@ class ComplaintTicket(Base):
             "complaint_id": self.complaint_id,
             "complaint_title": self.complaint_title,
             "status": self.status,
-            "assigned_department": self.assigned_department or "Customer Relations",
+            "assigned_department": self.primary_department or self.assigned_department or "Customer Relations",
+            "primary_issue": self.primary_issue or self.complaint_title,
+            "secondary_issue": self.secondary_issue,
+            "escalation_level": self.escalation_level,
             "submitted_date": self.created_at.strftime("%Y-%m-%d %H:%M UTC") if self.created_at else None,
             "latest_update": self.updated_at.strftime("%Y-%m-%d %H:%M UTC") if self.updated_at else None,
             "customer_response": customer_msg,
             "sla_target_hours": self.sla_target_hours,
             "is_sla_at_risk": self.is_sla_at_risk,
+            "is_duplicate": self.is_duplicate,
             "is_repeat_complaint": self.is_repeat_complaint
         }

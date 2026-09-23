@@ -80,6 +80,11 @@ Return a valid JSON object matching the required schema with these exact keys:
 - urgency: one of ["Low", "Medium", "High", "Critical"]
 - priority: one of ["P1", "P2", "P3", "P4"]
 - department: string (e.g. Logistics Support, Accounts & Billing, Hardware QA, Emergency Response, Technical Support, Customer Success)
+- primary_department: string (main department)
+- supporting_departments: list of strings (supporting departments for multi-issue complaints)
+- primary_issue: string (core identified issue)
+- secondary_issue: string or null (secondary issue if multi-issue)
+- escalation_level: one of ["No Escalation", "Supervisor Review", "Department Manager", "Specialist Team", "Compliance Review", "Critical Management Escalation"]
 - policy_id: string (exact ID of policy referenced)
 - policy_section: string (exact section ID referenced)
 - resolution_steps: list of string steps

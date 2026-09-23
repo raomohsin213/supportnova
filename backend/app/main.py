@@ -11,6 +11,7 @@ from app.api.policies import router as policies_router
 from app.api.rule_matrix import router as rule_matrix_router
 from app.api.analytics import router as analytics_router
 from app.api.auth import router as auth_router
+from app.api.benchmark import router as benchmark_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -66,6 +67,7 @@ app.include_router(policies_router, prefix="/api")
 app.include_router(rule_matrix_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
+app.include_router(benchmark_router, prefix="/api")
 
 @app.get("/")
 def root():

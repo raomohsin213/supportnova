@@ -27,14 +27,19 @@ import {
   ChevronUp,
   ChevronDown,
   Sparkles,
-  Info
+  Info,
+  CopyCheck,
+  Repeat,
+  Layers
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { StatusBadge, DiffPill, PriorityBadge } from '../components/StatusBadge';
 import { TraceablePolicyDrawer } from '../components/TraceablePolicyDrawer';
 import { fetchTickets, fetchTicketDetail, takeTicketAction } from '../services/api';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { CircularScoreDial } from '../components/ui/CircularScoreDial';
 
 const EVALUATOR_SCENARIOS = {
   'TC-ADV-001': {
@@ -167,13 +172,18 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
       };
       await takeTicketAction(currentId, payload);
       setActionSuccess(`Successfully executed: ${actionType}`);
+      toast.success(`Action Executed: ${actionType}`, {
+        description: `Ticket ${currentId} status updated with complete audit trail.`
+      });
       // Refresh ticket details
       const updated = await fetchTicketDetail(currentId);
       setTicketData(updated);
       setOverrideModalOpen(false);
       setAgentNotes('');
     } catch (err) {
-      alert(`Action failed: ${err.message}`);
+      toast.error(`Action Failed`, {
+        description: err.message || 'Unable to execute ticket action.'
+      });
     } finally {
       setActionLoading(false);
       setTimeout(() => setActionSuccess(''), 4000);
@@ -350,11 +360,58 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-1.5">
                   {ticketData.complaint_title}
                 </h2>
-                <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
                   <span>Customer: <strong className="text-slate-800 dark:text-slate-200">{ticketData.customer_name}</strong></span>
                   <span>Tier: <strong className="text-indigo-600 dark:text-indigo-400">{ticketData.customer_tier}</strong></span>
                   <span>Channel: <strong className="text-slate-800 dark:text-slate-200">{ticketData.channel}</strong></span>
                   <span>Order Ref: <strong className="text-slate-800 dark:text-slate-200 font-mono">{ticketData.order_reference || 'N/A'}</strong></span>
+                  {ticketData.product_or_service && (
+                    <span>Product: <strong className="text-slate-800 dark:text-slate-200">{ticketData.product_or_service}</strong></span>
+                  )}
+                </div>
+
+                {/* SRS Phase 1: Multi-Issue, Supporting Depts & Escalation Tier Tags */}
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  {/* Escalation Level */}
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800">
+                    <Layers className="w-3 h-3 text-purple-500" />
+                    {ticketData.escalation_level || 'Tier 1: Frontline Agent'}
+                  </span>
+
+                  {/* Primary Issue */}
+                  {ticketData.primary_issue && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 font-mono uppercase">Primary:</span>
+                      <strong>{ticketData.primary_issue}</strong>
+                    </span>
+                  )}
+
+                  {/* Secondary Issue */}
+                  {ticketData.secondary_issue && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                      <span className="text-[10px] text-indigo-400 font-mono uppercase">Secondary:</span>
+                      <strong>{ticketData.secondary_issue}</strong>
+                    </span>
+                  )}
+
+                  {/* Supporting Departments */}
+                  {(() => {
+                    const depts = Array.isArray(ticketData?.supporting_departments)
+                      ? ticketData.supporting_departments
+                      : typeof ticketData?.supporting_departments === 'string'
+                      ? (() => { try { return JSON.parse(ticketData.supporting_departments); } catch (e) { return ticketData.supporting_departments.split(',').map(s => s.trim()).filter(Boolean); } })()
+                      : [];
+                    return depts.length > 0 ? (
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-slate-400 font-mono uppercase">Supporting:</span>
+                        {depts.map((d, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded text-[10px] font-mono bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                            {d}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               </div>
 
@@ -366,6 +423,38 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                 </div>
               )}
             </div>
+
+            {/* SRS Duplicate Complaint Banner */}
+            {ticketData.is_duplicate && (
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 dark:bg-amber-950/40 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <CopyCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                  <div>
+                    <span className="font-bold">Duplicate Complaint Detected (Pure Python MD5/Jaccard Similarity &gt; 0.85): </span>
+                    <span>Corresponds to previous case <strong>#{ticketData.duplicate_of_id || 'TC-PREV'}</strong>. Dispatched as consolidated resolution.</span>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 border border-amber-300 dark:border-amber-700 uppercase">
+                  Duplicate
+                </span>
+              </div>
+            )}
+
+            {/* SRS Repeat Customer Complaint Banner */}
+            {ticketData.is_repeat_complaint && (
+              <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 text-xs flex items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <Repeat className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                  <div>
+                    <span className="font-bold">Repeat Customer Recurrence (Incident #{ticketData.repeat_count || 2}): </span>
+                    <span>Customer has submitted multiple complaints for this issue. Escalation tier boosted deterministically.</span>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 uppercase">
+                  Repeat #{ticketData.repeat_count || 2}
+                </span>
+              </div>
+            )}
 
             {/* Blocked Reason Alert */}
             {ticketData.is_automated_dispatch_blocked && diff.block_reason && (
@@ -380,50 +469,46 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               </div>
             )}
 
-            {/* Score Cards Grid with Plain-English Explanations */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  <span>Requirement Coverage</span>
-                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">SOP Steps</span>
-                </div>
-                <div className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
-                  {ticketData.coverage_score}%
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Followed all mandatory policy steps</div>
+            {/* Circular Score Dials Cockpit Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center">
+                <CircularScoreDial 
+                  value={ticketData.coverage_score || 0} 
+                  label="Requirement Coverage" 
+                  subtitle="Followed SOP steps" 
+                  color="indigo" 
+                  size={88} 
+                />
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  <span>Source Traceability</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">Active Policy</span>
-                </div>
-                <div className={`text-2xl font-extrabold mt-1 ${ticketData.traceability_score === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {ticketData.traceability_score}%
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Cited valid, active chunks</div>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center">
+                <CircularScoreDial 
+                  value={ticketData.traceability_score || 0} 
+                  label="Source Traceability" 
+                  subtitle="Active SQLite chunks" 
+                  color={ticketData.traceability_score === 100 ? 'emerald' : 'rose'} 
+                  size={88} 
+                />
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  <span>Routing Consistency</span>
-                  <span className="text-[10px] text-sky-600 dark:text-sky-400 font-mono">Dept Check</span>
-                </div>
-                <div className={`text-2xl font-extrabold mt-1 ${ticketData.routing_score === 100 ? 'text-sky-600 dark:text-sky-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {ticketData.routing_score}%
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Assigned to authorized team per rules</div>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center">
+                <CircularScoreDial 
+                  value={ticketData.routing_score || 0} 
+                  label="Routing Consistency" 
+                  subtitle="Rule matrix authorized" 
+                  color={ticketData.routing_score === 100 ? 'sky' : 'rose'} 
+                  size={88} 
+                />
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  <span>Confidence Score</span>
-                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">Composite</span>
-                </div>
-                <div className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">
-                  {ticketData.overall_confidence_score}%
-                </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Weighted dual-pipeline agreement</div>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center">
+                <CircularScoreDial 
+                  value={ticketData.overall_confidence_score || 0} 
+                  label="Confidence Score" 
+                  subtitle="Dual-pipeline agreement" 
+                  color="indigo" 
+                  size={88} 
+                />
               </div>
             </div>
           </div>

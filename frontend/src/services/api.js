@@ -199,3 +199,25 @@ export async function fetchDemoUsers() {
 export function getExportUrl(format = 'csv') {
   return `${API_BASE}/analytics/export?format=${format}`;
 }
+
+export async function run100BenchmarkAudit() {
+  const res = await fetch(`${API_BASE}/benchmark/run-100-audit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to run 100-case benchmark');
+  }
+  return res.json();
+}
+
+export async function fetchLatestBenchmark() {
+  const res = await fetch(`${API_BASE}/benchmark/latest`);
+  if (!res.ok) throw new Error('Failed to fetch benchmark telemetry');
+  return res.json();
+}
+
+export function getBenchmarkExportUrl() {
+  return `${API_BASE}/benchmark/export-report`;
+}

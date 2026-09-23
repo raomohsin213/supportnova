@@ -65,15 +65,27 @@ async def submit_complaint(
         routing_score=validation_output.routing_score,
         overall_confidence_score=validation_output.overall_confidence_score,
         assigned_department=validation_output.recommended_department,
+        primary_department=validation_output.primary_department or validation_output.recommended_department,
+        supporting_departments_json=json.dumps(validation_output.supporting_departments),
+        primary_issue=validation_output.validated_primary_issue or complaint_data.complaint_title,
+        secondary_issue=validation_output.validated_secondary_issue,
+        product_or_service=complaint_data.product_or_service or genai_output.product_or_service,
         final_priority=validation_output.calculated_priority,
         final_urgency=validation_output.calculated_urgency,
         final_sentiment=genai_output.sentiment,
+        escalation_level=validation_output.escalation_level,
         is_automated_dispatch_blocked=validation_output.block_automated_dispatch,
         human_reviewer_action="Pending" if validation_output.block_automated_dispatch else "Auto-Approved",
         pii_masked_description=validation_engine.mask_pii(complaint_data.complaint_description),
         sla_target_hours=2 if validation_output.calculated_priority == "P1" else (8 if validation_output.calculated_priority == "P2" else (24 if validation_output.calculated_priority == "P3" else 48)),
         is_sla_at_risk=False,
-        is_repeat_complaint=(complaint_data.previous_complaints_count or 0) >= 2
+        is_duplicate=validation_output.is_duplicate,
+        duplicate_of_id=validation_output.duplicate_of_id,
+        is_repeat_complaint=validation_output.is_repeat_complaint,
+        repeat_count=validation_output.repeat_count,
+        extracted_entities_json=json.dumps(validation_output.extracted_entities),
+        clarification_questions_json=json.dumps(validation_output.clarification_questions),
+        follow_up_message=validation_output.follow_up_message
     )
 
     async_db.add(ticket)

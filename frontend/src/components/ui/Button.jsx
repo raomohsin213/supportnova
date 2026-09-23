@@ -44,3 +44,4 @@ export function Button({
   );
 }
 export { cn };
+export default Button;

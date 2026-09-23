@@ -8,6 +8,8 @@ import { ExecutiveDashboard } from './views/ExecutiveDashboard';
 import { PolicyRegistryManager } from './views/PolicyRegistryManager';
 import { RuleMatrixManager } from './views/RuleMatrixManager';
 import { CustomerPortal } from './views/CustomerPortal';
+import { BenchmarkAuditCockpit } from './views/BenchmarkAuditCockpit';
+import { Toaster } from 'sonner';
 import { fetchTickets } from './services/api';
 
 export default function App() {
@@ -50,6 +52,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col relative transition-colors duration-200">
+      {/* Global Toast Notifications (Sonner) */}
+      <Toaster position="top-right" richColors closeButton expand={false} />
+
       {/* Main Top Navigation */}
       <Navbar 
         activeTab={activeTab} 
@@ -104,8 +109,16 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'benchmark' && (
+          <BenchmarkAuditCockpit 
+            onInspectTicket={handleInspectTicket}
+          />
+        )}
+
         {activeTab === 'analytics' && (
-          <ExecutiveDashboard />
+          <ExecutiveDashboard 
+            onNavigateToBenchmark={() => setActiveTab('benchmark')}
+          />
         )}
 
         {activeTab === 'policies' && (

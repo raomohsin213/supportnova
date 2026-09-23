@@ -14,9 +14,13 @@ class GroundTruthValidationResult(BaseModel):
     complaint_id: str
     validated_category: str
     validated_subcategory: str
+    validated_primary_issue: Optional[str] = None
+    validated_secondary_issue: Optional[str] = None
     allowed_departments: list[str]
     routing_valid: bool
     recommended_department: str
+    primary_department: Optional[str] = None
+    supporting_departments: list[str] = Field(default_factory=list)
     
     # Sentiment vs. Urgency Trap Decoupling
     hazard_detected: bool = False
@@ -27,10 +31,23 @@ class GroundTruthValidationResult(BaseModel):
     urgency_overridden: bool = False
     priority_overridden: bool = False
     
-    # Mandatory Escalation
+    # Mandatory Escalation & Multi-Tier Hierarchy
     mandatory_escalation_triggered: bool = False
     escalation_triggers_matched: list[str] = Field(default_factory=list)
     missing_mandatory_escalation: bool = False
+    escalation_level: Literal["No Escalation", "Supervisor Review", "Department Manager", "Specialist Team", "Compliance Review", "Critical Management Escalation"] = "No Escalation"
+    
+    # Duplicate & Repeat Detection (SRS Step 52, 54)
+    is_duplicate: bool = False
+    duplicate_of_id: Optional[str] = None
+    is_repeat_complaint: bool = False
+    repeat_count: int = 0
+    duplicate_similarity_score: float = 0.0
+    
+    # Actionable Follow-up, Entities & Questions
+    extracted_entities: dict[str, str] = Field(default_factory=dict)
+    clarification_questions: list[str] = Field(default_factory=list)
+    follow_up_message: Optional[str] = None
     
     # Source Traceability
     policy_citation_valid: bool = False
