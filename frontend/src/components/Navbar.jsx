@@ -26,13 +26,12 @@ export function Navbar({
   onOpenGuide = () => {}
 }) {
   const allNavItems = [
-    // Customer Experience
+    // Customer Experience (Clean Store & Orders)
     { id: 'customer', label: 'NovaStore & My Orders', icon: ShoppingBag, roles: ['customer'] },
-    { id: 'submit', label: 'Direct Intake Form', icon: Send, roles: ['customer', 'system_admin'] },
 
-    // Support Agent / Specialist Reviewer
-    { id: 'queue', label: activeRole === 'system_admin' ? 'Escalations Queue' : 'Review Inbox', icon: AlertCircle, badge: blockedCount, roles: ['support_agent', 'reviewer', 'support_manager', 'system_admin'] },
-    { id: 'workspace', label: 'Dual-Pipeline Inspector', icon: SplitSquareVertical, roles: ['support_agent', 'reviewer', 'support_manager', 'system_admin'] },
+    // Support Specialist / Reviewer
+    { id: 'queue', label: activeRole === 'system_admin' ? 'Executive Clearances & Queue' : 'Review Inbox', icon: AlertCircle, badge: blockedCount, roles: ['support_agent', 'system_admin'] },
+    { id: 'workspace', label: 'Dual-Pipeline Inspector', icon: SplitSquareVertical, roles: ['support_agent', 'system_admin'] },
 
     // System Admin Executive Controls
     { id: 'analytics', label: 'Executive Analytics', icon: BarChart3, roles: ['system_admin'] },

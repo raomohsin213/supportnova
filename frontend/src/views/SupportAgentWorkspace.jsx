@@ -201,34 +201,36 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Top Header & Ticket Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400">
             <SplitSquareVertical className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
-                The Diff Inspector
+                Dual-Pipeline Diff Inspector
               </span>
               <span className="text-slate-400">•</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Autonomous Dual-Pipeline Governance</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                {activeRole === 'system_admin' ? '🛡️ Executive Authority' : '🎧 Specialist Governance'}
+              </span>
             </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-              Support Agent Verification Workspace
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white mt-0.5">
+              {activeRole === 'system_admin' ? 'Executive Governance & Clearance Cockpit' : 'Support Specialist Verification Workspace'}
             </h1>
           </div>
         </div>
 
-        {/* Ticket Selector Dropdown */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">Active Ticket:</label>
+        {/* Ticket Selector Dropdown & Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">Active Complaint:</label>
           <select
             value={currentId}
             onChange={(e) => {
               setCurrentId(e.target.value);
               if (onSelectTicket) onSelectTicket(e.target.value);
             }}
-            className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+            className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-indigo-500 shadow-xs max-w-xs"
           >
             {tickets.map((t) => (
               <option key={t.complaint_id} value={t.complaint_id}>
@@ -236,100 +238,24 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               </option>
             ))}
           </select>
+
+          <button
+            onClick={async () => {
+              if (currentId) {
+                setLoading(true);
+                const detail = await fetchTicketDetail(currentId);
+                setTicketData(detail);
+                setLoading(false);
+                toast.success('Ticket reloaded', { description: `Complaint ${currentId} refreshed.` });
+              }
+            }}
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 cursor-pointer shadow-xs transition-colors"
+            title="Reload Active Ticket"
+          >
+            <Repeat className="w-4 h-4" />
+          </button>
         </div>
       </div>
-
-      {/* Evaluator Quick Test Lab Bar (1-Click Competition Traps) */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Evaluator Test Lab: 1-Click Competition Scenarios
-            </span>
-            <span className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-              Aptech TechWiz 7
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden md:inline">Click any scenario to see Pipeline 1 vs Pipeline 2:</span>
-            {onOpenGuide && (
-              <button 
-                onClick={onOpenGuide}
-                className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-semibold cursor-pointer"
-              >
-                View Evaluator Guide &rarr;
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Scenario Chips */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-          {Object.entries(EVALUATOR_SCENARIOS).map(([id, sc]) => {
-            const isSelected = currentId === id;
-            return (
-              <button
-                key={id}
-                onClick={() => {
-                  setCurrentId(id);
-                  if (onSelectTicket) onSelectTicket(id);
-                }}
-                className={`p-3 rounded-xl text-left border transition-all text-xs flex flex-col justify-between cursor-pointer ${
-                  isSelected
-                    ? 'bg-indigo-50 border-indigo-400 text-indigo-900 ring-2 ring-indigo-500/20 dark:bg-indigo-950/50 dark:border-indigo-600 dark:text-indigo-100'
-                    : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full mb-1.5">
-                  <span className="text-base">{sc.icon}</span>
-                  <span className="font-mono text-[10px] text-slate-400">{id}</span>
-                </div>
-                <span className="font-semibold line-clamp-1 text-[11px]">{sc.shortTitle}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Professor's Evaluation Insight Callout Box */}
-      {EVALUATOR_SCENARIOS[currentId] && (
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-50/60 via-slate-50 to-sky-50/60 dark:from-indigo-950/30 dark:via-slate-900 dark:to-sky-950/20 border border-indigo-200/80 dark:border-indigo-800/60 shadow-xs space-y-3.5">
-          <div className="flex items-center justify-between pb-2 border-b border-indigo-200/50 dark:border-indigo-800/40">
-            <div className="flex items-center gap-2">
-              <span className="text-base">{EVALUATOR_SCENARIOS[currentId].icon}</span>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                Professor's Evaluation Insight: {EVALUATOR_SCENARIOS[currentId].title}
-              </h3>
-            </div>
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono uppercase bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700">
-              Autonomous Governance
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-            <div className="p-3.5 rounded-xl bg-white/90 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 shadow-2xs">
-              <div className="font-bold text-slate-800 dark:text-slate-200 mb-1">1. Customer Claim / Trap</div>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{EVALUATOR_SCENARIOS[currentId].context}</p>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-white/90 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 shadow-2xs">
-              <div className="font-bold text-indigo-600 dark:text-indigo-400 mb-1">2. What Gemini (AI) Did</div>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{EVALUATOR_SCENARIOS[currentId].aiAction}</p>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-white/90 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 shadow-2xs">
-              <div className="font-bold text-emerald-600 dark:text-emerald-400 mb-1">3. What Python (Zero AI) Caught</div>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{EVALUATOR_SCENARIOS[currentId].pythonAction}</p>
-            </div>
-          </div>
-
-          <div className="text-[11px] font-mono text-indigo-900 dark:text-indigo-200 bg-white/60 dark:bg-slate-950/40 px-3.5 py-2 rounded-xl border border-indigo-200/60 dark:border-indigo-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <span><strong>Competition Scoring Impact:</strong> {EVALUATOR_SCENARIOS[currentId].srsWhy}</span>
-            <span className="text-emerald-700 dark:text-emerald-400 font-bold">100% Deterministic Verification</span>
-          </div>
-        </div>
-      )}
 
       {loading || !ticketData ? (
         <div className="bg-white dark:bg-slate-900 p-16 rounded-2xl border border-slate-200 dark:border-slate-800 text-center space-y-3 shadow-xs">

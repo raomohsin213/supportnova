@@ -107,9 +107,7 @@ export default function App() {
         )}
 
         {activeTab === 'customer' && (
-          <CustomerPortal 
-            onInspectTicket={handleInspectTicket}
-          />
+          <CustomerPortal />
         )}
 
         {activeTab === 'benchmark' && (

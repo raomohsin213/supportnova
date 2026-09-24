@@ -432,7 +432,7 @@ const DEFECT_EVIDENCE_PRESETS = [
   }
 ];
 
-export function CustomerPortal({ onInspectTicket }) {
+export function CustomerPortal() {
   // Active Customer profile state
   const [activeCustomer, setActiveCustomer] = useState(PRE_SEEDED_CUSTOMERS[0]);
   const [customerPurchases, setCustomerPurchases] = useState(INITIAL_PURCHASES);
@@ -832,16 +832,6 @@ export function CustomerPortal({ onInspectTicket }) {
                         <span>SLA: <strong>{t.sla_target_hours || 24}h</strong></span>
                       </div>
                     </div>
-
-                    {onInspectTicket && (
-                      <button
-                        onClick={() => onInspectTicket(t.complaint_id)}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 dark:text-indigo-300 dark:border-indigo-800 text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Inspect in Agent Diff View</span>
-                      </button>
-                    )}
                   </div>
 
                   {/* Customer Narrative & Evidence Images */}
