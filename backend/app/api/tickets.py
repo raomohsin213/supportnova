@@ -11,7 +11,7 @@ from app.models.audit import AuditLog
 router = APIRouter(prefix="/tickets", tags=["Tickets & Diff Inspector"])
 
 class TicketActionPayload(BaseModel):
-    action: Literal["Approve & Send Response", "Override Classification", "Escalate to Tier 2 Manager"]
+    action: str = Field(..., description="Governance action to execute")
     notes: Optional[str] = Field(None, description="Human reviewer justification notes")
     override_priority: Optional[str] = None
     override_department: Optional[str] = None
@@ -24,7 +24,7 @@ async def list_tickets(
     department_filter: Optional[str] = Query(None, description="Filter by department"),
     only_blocked: Optional[bool] = Query(None, description="Filter by dispatch blocked"),
     search: Optional[str] = Query(None, description="Search by customer, title, or order reference"),
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(500, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db)
 ):

@@ -121,9 +121,20 @@ class ComplaintTicket(Base):
     def to_customer_dict(self) -> dict:
         """Safe customer-facing view excluding internal diff scores and validation engine logs."""
         genai = self.genai_output
-        customer_msg = genai.get("professional_response") or "Your complaint has been logged and is undergoing review."
-        if self.human_reviewer_notes and self.human_reviewer_action in ["Approved", "Admin Approved", "Overridden"]:
-            customer_msg = f"{customer_msg}\n\n[Official Resolution Update]: {self.human_reviewer_notes}"
+        is_approved = (
+            self.human_reviewer_action in ["Approved", "Admin Approved", "Overridden", "Auto-Approved"]
+            or (self.status == "Verified" and not self.is_automated_dispatch_blocked)
+        )
+        if is_approved:
+            customer_msg = (
+                self.official_resolution_message 
+                or genai.get("professional_response") 
+                or "Your complaint has been verified and resolved."
+            )
+            if self.human_reviewer_notes:
+                customer_msg = f"{customer_msg}\n\n[Staff Resolution Note]: {self.human_reviewer_notes}"
+        else:
+            customer_msg = "Your complaint and attached defect evidence photo have been logged successfully. Support Specialist is reviewing the drafted resolution against corporate warranty policy. You will receive the official verified response here once approved."
         return {
             "complaint_id": self.complaint_id,
             "complaint_title": self.complaint_title,

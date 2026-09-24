@@ -13,7 +13,9 @@ import {
   Lock,
   Package,
   Camera,
-  ArrowUpRight
+  ArrowUpRight,
+  Inbox,
+  CheckCircle2
 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { fetchTickets } from '../services/api';
@@ -21,13 +23,13 @@ import { fetchTickets } from '../services/api';
 export function ManualReviewQueue({ onInspectTicket }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterType, setFilterType] = useState('blocked'); // 'blocked', 'escalated', 'p1', 'hallucination', 'all'
+  const [filterType, setFilterType] = useState('inbox'); // 'inbox', 'blocked', 'escalated', 'p1', 'all'
   const [search, setSearch] = useState('');
 
   const loadQueue = async () => {
     setLoading(true);
     try {
-      const res = await fetchTickets({ limit: 100 });
+      const res = await fetchTickets({ limit: 500 });
       setTickets(res.tickets || []);
     } catch (err) {
       console.error('Failed to load queue:', err);
@@ -40,20 +42,23 @@ export function ManualReviewQueue({ onInspectTicket }) {
     loadQueue();
   }, []);
 
-  // Filter logic
+  // Filter logic: if user enters search text, search across ALL tickets immediately
   const filteredTickets = tickets.filter((t) => {
-    if (search) {
-      const s = search.toLowerCase();
-      const match = (t.customer_name && t.customer_name.toLowerCase().includes(s)) ||
-                    (t.customer_email && t.customer_email.toLowerCase().includes(s)) ||
-                    (t.complaint_title && t.complaint_title.toLowerCase().includes(s)) ||
-                    (t.complaint_id && t.complaint_id.toLowerCase().includes(s)) ||
-                    (t.product_name && t.product_name.toLowerCase().includes(s));
-      if (!match) return false;
+    if (search && search.trim()) {
+      const s = search.toLowerCase().trim();
+      return (t.customer_name && t.customer_name.toLowerCase().includes(s)) ||
+             (t.customer_email && t.customer_email.toLowerCase().includes(s)) ||
+             (t.complaint_title && t.complaint_title.toLowerCase().includes(s)) ||
+             (t.complaint_id && t.complaint_id.toLowerCase().includes(s)) ||
+             (t.product_name && t.product_name.toLowerCase().includes(s)) ||
+             (t.order_reference && t.order_reference.toLowerCase().includes(s));
     }
 
+    if (filterType === 'inbox') {
+      return t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined';
+    }
     if (filterType === 'blocked') {
-      return t.is_automated_dispatch_blocked;
+      return t.status === 'Quarantined' || t.status === 'Manual Review Required' || (t.is_automated_dispatch_blocked && t.status !== 'Escalated to Admin');
     }
     if (filterType === 'escalated') {
       return t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6';
@@ -61,13 +66,11 @@ export function ManualReviewQueue({ onInspectTicket }) {
     if (filterType === 'p1') {
       return t.final_priority === 'P1';
     }
-    if (filterType === 'hallucination') {
-      return t.status === 'Source Support Missing' || t.status === 'Outdated Source' || t.traceability_score === 0;
-    }
     return true; // 'all'
   });
 
-  const blockedCount = tickets.filter(t => t.is_automated_dispatch_blocked).length;
+  const inboxCount = tickets.filter(t => t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined').length;
+  const blockedCount = tickets.filter(t => t.status === 'Quarantined' || t.status === 'Manual Review Required' || (t.is_automated_dispatch_blocked && t.status !== 'Escalated to Admin')).length;
   const escalatedCount = tickets.filter(t => t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6').length;
   const p1Count = tickets.filter(t => t.final_priority === 'P1').length;
 
@@ -76,7 +79,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800 text-xs font-mono font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800 text-xs font-mono font-semibold uppercase tracking-wider mb-2">
             <ShieldAlert className="w-3.5 h-3.5" />
             Specialist Review & Triage Cockpit
           </div>
@@ -84,7 +87,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
             Manual Review & Escalation Queue
           </h1>
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-            Incoming customer complaints with physical defect evidence, quarantined by Pipeline 2 for supervisor review or admin escalation.
+            Customer complaints with attached defect photos awaiting specialist verification or executive admin escalation.
           </p>
         </div>
 
@@ -100,6 +103,18 @@ export function ManualReviewQueue({ onInspectTicket }) {
       {/* Filter Tabs & Search Bar */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+          <button
+            onClick={() => setFilterType('inbox')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              filterType === 'inbox'
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <Inbox className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <span>Needs Review ({inboxCount})</span>
+          </button>
+
           <button
             onClick={() => setFilterType('blocked')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
@@ -137,18 +152,6 @@ export function ManualReviewQueue({ onInspectTicket }) {
           </button>
 
           <button
-            onClick={() => setFilterType('hallucination')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              filterType === 'hallucination'
-                ? 'bg-purple-50 text-purple-700 border border-purple-300 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            <AlertOctagon className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span>Citation Issues</span>
-          </button>
-
-          <button
             onClick={() => setFilterType('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
               filterType === 'all'
@@ -161,11 +164,11 @@ export function ManualReviewQueue({ onInspectTicket }) {
         </div>
 
         {/* Search */}
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search by ticket, user, product..."
+            placeholder="Search all tickets (e.g. TICK-..., Sarah)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
