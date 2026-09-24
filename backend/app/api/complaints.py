@@ -70,6 +70,9 @@ async def submit_complaint(
         primary_issue=validation_output.validated_primary_issue or complaint_data.complaint_title,
         secondary_issue=validation_output.validated_secondary_issue,
         product_or_service=complaint_data.product_or_service or genai_output.product_or_service,
+        product_image_url=complaint_data.product_image_url,
+        evidence_image_url=complaint_data.evidence_image_url,
+        customer_email=complaint_data.customer_email,
         final_priority=validation_output.calculated_priority,
         final_urgency=validation_output.calculated_urgency,
         final_sentiment=genai_output.sentiment,
@@ -227,6 +230,27 @@ async def recent_public_complaints(
     Provides a read-only list of recent complaints for the Customer Portal demo.
     """
     stmt = select(ComplaintTicket).order_by(ComplaintTicket.created_at.desc()).limit(10)
+    result = await async_db.execute(stmt)
+    tickets = result.scalars().all()
+    return [t.to_customer_dict() for t in tickets]
+
+@router.get("/by-customer/{identifier}")
+async def get_customer_complaints(
+    identifier: str,
+    async_db: AsyncSession = Depends(get_db)
+):
+    """
+    Returns all complaints for a specific customer by name or email.
+    """
+    stmt = (
+        select(ComplaintTicket)
+        .where(
+            (ComplaintTicket.customer_name == identifier) | 
+            (ComplaintTicket.customer_email == identifier)
+        )
+        .order_by(ComplaintTicket.created_at.desc())
+        .limit(50)
+    )
     result = await async_db.execute(stmt)
     tickets = result.scalars().all()
     return [t.to_customer_dict() for t in tickets]

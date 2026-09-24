@@ -10,7 +10,10 @@ import {
   FileX, 
   AlertOctagon,
   RefreshCw,
-  Lock
+  Lock,
+  Package,
+  Camera,
+  ArrowUpRight
 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { fetchTickets } from '../services/api';
@@ -18,7 +21,7 @@ import { fetchTickets } from '../services/api';
 export function ManualReviewQueue({ onInspectTicket }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterType, setFilterType] = useState('blocked'); // 'blocked', 'p1', 'hallucination', 'all'
+  const [filterType, setFilterType] = useState('blocked'); // 'blocked', 'escalated', 'p1', 'hallucination', 'all'
   const [search, setSearch] = useState('');
 
   const loadQueue = async () => {
@@ -41,14 +44,19 @@ export function ManualReviewQueue({ onInspectTicket }) {
   const filteredTickets = tickets.filter((t) => {
     if (search) {
       const s = search.toLowerCase();
-      const match = t.customer_name.toLowerCase().includes(s) ||
-                    t.complaint_title.toLowerCase().includes(s) ||
-                    t.complaint_id.toLowerCase().includes(s);
+      const match = (t.customer_name && t.customer_name.toLowerCase().includes(s)) ||
+                    (t.customer_email && t.customer_email.toLowerCase().includes(s)) ||
+                    (t.complaint_title && t.complaint_title.toLowerCase().includes(s)) ||
+                    (t.complaint_id && t.complaint_id.toLowerCase().includes(s)) ||
+                    (t.product_name && t.product_name.toLowerCase().includes(s));
       if (!match) return false;
     }
 
     if (filterType === 'blocked') {
       return t.is_automated_dispatch_blocked;
+    }
+    if (filterType === 'escalated') {
+      return t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6';
     }
     if (filterType === 'p1') {
       return t.final_priority === 'P1';
@@ -59,6 +67,10 @@ export function ManualReviewQueue({ onInspectTicket }) {
     return true; // 'all'
   });
 
+  const blockedCount = tickets.filter(t => t.is_automated_dispatch_blocked).length;
+  const escalatedCount = tickets.filter(t => t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6').length;
+  const p1Count = tickets.filter(t => t.final_priority === 'P1').length;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header */}
@@ -66,13 +78,13 @@ export function ManualReviewQueue({ onInspectTicket }) {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800 text-xs font-mono font-semibold uppercase tracking-wider mb-2">
             <ShieldAlert className="w-3.5 h-3.5" />
-            Governance Exception Queue
+            Specialist Review & Triage Cockpit
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Manual Review & Escalation Queue
           </h1>
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-            Complaints held by Pipeline 2 due to safety keywords, prohibited compensation, hallucinated policies, or tone decoupling overrides.
+            Incoming customer complaints with physical defect evidence, quarantined by Pipeline 2 for supervisor review or admin escalation.
           </p>
         </div>
 
@@ -97,7 +109,19 @@ export function ManualReviewQueue({ onInspectTicket }) {
             }`}
           >
             <Lock className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-            <span>Dispatch Blocked ({tickets.filter(t => t.is_automated_dispatch_blocked).length})</span>
+            <span>Quarantined ({blockedCount})</span>
+          </button>
+
+          <button
+            onClick={() => setFilterType('escalated')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              filterType === 'escalated'
+                ? 'bg-purple-50 text-purple-700 border border-purple-300 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <ArrowUpRight className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span>Escalated to Admin ({escalatedCount})</span>
           </button>
 
           <button
@@ -109,7 +133,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
             }`}
           >
             <Flame className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            <span>P1 Critical ({tickets.filter(t => t.final_priority === 'P1').length})</span>
+            <span>P1 Critical ({p1Count})</span>
           </button>
 
           <button
@@ -141,7 +165,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search queue..."
+            placeholder="Search by ticket, user, product..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
@@ -157,6 +181,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-mono uppercase text-[10px] bg-slate-50 dark:bg-slate-800/40">
                 <th className="py-3 px-4">Ticket ID</th>
                 <th className="py-3 px-4">Customer & Tier</th>
+                <th className="py-3 px-4">Item & Evidence</th>
                 <th className="py-3 px-4">Complaint Title</th>
                 <th className="py-3 px-4">Priority & SLA</th>
                 <th className="py-3 px-4">Department</th>
@@ -167,14 +192,14 @@ export function ManualReviewQueue({ onInspectTicket }) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     <span className="font-mono text-xs">Scanning exception queue...</span>
                   </td>
                 </tr>
               ) : filteredTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500 dark:text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-500 dark:text-slate-400">
                     <ShieldAlert className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No tickets matching filter.</p>
                     <p className="text-xs text-slate-500 mt-1">All tickets in this category have been verified or resolved.</p>
@@ -188,7 +213,37 @@ export function ManualReviewQueue({ onInspectTicket }) {
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <div className="font-semibold text-slate-900 dark:text-white">{t.customer_name}</div>
-                      <div className="text-[11px] text-indigo-600 dark:text-indigo-400 font-mono">{t.customer_tier} Tier</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[150px]">
+                        {t.customer_email || `${t.customer_tier || 'Standard'} Tier`}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        {t.product_image_url ? (
+                          <img 
+                            src={t.product_image_url} 
+                            alt={t.product_name || 'Product'} 
+                            className="w-8 h-8 rounded-lg object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                            <Package className="w-4 h-4 text-slate-400" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
+                            {t.product_name || 'NovaStore Item'}
+                          </div>
+                          {t.evidence_image_url ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                              <Camera className="w-3 h-3" />
+                              Evidence
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400">No Photo</span>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3.5 px-4 max-w-xs truncate text-slate-700 dark:text-slate-300 font-sans">
                       {t.complaint_title}
@@ -205,9 +260,9 @@ export function ManualReviewQueue({ onInspectTicket }) {
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <button
                         onClick={() => onInspectTicket(t.complaint_id)}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs hover:border-indigo-300"
                       >
-                        <span>Inspect Diff</span>
+                        <span>Inspect & Take Action</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </td>

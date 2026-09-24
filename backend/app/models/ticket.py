@@ -12,8 +12,12 @@ class ComplaintTicket(Base):
     channel = Column(String(50), nullable=False, default="Web Form")  # Web Form, Email, Chat, Upload
     complaint_title = Column(String(250), nullable=False)
     complaint_description = Column(Text, nullable=False)
+    product_or_service = Column(String(150), nullable=True)
+    product_image_url = Column(Text, nullable=True)
+    evidence_image_url = Column(Text, nullable=True)
     order_reference = Column(String(100), nullable=True)
     transaction_date = Column(String(50), nullable=True)
+    customer_email = Column(String(150), nullable=True)
     previous_complaints_count = Column(Integer, default=0)
     
     # Dual-Pipeline Outputs (JSON)
@@ -118,14 +122,26 @@ class ComplaintTicket(Base):
         """Safe customer-facing view excluding internal diff scores and validation engine logs."""
         genai = self.genai_output
         customer_msg = genai.get("professional_response") or "Your complaint has been logged and is undergoing review."
+        if self.human_reviewer_notes and self.human_reviewer_action in ["Approved", "Admin Approved", "Overridden"]:
+            customer_msg = f"{customer_msg}\n\n[Official Resolution Update]: {self.human_reviewer_notes}"
         return {
             "complaint_id": self.complaint_id,
             "complaint_title": self.complaint_title,
+            "complaint_description": self.complaint_description,
+            "product_or_service": self.product_or_service,
+            "product_image_url": self.product_image_url,
+            "evidence_image_url": self.evidence_image_url,
+            "order_reference": self.order_reference,
+            "customer_name": self.customer_name,
+            "customer_email": self.customer_email,
             "status": self.status,
             "assigned_department": self.primary_department or self.assigned_department or "Customer Relations",
             "primary_issue": self.primary_issue or self.complaint_title,
             "secondary_issue": self.secondary_issue,
             "escalation_level": self.escalation_level,
+            "human_reviewer_action": self.human_reviewer_action,
+            "human_reviewer_notes": self.human_reviewer_notes,
+            "is_automated_dispatch_blocked": self.is_automated_dispatch_blocked,
             "submitted_date": self.created_at.strftime("%Y-%m-%d %H:%M UTC") if self.created_at else None,
             "latest_update": self.updated_at.strftime("%Y-%m-%d %H:%M UTC") if self.updated_at else None,
             "customer_response": customer_msg,

@@ -21,26 +21,33 @@ export function Navbar({
   activeTab, 
   setActiveTab, 
   blockedCount = 0,
-  activeRole = 'system_admin',
+  activeRole = 'customer',
   onRoleChange = () => {},
   onOpenGuide = () => {}
 }) {
-  const navItems = [
-    { id: 'workspace', label: 'Diff Inspector', icon: SplitSquareVertical },
-    { id: 'queue', label: 'Review Queue', icon: AlertCircle, badge: blockedCount },
-    { id: 'benchmark', label: '100-Case Audit', icon: FlaskConical, badge: 'SRS 8' },
-    { id: 'submit', label: 'Intake Portal', icon: Send },
-    { id: 'customer', label: 'NovaStore & Orders', icon: ShoppingBag },
-    { id: 'analytics', label: 'Executive Dashboard', icon: BarChart3 },
-    { id: 'policies', label: 'Policy Registry', icon: FileText },
-    { id: 'rules', label: 'Rule Matrix', icon: Database },
+  const allNavItems = [
+    // Customer Experience
+    { id: 'customer', label: 'NovaStore & My Orders', icon: ShoppingBag, roles: ['customer'] },
+    { id: 'submit', label: 'Direct Intake Form', icon: Send, roles: ['customer', 'system_admin'] },
+
+    // Support Agent / Specialist Reviewer
+    { id: 'queue', label: activeRole === 'system_admin' ? 'Escalations Queue' : 'Review Inbox', icon: AlertCircle, badge: blockedCount, roles: ['support_agent', 'reviewer', 'support_manager', 'system_admin'] },
+    { id: 'workspace', label: 'Dual-Pipeline Inspector', icon: SplitSquareVertical, roles: ['support_agent', 'reviewer', 'support_manager', 'system_admin'] },
+
+    // System Admin Executive Controls
+    { id: 'analytics', label: 'Executive Analytics', icon: BarChart3, roles: ['system_admin'] },
+    { id: 'benchmark', label: '100-Case Benchmark', icon: FlaskConical, badge: 'SRS 8', roles: ['system_admin'] },
+    { id: 'policies', label: 'Policy Registry', icon: FileText, roles: ['system_admin'] },
+    { id: 'rules', label: 'Rule Matrix', icon: Database, roles: ['system_admin'] },
   ];
+
+  const navItems = allNavItems.filter(item => item.roles.includes(activeRole));
 
   const roleStyles = {
     system_admin: 'text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-300 dark:bg-purple-950/50 dark:border-purple-800',
+    support_agent: 'text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-300 dark:bg-blue-950/50 dark:border-blue-800',
+    reviewer: 'text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-300 dark:bg-blue-950/50 dark:border-blue-800',
     support_manager: 'text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-300 dark:bg-blue-950/50 dark:border-blue-800',
-    reviewer: 'text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-800',
-    support_agent: 'text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-800',
     customer: 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950/50 dark:border-emerald-800'
   };
 
@@ -123,11 +130,9 @@ export function Navbar({
                 }`}
                 title="Switch persona to test Role-Based Access Control"
               >
-                <option value="system_admin">Role: System Admin</option>
-                <option value="support_manager">Role: Support Manager</option>
-                <option value="reviewer">Role: Reviewer / QA</option>
-                <option value="support_agent">Role: Support Agent</option>
-                <option value="customer">Role: Customer (Public)</option>
+                <option value="customer">👤 Role: Customer (NovaStore)</option>
+                <option value="support_agent">🎧 Role: Support Specialist</option>
+                <option value="system_admin">🛡️ Role: System Admin</option>
               </select>
             </div>
 

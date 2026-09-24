@@ -26,709 +26,1104 @@ import {
   X,
   Sparkles,
   ChevronRight,
-  Check
+  Check,
+  User,
+  Users,
+  Camera,
+  Image as ImageIcon,
+  Key,
+  Mail,
+  Shield,
+  Upload,
+  RefreshCw,
+  Eye,
+  Info
 } from 'lucide-react';
-import { trackComplaint, fetchRecentPublicComplaints, submitComplaint } from '../services/api';
+import { trackComplaint, fetchRecentPublicComplaints, submitComplaint, fetchCustomerComplaints } from '../services/api';
 import { StatusBadge } from '../components/StatusBadge';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { toast } from 'sonner';
 
-// Real Consumer Electronics & Computing Store Inventory for NovaTech
-const MOCK_ORDERS = [
+// -------------------------------------------------------------
+// 8 PRE-SEEDED REALISTIC CUSTOMER ACCOUNTS (WITH CREDENTIALS)
+// -------------------------------------------------------------
+export const PRE_SEEDED_CUSTOMERS = [
   {
-    orderId: 'NVT-77401',
-    productName: 'NovaBook Pro 16" Gaming & Workstation',
-    category: 'High-Performance Computing',
-    specs: 'Intel Core i9 14900HX • RTX 4080 16GB • 32GB DDR5 • 1TB NVMe',
-    price: '$2,499.00',
-    date: '2026-03-21 (2 days ago)',
-    status: 'Delivered',
-    deliveryNote: 'Delivered via Express Courier. Signature verified.',
-    icon: Laptop,
-    customerName: 'Dr. Eleanor Vance',
-    customerTier: 'VIP',
-    sampleIssues: [
-      {
-        title: 'Screen Flickering on Battery Power',
-        desc: 'The OLED panel displays severe horizontal artifacting and flickers whenever unplugged from AC power.',
-        resolution: 'Replacement Unit (Warranty)'
-      },
-      {
-        title: 'Overheating & Thermal Throttling',
-        desc: 'Fans spinning at 100% idle and CPU reaching 98C during standard office tasks.',
-        resolution: 'Technical Support / Inspection'
-      }
-    ]
+    id: 'cust-1',
+    name: 'Sarah Jenkins',
+    email: 'sarah.jenkins@novastore.com',
+    password: 'Customer123!',
+    tier: 'VIP',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    headline: 'Audio Enthusiast & VIP Member',
+    joined: 'Jan 2025'
   },
   {
-    orderId: 'SRV-BAT-8841',
-    productName: 'NovaPower Smart Battery Backup Pack B-90',
-    category: 'Industrial & Server Power Systems',
-    specs: '9000mAh Solid-State Lithium • Chem-Safe Casing • Dual 100W PD',
+    id: 'cust-2',
+    name: 'David Miller',
+    email: 'david.miller@novastore.com',
+    password: 'Customer123!',
+    tier: 'Standard',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    headline: 'Software Engineer',
+    joined: 'Mar 2025'
+  },
+  {
+    id: 'cust-3',
+    name: 'Dr. Elena Rostova',
+    email: 'elena.rostova@novastore.com',
+    password: 'Customer123!',
+    tier: 'VIP',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    headline: 'Lead Lab Director @ ChemTech',
+    joined: 'Nov 2024'
+  },
+  {
+    id: 'cust-4',
+    name: 'Alex Chen',
+    email: 'alex.chen@novastore.com',
+    password: 'Customer123!',
+    tier: 'Standard',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    headline: 'Creative Designer & Photographer',
+    joined: 'Feb 2025'
+  },
+  {
+    id: 'cust-5',
+    name: 'Priya Patel',
+    email: 'priya.patel@novastore.com',
+    password: 'Customer123!',
+    tier: 'Standard',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    headline: 'Data Scientist',
+    joined: 'Apr 2025'
+  },
+  {
+    id: 'cust-6',
+    name: 'Marcus Vance',
+    email: 'marcus.vance@novastore.com',
+    password: 'Customer123!',
+    tier: 'Standard',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    headline: 'Logistics Supervisor',
+    joined: 'Dec 2024'
+  },
+  {
+    id: 'cust-7',
+    name: 'Olivia Taylor',
+    email: 'olivia.taylor@novastore.com',
+    password: 'Customer123!',
+    tier: 'VIP',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    headline: 'Marathon Runner & Athlete',
+    joined: 'Jan 2025'
+  },
+  {
+    id: 'cust-8',
+    name: 'Hassan Raza',
+    email: 'hassan.raza@novastore.com',
+    password: 'Customer123!',
+    tier: 'Standard',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    headline: 'Financial Analyst',
+    joined: 'Feb 2025'
+  }
+];
+
+// -------------------------------------------------------------
+// REAL TECH STORE CATALOG (NOVASTORE)
+// -------------------------------------------------------------
+export const STORE_CATALOG = [
+  {
+    id: 'PROD-001',
+    name: 'Sony WH-1000XM5 Wireless Noise-Cancelling Headphones',
+    category: 'Audio',
+    price: '$399.00',
+    image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80',
+    specs: 'Industry-leading ANC • 30hr Battery • Speak-to-Chat • Multipoint Bluetooth',
+    inStock: true,
+    rating: 4.8
+  },
+  {
+    id: 'PROD-002',
+    name: 'Apple MacBook Pro 14" M3 Pro (Space Black)',
+    category: 'Computers',
+    price: '$1,999.00',
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+    specs: '11-Core CPU • 14-Core GPU • 18GB Unified RAM • 512GB SSD • Liquid Retina XDR',
+    inStock: true,
+    rating: 4.9
+  },
+  {
+    id: 'PROD-003',
+    name: 'NovaPower Smart Battery Backup Pack B-90',
+    category: 'Power & Lab',
     price: '$650.00',
-    date: '2026-03-20 (3 days ago)',
-    status: 'Delivered',
-    deliveryNote: 'Delivered to On-Premise Chemical Laboratory Facility.',
-    icon: Zap,
-    customerName: 'Dr. Eleanor Vance',
-    customerTier: 'VIP',
-    isHazardCandidate: true,
-    sampleIssues: [
-      {
-        title: 'Critical: Emitting White Smoke & Sparks',
-        desc: 'Good afternoon team, just an FYI that the server battery pack we received started emitting white smoke and sparked near our chemical storage. No rush, please advise.',
-        resolution: 'Immediate Safety Escalation (Hazard)',
-        isHazard: true
-      },
-      {
-        title: 'Refuses to Hold Charge Beyond 20%',
-        desc: 'Device halts charging at 20% and throws firmware error code ERR-BAT-09.',
-        resolution: 'Replacement Unit'
-      }
-    ]
+    image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=600&auto=format&fit=crop&q=80',
+    specs: '9000mAh Solid-State Lithium • Chem-Safe Heat Shield • Dual 100W PD Output',
+    inStock: true,
+    rating: 4.5
   },
   {
-    orderId: 'NVT-44102',
-    productName: 'NovaPhone Ultra 5G (Titanium Gray)',
-    category: 'Mobile Devices & Telephony',
-    specs: '256GB Storage • Snapdragon 8 Gen 3 • 6.8" 120Hz AMOLED • 50MP Lens',
-    price: '$1,199.00',
-    date: '2026-03-18 (5 days ago)',
-    status: 'Delayed in Transit',
-    deliveryNote: 'Carrier Exception: Logistics hub sorting delay exceeding 4 business days.',
-    icon: Smartphone,
-    customerName: 'Marcus Vance',
-    customerTier: 'Standard',
-    sampleIssues: [
-      {
-        title: 'Delivery Delayed 4 Days - Courier Tracking Frozen',
-        desc: 'My order has been stuck at the regional sorting hub for 4 business days with zero courier updates. Promised delivery date was March 19.',
-        resolution: 'Expedited Delivery or Refund'
-      },
-      {
-        title: 'Urgent Address Change Request',
-        desc: 'I moved addresses while package was delayed and need courier routing updated.',
-        resolution: 'Customer Service Assistance'
-      }
-    ]
+    id: 'PROD-004',
+    name: 'Samsung Galaxy S24 Ultra 5G (Titanium Gray)',
+    category: 'Smartphones',
+    price: '$1,299.00',
+    image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600&auto=format&fit=crop&q=80',
+    specs: 'Snapdragon 8 Gen 3 • 200MP Quad Telephoto • S-Pen • 6.8" 120Hz Flat AMOLED',
+    inStock: true,
+    rating: 4.8
   },
   {
-    orderId: 'NVT-33109',
-    productName: 'SonicNova Studio Pro Wireless ANC Headphones',
-    category: 'Premium Audio & Wearables',
-    specs: 'Active Noise Cancellation • 40mm Beryllium Drivers • 40hr Battery',
-    price: '$349.00',
-    date: '2026-03-15 (1 week ago)',
-    status: 'Delivered',
-    deliveryNote: 'Package placed in secure parcel locker.',
-    icon: Headphones,
-    customerName: 'Marcus Vance',
-    customerTier: 'Standard',
-    sampleIssues: [
-      {
-        title: 'Audio Crackling & Bluetooth Disconnects',
-        desc: 'Left ear cup emits loud static buzzing and disconnects every 5 minutes from Windows laptop.',
-        resolution: 'Warranty Replacement'
-      },
-      {
-        title: 'Incorrect Billing / Double Charged',
-        desc: 'My credit card statement shows two identical charges of $349.00 for order NVT-33109.',
-        resolution: 'Refund of Duplicate Charge'
-      }
-    ]
+    id: 'PROD-005',
+    name: 'Dell UltraSharp 27" 4K OLED Monitor (U2723QE)',
+    category: 'Displays',
+    price: '$599.00',
+    image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80',
+    specs: '4K 3840x2160 IPS Black • 98% DCI-P3 • USB-C 90W Hub • Zero Dead Pixel Guarantee',
+    inStock: true,
+    rating: 4.7
   },
   {
-    orderId: 'NVT-11045',
-    productName: 'NovaVision 34" Curved 4K OLED UltraWide Monitor',
-    category: 'Displays & Peripherals',
-    specs: '3440x1440 QD-OLED • 175Hz 0.03ms • 99% DCI-P3 • USB-C 90W Hub',
-    price: '$899.00',
-    date: '2026-03-10 (2 weeks ago)',
-    status: 'Delivered',
-    deliveryNote: 'Signed by building concierge.',
-    icon: Monitor,
-    customerName: 'Dr. Eleanor Vance',
-    customerTier: 'VIP',
-    sampleIssues: [
-      {
-        title: 'Cluster of Dead Pixels Near Screen Center',
-        desc: 'Discovered a visible cluster of 5 stuck green subpixels in the center of the display during color grading.',
-        resolution: 'Panel Replacement Under Zero-Dead-Pixel Policy'
+    id: 'PROD-006',
+    name: 'Keychron Q1 Pro Wireless Custom Mechanical Keyboard',
+    category: 'Peripherals',
+    price: '$199.00',
+    image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+    specs: 'Full CNC Aluminum • QMK/VIA Programmable • Hot-Swappable • Double-Gasket',
+    inStock: true,
+    rating: 4.9
+  },
+  {
+    id: 'PROD-007',
+    name: 'Apple Watch Ultra 2 (Titanium / Ocean Band)',
+    category: 'Wearables',
+    price: '$799.00',
+    image: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600&auto=format&fit=crop&q=80',
+    specs: '49mm Titanium Case • Dual-Frequency GPS • 100m Water Resistant • S9 SiP',
+    inStock: true,
+    rating: 4.9
+  },
+  {
+    id: 'PROD-008',
+    name: 'Logitech MX Master 3S Ergonomic Wireless Mouse',
+    category: 'Peripherals',
+    price: '$99.00',
+    image: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80',
+    specs: '8K DPI Any-Surface Track • Quiet Clicks • MagSpeed Electromagnetic Scroll',
+    inStock: true,
+    rating: 4.8
+  },
+  {
+    id: 'PROD-009',
+    name: 'Dyson V15 Detect Absolute Cordless Vacuum',
+    category: 'Smart Home',
+    price: '$749.00',
+    image: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&auto=format&fit=crop&q=80',
+    specs: 'Laser Slim Fluffy • Piezo Sensor Particle Count • 60min Runtime • HEPA Filter',
+    inStock: true,
+    rating: 4.6
+  },
+  {
+    id: 'PROD-010',
+    name: 'Bose QuietComfort Ultra Wireless Earbuds',
+    category: 'Audio',
+    price: '$299.00',
+    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80',
+    specs: 'Spatial Audio • CustomTune Calibration • World-Class Noise Cancellation',
+    inStock: true,
+    rating: 4.7
+  }
+];
+
+// -------------------------------------------------------------
+// INITIAL PURCHASED ORDERS MAP BY CUSTOMER EMAIL
+// -------------------------------------------------------------
+const INITIAL_PURCHASES = {
+  'sarah.jenkins@novastore.com': [
+    {
+      orderId: 'ORD-SARA-9921',
+      productName: 'Sony WH-1000XM5 Wireless Noise-Cancelling Headphones',
+      productImage: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80',
+      price: '$399.00',
+      date: '2026-03-21 (4 days ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-SONY-884102',
+      deliveryNote: 'Delivered via DHL Express. Left at front door with signature verification.',
+      suggestedIssue: {
+        title: 'Severe Audio Buzzing & Right Hinge Fracture',
+        category: 'Hardware Defect & Warranty',
+        desc: 'I received these headphones 4 days ago. Right out of the box, the right ear cup emits high-pitch buzzing during ANC mode, and the headband hinge cracked when putting it on.',
+        evidenceImage: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Cracked Headband Hinge Photo'
       }
-    ]
+    }
+  ],
+  'david.miller@novastore.com': [
+    {
+      orderId: 'ORD-DAVI-7712',
+      productName: 'Apple MacBook Pro 14" M3 Pro (Space Black)',
+      productImage: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+      price: '$1,999.00',
+      date: '2026-03-22 (3 days ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-APPL-M3P-4401',
+      deliveryNote: 'Signed by building front desk.',
+      suggestedIssue: {
+        title: 'Battery Rapid Drain & Sudden Thermal Shutdown',
+        category: 'Technical Malfunction',
+        desc: 'Laptop shuts down abruptly after 30 minutes of light coding. Battery diagnostic reports error code 0x88F. Chassis becomes painfully hot to touch near MagSafe port.',
+        evidenceImage: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Thermal Diagnostic Error Screen'
+      }
+    }
+  ],
+  'elena.rostova@novastore.com': [
+    {
+      orderId: 'ORD-ELEN-8841',
+      productName: 'NovaPower Smart Battery Backup Pack B-90',
+      productImage: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=600&auto=format&fit=crop&q=80',
+      price: '$650.00',
+      date: '2026-03-20 (5 days ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-NVBAT-90022',
+      deliveryNote: 'Delivered to On-Premise Chemical Laboratory Storage facility.',
+      suggestedIssue: {
+        title: 'Critical Safety Hazard: Emitting White Smoke and Sparks',
+        category: 'Critical Safety Hazard (P1)',
+        desc: 'Good afternoon team. No rush, please advise... the server battery pack unit started emitting white smoke and sparked near our lab chemical storage. Need urgent hazardous protocol instructions.',
+        evidenceImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Scorched Terminal & Smoke Evidence'
+      }
+    }
+  ],
+  'alex.chen@novastore.com': [
+    {
+      orderId: 'ORD-ALEX-4412',
+      productName: 'Samsung Galaxy S24 Ultra 5G (Titanium Gray)',
+      productImage: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600&auto=format&fit=crop&q=80',
+      price: '$1,299.00',
+      date: '2026-03-19 (6 days ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-SAMS-S24U-7721',
+      deliveryNote: 'Delivered in damaged parcel box.',
+      suggestedIssue: {
+        title: 'Rear 200MP Camera Lens Shattered on Arrival',
+        category: 'Damaged in Shipping',
+        desc: 'The outer shipping box was visibly crushed upon courier drop-off. Upon unboxing, the primary 200MP camera lens glass is completely shattered into fragments.',
+        evidenceImage: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Cracked Camera Glass Photo'
+      }
+    }
+  ],
+  'priya.patel@novastore.com': [
+    {
+      orderId: 'ORD-PRIY-5531',
+      productName: 'Dell UltraSharp 27" 4K OLED Monitor (U2723QE)',
+      productImage: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&auto=format&fit=crop&q=80',
+      price: '$599.00',
+      date: '2026-03-18 (1 week ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-DELL-4K-1109',
+      deliveryNote: 'Delivered to corporate office reception.',
+      suggestedIssue: {
+        title: 'Bright Green Vertical Line of Dead Pixels',
+        category: 'Hardware Defect & Warranty',
+        desc: 'A permanent vertical line of bright green dead pixels spans from top to bottom across the center of the display. Requesting replacement under Zero Dead Pixel warranty.',
+        evidenceImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Vertical Dead Pixel Line Photo'
+      }
+    }
+  ],
+  'marcus.vance@novastore.com': [
+    {
+      orderId: 'ORD-MARC-6624',
+      productName: 'Keychron Q1 Pro Wireless Custom Mechanical Keyboard',
+      productImage: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+      price: '$199.00',
+      date: '2026-03-17 (1 week ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-KEYCH-Q1P-302',
+      deliveryNote: 'Placed in secure apartment mailbox.',
+      suggestedIssue: {
+        title: 'Bluetooth Drops Connection Every 2 Minutes',
+        category: 'Technical Connectivity',
+        desc: 'Wireless Bluetooth 5.1 connection disconnects constantly while typing. Tested on Windows, macOS, and Linux with same behavior. Cable mode works fine.',
+        evidenceImage: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Device Pairing Failure Screen'
+      }
+    }
+  ],
+  'olivia.taylor@novastore.com': [
+    {
+      orderId: 'ORD-OLIV-7789',
+      productName: 'Apple Watch Ultra 2 (Titanium / Ocean Band)',
+      productImage: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600&auto=format&fit=crop&q=80',
+      price: '$799.00',
+      date: '2026-03-15 (10 days ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-APPL-WUT-9904',
+      deliveryNote: 'Signed by recipient.',
+      suggestedIssue: {
+        title: 'Touchscreen Unresponsive After Swimming (Water Sensor Glitch)',
+        category: 'Hardware Defect & Warranty',
+        desc: 'Advertised as 100m water resistant. After a standard 30-minute pool swim, display is completely unresponsive to touch and moisture condensation is visible behind sensor glass.',
+        evidenceImage: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Moisture Ingress Sensor Evidence'
+      }
+    }
+  ],
+  'hassan.raza@novastore.com': [
+    {
+      orderId: 'ORD-HASS-8810',
+      productName: 'Logitech MX Master 3S Ergonomic Wireless Mouse',
+      productImage: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80',
+      price: '$99.00',
+      date: '2026-03-14 (11 days ago)',
+      status: 'Delivered',
+      serialNumber: 'SN-LOGI-MX3S-5501',
+      deliveryNote: 'Delivered via standard parcel post.',
+      suggestedIssue: {
+        title: 'MagSpeed Electromagnetic Scroll Wheel Jammed',
+        category: 'Hardware Defect',
+        desc: 'The metal scroll wheel mechanism is completely stuck in free-spin mode and ratchet mode does not engage. Grinding noise when attempting to scroll.',
+        evidenceImage: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80',
+        evidenceLabel: 'Mechanical Jammed Wheel Inspection'
+      }
+    }
+  ]
+};
+
+// -------------------------------------------------------------
+// PRESET DEFECT EVIDENCE IMAGES LIBRARY
+// -------------------------------------------------------------
+const DEFECT_EVIDENCE_PRESETS = [
+  {
+    id: 'ev-1',
+    label: 'Cracked Glass / Shattered Screen',
+    url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'ev-2',
+    label: 'Broken Headband / Plastic Fracture',
+    url: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'ev-3',
+    label: 'Smoking Battery / Scorched Electronics',
+    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'ev-4',
+    label: 'Dead Pixels / Screen Display Glitch',
+    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'ev-5',
+    label: 'Water Damage & Moisture Ingress',
+    url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'ev-6',
+    label: 'Crushed Outer Parcel Box (Shipping Damage)',
+    url: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&auto=format&fit=crop&q=80'
   }
 ];
 
 export function CustomerPortal({ onInspectTicket }) {
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders' or 'track'
-  const [searchId, setSearchId] = useState('TC-ADV-001');
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [recentComplaints, setRecentComplaints] = useState([]);
-
+  // Active Customer profile state
+  const [activeCustomer, setActiveCustomer] = useState(PRE_SEEDED_CUSTOMERS[0]);
+  const [customerPurchases, setCustomerPurchases] = useState(INITIAL_PURCHASES);
+  
+  // Navigation tabs in Customer Portal: 'orders', 'tickets', 'store'
+  const [activeSubTab, setActiveSubTab] = useState('orders');
+  
+  // User's filed tickets list
+  const [myTickets, setMyTickets] = useState([]);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+  
   // Modal / Filing state
   const [filingModalOpen, setFilingModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [customTitle, setCustomTitle] = useState('');
-  const [customDesc, setCustomDesc] = useState('');
-  const [desiredResolution, setDesiredResolution] = useState('Replacement Unit');
+  const [complaintTitle, setComplaintTitle] = useState('');
+  const [complaintCategory, setComplaintCategory] = useState('Hardware Defect & Warranty');
+  const [complaintDesc, setComplaintDesc] = useState('');
+  const [evidenceImageUrl, setEvidenceImageUrl] = useState('');
   const [filingSubmitting, setFilingSubmitting] = useState(false);
   const [submittedTicketId, setSubmittedTicketId] = useState('');
 
-  useEffect(() => {
-    async function loadRecent() {
-      try {
-        const list = await fetchRecentPublicComplaints();
-        setRecentComplaints(list || []);
-      } catch (err) {
-        console.error('Failed to load recent complaints:', err);
-      }
-    }
-    loadRecent();
-  }, []);
-
-  async function handleSearch(idToSearch) {
-    const id = (idToSearch || searchId).trim();
-    if (!id) return;
-    setLoading(true);
-    setError('');
+  // Load customer complaints whenever active customer changes or after submission
+  const loadMyTickets = async () => {
+    setTicketsLoading(true);
     try {
-      const data = await trackComplaint(id);
-      setTicket(data);
-      setActiveTab('track');
+      const tickets = await fetchCustomerComplaints(activeCustomer.email);
+      setMyTickets(tickets || []);
     } catch (err) {
-      setError(err.message || 'Unable to locate complaint with this reference ID.');
-      setTicket(null);
+      console.error('Failed to load customer tickets:', err);
     } finally {
-      setLoading(false);
+      setTicketsLoading(false);
     }
-  }
+  };
 
-  const handleOpenFilingModal = (order, presetIssue = null) => {
+  useEffect(() => {
+    loadMyTickets();
+  }, [activeCustomer]);
+
+  // Handle switching customer profile
+  const handleSelectCustomer = (customer) => {
+    setActiveCustomer(customer);
+    setSubmittedTicketId('');
+    toast.info(`Switched profile to: ${customer.name}`, {
+      description: `Viewing orders for ${customer.email} (${customer.tier} Tier)`
+    });
+  };
+
+  // Open modal pre-populated with order details
+  const handleOpenFilingModal = (order) => {
     setSelectedOrder(order);
-    if (presetIssue) {
-      setCustomTitle(presetIssue.title);
-      setCustomDesc(presetIssue.desc);
-      setDesiredResolution(presetIssue.resolution);
+    if (order.suggestedIssue) {
+      setComplaintTitle(order.suggestedIssue.title);
+      setComplaintCategory(order.suggestedIssue.category);
+      setComplaintDesc(order.suggestedIssue.desc);
+      setEvidenceImageUrl(order.suggestedIssue.evidenceImage);
     } else {
-      setCustomTitle(`Issue with ${order.productName}`);
-      setCustomDesc('');
-      setDesiredResolution('Replacement Unit');
+      setComplaintTitle(`Defect reported on ${order.productName}`);
+      setComplaintCategory('Hardware Defect & Warranty');
+      setComplaintDesc('');
+      setEvidenceImageUrl(DEFECT_EVIDENCE_PRESETS[0].url);
     }
     setFilingModalOpen(true);
   };
 
+  // Submit complaint
   const handleFilingSubmit = async (e) => {
     e.preventDefault();
-    if (!customTitle || !customDesc) {
-      alert('Please enter both an issue title and description.');
+    if (!complaintTitle || !complaintDesc) {
+      toast.error('Please enter both issue title and detailed description');
       return;
     }
     setFilingSubmitting(true);
     try {
       const payload = {
-        customer_name: selectedOrder.customerName,
-        customer_tier: selectedOrder.customerTier,
+        customer_name: activeCustomer.name,
+        customer_email: activeCustomer.email,
+        customer_tier: activeCustomer.tier,
         channel: 'Web Form',
+        complaint_title: complaintTitle,
+        complaint_description: complaintDesc,
         product_or_service: selectedOrder.productName,
+        product_image_url: selectedOrder.productImage,
+        evidence_image_url: evidenceImageUrl || selectedOrder.productImage,
         order_reference: selectedOrder.orderId,
-        transaction_date: '2026-03-20',
-        previous_complaints_count: 1,
-        complaint_title: customTitle,
-        complaint_description: customDesc
+        transaction_date: selectedOrder.date.split(' ')[0],
+        previous_complaints_count: 0
       };
 
       const result = await submitComplaint(payload);
       setSubmittedTicketId(result.complaint_id);
       setFilingModalOpen(false);
-      handleSearch(result.complaint_id);
+      toast.success(`Complaint #${result.complaint_id} Submitted!`, {
+        description: 'SupportNova Dual-Pipeline is now analyzing your complaint with active warranty policies.'
+      });
+      // Refresh user's tickets and switch to tickets tab
+      await loadMyTickets();
+      setActiveSubTab('tickets');
     } catch (err) {
-      alert(`Submission failed: ${err.message}`);
+      toast.error('Submission failed', { description: err.message });
     } finally {
       setFilingSubmitting(false);
     }
   };
 
+  // Demo "Buy Product" action that adds item to customer's purchased orders
+  const handleBuyProduct = (product) => {
+    const newOrder = {
+      orderId: `ORD-${activeCustomer.name.substring(0, 4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      productName: product.name,
+      productImage: product.image,
+      price: product.price,
+      date: '2026-03-24 (Just now)',
+      status: 'Delivered',
+      serialNumber: `SN-${Math.floor(100000 + Math.random() * 900000)}`,
+      deliveryNote: 'Express delivery confirmed. Order added to your active account.',
+      suggestedIssue: {
+        title: `Issue reported with ${product.name}`,
+        category: 'Hardware Defect & Warranty',
+        desc: `Product malfunction discovered after opening package. Needs technical inspection.`,
+        evidenceImage: product.image,
+        evidenceLabel: 'Product Receipt & Item Photo'
+      }
+    };
+
+    setCustomerPurchases(prev => ({
+      ...prev,
+      [activeCustomer.email]: [newOrder, ...(prev[activeCustomer.email] || [])]
+    }));
+
+    toast.success(`Order Placed: ${product.name}`, {
+      description: `Added to ${activeCustomer.name}'s verified purchases. You can now file a complaint on it!`
+    });
+    setActiveSubTab('orders');
+  };
+
+  const currentOrders = customerPurchases[activeCustomer.email] || [];
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16 px-4 sm:px-6 pt-4">
+    <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6 pt-4">
       
-      {/* Enterprise Store & Customer Experience Header */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 flex-shrink-0">
-            <ShoppingBag className="w-6 h-6" />
-          </div>
+      {/* -------------------------------------------------------- */}
+      {/* 1. TOP CUSTOMER IDENTITY & QUICK-SWITCHER BAR             */}
+      {/* -------------------------------------------------------- */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl border border-indigo-900/60 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <img 
+            src={activeCustomer.avatar} 
+            alt={activeCustomer.name} 
+            className="w-14 h-14 rounded-full border-2 border-indigo-400 object-cover shadow-md"
+          />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                NovaTech Global
+              <h2 className="text-lg font-bold tracking-tight text-white">{activeCustomer.name}</h2>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+                activeCustomer.tier === 'VIP' ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-slate-700 text-slate-200'
+              }`}>
+                {activeCustomer.tier} Member
               </span>
-              <span className="text-slate-400">•</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Customer Support & Resolutions</span>
             </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white mt-0.5">
-              Customer Account & Order Portal
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Select an item from your verified order history below to file a formal complaint, or track an existing resolution ticket.
-            </p>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-indigo-200/80 mt-1 font-mono">
+              <span className="flex items-center gap-1">
+                <Mail className="w-3.5 h-3.5 text-indigo-400" />
+                {activeCustomer.email}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <Key className="w-3.5 h-3.5 text-amber-400" />
+                Password: <strong className="text-white">{activeCustomer.password}</strong>
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700/60 self-start md:self-auto">
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-              activeTab === 'orders'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-            }`}
+        {/* 1-Click Quick Customer Persona Switcher */}
+        <div className="flex items-center gap-2 self-start lg:self-auto bg-slate-800/80 p-2 rounded-xl border border-slate-700">
+          <Users className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+          <span className="text-xs font-semibold text-slate-300 whitespace-nowrap">Switch Customer:</span>
+          <select
+            value={activeCustomer.email}
+            onChange={(e) => {
+              const found = PRE_SEEDED_CUSTOMERS.find(c => c.email === e.target.value);
+              if (found) handleSelectCustomer(found);
+            }}
+            className="text-xs font-medium bg-slate-900 text-white rounded-lg px-2.5 py-1.5 border border-slate-600 focus:outline-none focus:border-indigo-400 cursor-pointer"
           >
-            <Package className="w-4 h-4" />
-            <span>My Orders ({MOCK_ORDERS.length})</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('track')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-              activeTab === 'track'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span>Track Resolution</span>
-          </button>
+            {PRE_SEEDED_CUSTOMERS.map(c => (
+              <option key={c.id} value={c.email}>
+                {c.name} ({c.tier}) — {c.email}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Success Notification Banner after filing */}
-      {submittedTicketId && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+      {/* -------------------------------------------------------- */}
+      {/* 2. THREE CLEAN ACTION TABS (Store, Orders, Tickets)      */}
+      {/* -------------------------------------------------------- */}
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveSubTab('orders')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeSubTab === 'orders'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>My Purchased Orders ({currentOrders.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('tickets')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
+              activeSubTab === 'tickets'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>My Support Tickets & Live Replies</span>
+            {myTickets.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-amber-500 text-white">
+                {myTickets.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('store')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeSubTab === 'store'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>NovaStore Catalog ({STORE_CATALOG.length} Products)</span>
+          </button>
+        </div>
+
+        <button
+          onClick={loadMyTickets}
+          className="text-xs font-semibold text-slate-500 hover:text-indigo-600 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 cursor-pointer"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh Updates</span>
+        </button>
+      </div>
+
+      {/* -------------------------------------------------------- */}
+      {/* TAB 1: MY PURCHASED ORDERS & 1-CLICK COMPLAINT FILING     */}
+      {/* -------------------------------------------------------- */}
+      {activeSubTab === 'orders' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
             <div>
-              <strong>Complaint Successfully Lodged:</strong> Ticket reference{' '}
-              <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-white dark:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-700">
-                {submittedTicketId}
-              </span>{' '}
-              is now processed by SupportNova's Dual-Pipeline Engine.
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Verified Purchases for {activeCustomer.name}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Found a defective product? Click <strong>"Report Problem & Upload Evidence"</strong> on any item to submit a complaint.
+              </p>
             </div>
+            <span className="text-xs font-mono text-indigo-600 dark:text-indigo-400">
+              {currentOrders.length} Order(s) Verified
+            </span>
           </div>
-          {onInspectTicket && (
-            <Button
-              variant="success"
-              size="sm"
-              onClick={() => onInspectTicket(submittedTicketId)}
-              className="gap-1.5 self-start sm:self-auto"
-            >
-              <span>Inspect in Diff Workspace</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {currentOrders.map((order, idx) => (
+              <div 
+                key={idx}
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 dark:hover:border-indigo-800 transition-all space-y-4"
+              >
+                <div className="flex items-start gap-4">
+                  <img 
+                    src={order.productImage} 
+                    alt={order.productName} 
+                    className="w-20 h-20 rounded-xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                  />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                        {order.orderId}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                        {order.status}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-2">
+                      {order.productName}
+                    </h4>
+                    <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {order.price}
+                    </div>
+                    <div className="text-[11px] font-mono text-slate-400">
+                      Serial: {order.serialNumber} • Purchased: {order.date}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-400">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Delivery Status: </span>
+                  {order.deliveryNote}
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span>Eligible for Warranty Claim</span>
+                  </div>
+                  <button
+                    onClick={() => handleOpenFilingModal(order)}
+                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>Report Issue / File Complaint</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* ======================================================== */}
-      {/* TAB A: MY ORDERS & PURCHASES (REAL COMMERCE SCENARIO)     */}
-      {/* ======================================================== */}
-      {activeTab === 'orders' && (
+      {/* -------------------------------------------------------- */}
+      {/* TAB 2: MY SUPPORT TICKETS & REAL-TIME RESOLUTION STATUS  */}
+      {/* -------------------------------------------------------- */}
+      {activeSubTab === 'tickets' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between px-1">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">Your Recent NovaTech Purchases</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Click "Report Issue / File Complaint" on any item to test SupportNova's AI & Python verification.</p>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Live Support Tickets for {activeCustomer.name}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Track how SupportNova's dual pipelines and support agents resolve your claims in real time.
+              </p>
             </div>
-            <span className="text-xs font-mono text-slate-500 hidden sm:block">Customer: Dr. Eleanor Vance (VIP)</span>
+            <span className="text-xs font-mono text-indigo-600 dark:text-indigo-400">
+              {myTickets.length} Registered Ticket(s)
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-3.5">
-            {MOCK_ORDERS.map((order) => {
-              const Icon = order.icon;
-              return (
+          {ticketsLoading ? (
+            <div className="p-12 text-center text-xs text-slate-500 font-mono">
+              Loading your live resolution tickets...
+            </div>
+          ) : myTickets.length === 0 ? (
+            <div className="p-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-center space-y-3">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">No Open Complaints</h4>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                You currently have no active complaints. Select any item from "My Purchased Orders" above and click "Report Problem" to test the tool!
+              </p>
+              <button
+                onClick={() => setActiveSubTab('orders')}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer"
+              >
+                View My Orders
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {myTickets.map((t) => (
                 <div 
-                  key={order.orderId}
-                  className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-slate-700 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs"
+                  key={t.complaint_id}
+                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4"
                 >
-                  {/* Left Product Info */}
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700/60 flex-shrink-0">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                          Order #{order.orderId}
+                  {/* Ticket Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                          {t.complaint_id}
                         </span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">{order.date}</span>
-                        <Badge variant={order.status === 'Delivered' ? 'success' : 'warning'}>
-                          {order.status}
-                        </Badge>
-                        {order.isHazardCandidate && (
-                          <Badge variant="destructive">
-                            Safety Test Case
-                          </Badge>
+                        <StatusBadge status={t.status} />
+                        {t.is_automated_dispatch_blocked ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300">
+                            ⏳ Under Human Specialist Review
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            ✨ AI Verified & Dispatched
+                          </span>
                         )}
                       </div>
-
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                        {order.productName}
-                      </h3>
-
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                        {order.specs}
-                      </p>
-
-                      <div className="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 pt-1">
-                        <span>Price: <strong className="text-slate-900 dark:text-slate-200">{order.price}</strong></span>
+                      <h4 className="text-base font-bold text-slate-900 dark:text-white mt-1">
+                        {t.complaint_title}
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-0.5 font-mono">
+                        <span>Product: <strong className="text-slate-800 dark:text-slate-200">{t.product_or_service || 'N/A'}</strong></span>
                         <span>•</span>
-                        <span>{order.deliveryNote}</span>
+                        <span>Dept: <strong className="text-slate-800 dark:text-slate-200">{t.assigned_department}</strong></span>
+                        <span>•</span>
+                        <span>SLA: <strong>{t.sla_target_hours || 24}h</strong></span>
                       </div>
                     </div>
+
+                    {onInspectTicket && (
+                      <button
+                        onClick={() => onInspectTicket(t.complaint_id)}
+                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 dark:text-indigo-300 dark:border-indigo-800 text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Inspect in Agent Diff View</span>
+                      </button>
+                    )}
                   </div>
 
-                  {/* Right Actions & Preset Issues */}
-                  <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-2.5 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800">
-                    <Button
-                      variant="default"
-                      onClick={() => handleOpenFilingModal(order)}
-                      className="gap-2 whitespace-nowrap"
-                    >
-                      <AlertCircle className="w-4 h-4" />
-                      <span>Report Issue / File Complaint</span>
-                    </Button>
+                  {/* Customer Narrative & Evidence Images */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-2 space-y-2">
+                      <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Your Complaint Description:</span>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        {t.complaint_description}
+                      </p>
+                    </div>
 
-                    {/* Quick Issue Chips */}
-                    <div className="flex flex-wrap gap-1.5 max-w-md lg:justify-end">
-                      {order.sampleIssues.map((issue, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleOpenFilingModal(order, issue)}
-                          className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors flex items-center gap-1 cursor-pointer ${
-                            issue.isHazard
-                              ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800 hover:bg-rose-100'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
-                          }`}
-                          title={`Quick file: "${issue.title}"`}
-                        >
-                          {issue.isHazard && <AlertTriangle className="w-3 h-3 text-rose-600 dark:text-rose-400" />}
-                          <span>{issue.title}</span>
-                          <ChevronRight className="w-3 h-3 opacity-60" />
-                        </button>
-                      ))}
+                    <div className="space-y-2">
+                      <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Attached Defect Evidence:</span>
+                      {t.evidence_image_url ? (
+                        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video relative group">
+                          <img 
+                            src={t.evidence_image_url} 
+                            alt="Defect Evidence" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] font-mono px-1.5 py-0.5 rounded">
+                            Verified Evidence
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-xl border border-dashed text-center text-xs text-slate-400">
+                          No evidence attached
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Official Response from AI / Support Team */}
+                  <div className="p-4 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                        <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                        Official Resolution Message for Customer:
+                      </span>
+                      <span className="text-[10px] font-mono uppercase bg-white dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-700 font-bold">
+                        {t.human_reviewer_action === 'Approved' ? 'Agent Approved' : (t.human_reviewer_action === 'Admin Approved' ? 'Admin Authorized' : 'Live Status')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans whitespace-pre-line italic">
+                      "{t.customer_response || 'Your complaint has been accepted into the queue and is being evaluated against policy rules.'}"
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* -------------------------------------------------------- */}
+      {/* TAB 3: NOVASTORE CATALOG (REAL COMMERCE BROWSING)         */}
+      {/* -------------------------------------------------------- */}
+      {activeSubTab === 'store' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                NovaStore Consumer Electronics & Computing
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Browse popular tech products. Click <strong>"Buy Demo Order"</strong> to add an item directly to your purchases so you can test reporting an issue!
+              </p>
+            </div>
+            <span className="text-xs font-mono text-slate-400">
+              Authorized Tech Retailer
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {STORE_CATALOG.map((prod) => (
+              <div 
+                key={prod.id}
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs hover:border-indigo-300 dark:hover:border-indigo-800 transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="aspect-video w-full overflow-hidden relative">
+                    <img 
+                      src={prod.image} 
+                      alt={prod.name} 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                    <span className="absolute top-2 left-2 bg-black/70 text-white font-mono text-[10px] px-2 py-0.5 rounded-md">
+                      {prod.category}
+                    </span>
+                    <span className="absolute top-2 right-2 bg-emerald-600 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      ⭐ {prod.rating}
+                    </span>
+                  </div>
+
+                  <div className="p-4 space-y-2">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">
+                      {prod.name}
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                      {prod.specs}
+                    </p>
+                    <div className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">
+                      {prod.price}
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
-      {/* ======================================================== */}
-      {/* TAB B: TRACK EXISTING RESOLUTION (LIFECYCLE TIMELINE)    */}
-      {/* ======================================================== */}
-      {activeTab === 'track' && (
-        <div className="space-y-6">
-          {/* Tracking Search Form */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="max-w-2xl mx-auto space-y-3">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block text-center">
-                Search Customer Complaint Reference ID
-              </label>
-              <form 
-                onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
-                className="relative flex items-center"
-              >
-                <Search className="absolute left-4 w-5 h-5 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchId}
-                  onChange={(e) => setSearchId(e.target.value)}
-                  placeholder="e.g. TC-ADV-001, TC-ADV-002, or your newly filed ticket"
-                  className="w-full pl-12 pr-28 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-mono text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors"
-                />
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="absolute right-1.5 h-8 px-4"
-                >
-                  {loading ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <span>Track</span>
-                  )}
-                </Button>
-              </form>
-
-              {/* Quick Select Chips */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1 text-xs text-slate-500 dark:text-slate-400">
-                <span className="text-[11px]">Quick Samples:</span>
-                {['TC-ADV-001', 'TC-ADV-002', 'TC-ADV-003', 'TC-ADV-004', 'TC-ADV-006'].map((id) => (
+                <div className="p-4 pt-0">
                   <button
-                    key={id}
-                    type="button"
-                    onClick={() => { setSearchId(id); handleSearch(id); }}
-                    className={`font-mono text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
-                      searchId === id
-                        ? 'bg-indigo-600 text-white border-indigo-600 font-bold'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50'
-                    }`}
+                    onClick={() => handleBuyProduct(prod)}
+                    className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                   >
-                    {id}
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>Buy Demo Order (Add to My Purchases)</span>
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Active Complaint Status Card */}
-          {ticket && (
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 animate-in fade-in">
-              {/* Header Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                      {ticket.complaint_id}
-                    </span>
-                    <StatusBadge status={ticket.status} />
-                  </div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                    {ticket.complaint_title}
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Product: <strong className="text-slate-800 dark:text-slate-200">{ticket.product_or_service || 'Consumer Electronics'}</strong>
-                    {ticket.order_reference && (
-                      <span> • Order: <strong className="text-slate-800 dark:text-slate-200 font-mono">{ticket.order_reference}</strong></span>
-                    )}
-                  </p>
-                </div>
-
-                <div className="text-left sm:text-right">
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Assigned Department</div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center sm:justify-end gap-1.5 mt-0.5">
-                    <Building2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    <span>{ticket.department || 'Customer Support'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4-Stage Lifecycle Progress Tracker */}
-              <div className="py-2">
-                <div className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3">Resolution Lifecycle Progress</div>
-                <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                  <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 space-y-1">
-                    <div className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center mx-auto">1</div>
-                    <div className="font-bold">Submitted</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Received</div>
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 space-y-1">
-                    <div className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center mx-auto">2</div>
-                    <div className="font-bold">Validated</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Rule checked</div>
-                  </div>
-
-                  <div className={`p-3 rounded-lg border space-y-1 ${
-                    ticket.status === 'In Review' || ticket.status === 'Manual Review Required'
-                      ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-300'
-                      : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
-                  }`}>
-                    <div className="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center mx-auto">3</div>
-                    <div className="font-bold">Supervisor Review</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Triage Active</div>
-                  </div>
-
-                  <div className={`p-3 rounded-lg border space-y-1 ${
-                    ticket.status === 'Resolved' || ticket.status === 'Closed'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
-                      : 'bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
-                  }`}>
-                    <div className="w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center mx-auto">4</div>
-                    <div className="font-bold">Dispatched</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Customer notified</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Official Customer-Facing Response */}
-              <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    Official Resolution Draft
-                  </span>
-                  <span className="text-[10px] font-mono text-slate-500">Customer Communication</span>
-                </div>
-                <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans bg-white dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-800 shadow-xs">
-                  {ticket.customer_facing_response || 'Our support operations are currently evaluating your complaint. An official communication will be delivered to your contact channel.'}
-                </p>
-              </div>
-
-              {/* Link to Inspect in Diff Workspace (For evaluators) */}
-              {onInspectTicket && (
-                <div className="pt-2 flex items-center justify-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onInspectTicket(ticket.complaint_id)}
-                    className="gap-1.5"
-                  >
-                    <span>Inspect AI vs. Python verification for this ticket on Agent Desk</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
 
-      {/* ======================================================== */}
-      {/* ISSUE FILING MODAL (PRE-FILLED FOR PRODUCT)               */}
-      {/* ======================================================== */}
+      {/* -------------------------------------------------------- */}
+      {/* 3. REPORT PROBLEM / FILE COMPLAINT MODAL (WITH EVIDENCE)   */}
+      {/* -------------------------------------------------------- */}
       {filingModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs animate-in fade-in">
-          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-                  <AlertCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">File Issue on Order #{selectedOrder.orderId}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{selectedOrder.productName}</p>
-                </div>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="font-mono text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                  Report a Defect or Issue
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+                  File Complaint: {selectedOrder.productName}
+                </h3>
               </div>
               <button 
                 onClick={() => setFilingModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleFilingSubmit} className="p-6 overflow-y-auto space-y-4 text-xs text-slate-700 dark:text-slate-300">
-              
-              {/* Product Metadata Bar */}
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                <div>
-                  <span className="text-slate-500 block">Customer:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedOrder.customerName}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block">Customer Tier:</span>
-                  <span className="font-semibold text-indigo-600 dark:text-indigo-400">{selectedOrder.customerTier}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block">Purchased Date:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedOrder.date}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block">Price:</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">{selectedOrder.price}</span>
-                </div>
-              </div>
-
-              {/* Issue Title Input */}
-              <div className="space-y-1.5">
-                <label className="font-semibold text-slate-900 dark:text-slate-200 block">
-                  Complaint / Issue Summary:
-                </label>
-                <input
-                  type="text"
-                  value={customTitle}
-                  onChange={(e) => setCustomTitle(e.target.value)}
-                  placeholder="e.g. Battery emitting white smoke and sparked"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-                  required
+            <form onSubmit={handleFilingSubmit} className="p-6 space-y-4">
+              {/* Product Info Summary */}
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                <img 
+                  src={selectedOrder.productImage} 
+                  alt={selectedOrder.productName} 
+                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                 />
+                <div className="text-xs">
+                  <div className="font-bold text-slate-900 dark:text-white">{selectedOrder.productName}</div>
+                  <div className="text-slate-500 font-mono text-[11px]">
+                    Order #{selectedOrder.orderId} • Customer: {activeCustomer.name} ({activeCustomer.email})
+                  </div>
+                </div>
               </div>
 
-              {/* Desired Resolution Preference */}
-              <div className="space-y-1.5">
-                <label className="font-semibold text-slate-900 dark:text-slate-200 block">
-                  Desired Resolution:
+              {/* Problem Category */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Issue Category
                 </label>
                 <select
-                  value={desiredResolution}
-                  onChange={(e) => setDesiredResolution(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  value={complaintCategory}
+                  onChange={(e) => setComplaintCategory(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="Replacement Unit">Replacement Unit (Manufacturer Warranty)</option>
-                  <option value="Return & Full Refund">Return & Full Refund</option>
-                  <option value="Technical Support / Repair">Technical Support / Repair Inspection</option>
-                  <option value="Immediate Safety Escalation (Hazard)">Immediate Safety Escalation (Hazard)</option>
-                  <option value="Expedited Courier Delivery">Expedited Courier Delivery</option>
+                  <option value="Hardware Defect & Warranty">Hardware Defect & Warranty Claim</option>
+                  <option value="Damaged in Shipping">Damaged in Shipping / Broken in Transit</option>
+                  <option value="Critical Safety Hazard (P1)">Critical Safety Hazard (Battery, Smoke, Sparks)</option>
+                  <option value="Technical Malfunction">Technical Malfunction / Software Crash</option>
+                  <option value="Billing & Duplicate Charge">Billing Dispute / Incorrect Charge</option>
+                  <option value="Logistics & Delivery Delay">Late Delivery / Courier Tracking Issue</option>
                 </select>
               </div>
 
-              {/* Detailed Description */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="font-semibold text-slate-900 dark:text-slate-200 block">
-                    Detailed Description of What Happened:
-                  </label>
-                  <span className="text-[10px] text-slate-500">Will be analyzed by Gemini & Python</span>
-                </div>
-                <textarea
-                  rows={4}
-                  value={customDesc}
-                  onChange={(e) => setCustomDesc(e.target.value)}
-                  placeholder="Describe what occurred, any hazards, or courier tracking behavior..."
-                  className="w-full p-3.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-500 font-sans"
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Complaint Summary Title
+                </label>
+                <input
+                  type="text"
+                  value={complaintTitle}
+                  onChange={(e) => setComplaintTitle(e.target.value)}
+                  placeholder="e.g. Right ear cup buzzing sound & hinge cracked"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
                   required
                 />
               </div>
 
-              {/* Footer Actions */}
-              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <span className="text-[11px] text-slate-500">
-                  Protected by SupportNova Zero-AI Ground-Truth Governance
-                </span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setFilingModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="default"
-                    disabled={filingSubmitting}
-                    className="gap-2"
-                  >
-                    {filingSubmitting ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Submit to SupportNova</span>
-                      </>
-                    )}
-                  </Button>
+              {/* Narrative */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Detailed Complaint Narrative
+                </label>
+                <textarea
+                  rows={4}
+                  value={complaintDesc}
+                  onChange={(e) => setComplaintDesc(e.target.value)}
+                  placeholder="Explain exactly what happened, when the defect occurred, and your requested resolution..."
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+
+              {/* Defect Evidence Image Selection */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span>Attach Defect Evidence Photo (Required for Warranty Verification)</span>
+                </label>
+
+                {/* Preset Defect Photos Chips */}
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {DEFECT_EVIDENCE_PRESETS.map((preset) => {
+                    const isSelected = evidenceImageUrl === preset.url;
+                    return (
+                      <div
+                        key={preset.id}
+                        onClick={() => setEvidenceImageUrl(preset.url)}
+                        className={`border rounded-xl p-1.5 cursor-pointer text-center space-y-1 transition-all ${
+                          isSelected
+                            ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/60 ring-2 ring-indigo-500'
+                            : 'border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                        }`}
+                      >
+                        <img 
+                          src={preset.url} 
+                          alt={preset.label} 
+                          className="w-full h-12 object-cover rounded-lg"
+                        />
+                        <div className="text-[9px] font-semibold text-slate-700 dark:text-slate-300 line-clamp-1">
+                          {preset.label}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Custom URL or uploaded image input */}
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="url"
+                    value={evidenceImageUrl}
+                    onChange={(e) => setEvidenceImageUrl(e.target.value)}
+                    placeholder="Or paste evidence photo URL..."
+                    className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs font-mono"
+                  />
+                  {evidenceImageUrl && (
+                    <img 
+                      src={evidenceImageUrl} 
+                      alt="Preview" 
+                      className="w-8 h-8 rounded-md object-cover border"
+                    />
+                  )}
                 </div>
               </div>
 
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setFilingModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={filingSubmitting}
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{filingSubmitting ? 'Analyzing with Dual Pipelines...' : 'Submit Official Complaint'}</span>
+                </button>
+              </div>
             </form>
-
           </div>
         </div>
       )}
@@ -736,3 +1131,5 @@ export function CustomerPortal({ onInspectTicket }) {
     </div>
   );
 }
+
+export default CustomerPortal;

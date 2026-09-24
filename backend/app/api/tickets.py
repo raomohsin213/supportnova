@@ -75,6 +75,11 @@ async def list_tickets(
             "assigned_department": t.assigned_department,
             "primary_department": t.primary_department or t.assigned_department,
             "supporting_departments": t.supporting_departments,
+            "product_or_service": t.product_or_service,
+            "product_image_url": t.product_image_url,
+            "evidence_image_url": t.evidence_image_url,
+            "customer_email": t.customer_email,
+            "order_reference": t.order_reference,
             "final_priority": t.final_priority,
             "final_urgency": t.final_urgency,
             "final_sentiment": t.final_sentiment,
@@ -89,6 +94,7 @@ async def list_tickets(
             "routing_score": t.routing_score,
             "overall_confidence_score": t.overall_confidence_score,
             "human_reviewer_action": t.human_reviewer_action,
+            "human_reviewer_notes": t.human_reviewer_notes,
             "created_at": t.created_at.isoformat() if t.created_at else None
         })
 
@@ -124,12 +130,15 @@ async def get_ticket_detail(
         "complaint_id": ticket.complaint_id,
         "customer_name": ticket.customer_name,
         "customer_tier": ticket.customer_tier,
+        "customer_email": ticket.customer_email,
         "channel": ticket.channel,
         "complaint_title": ticket.complaint_title,
         "complaint_description": ticket.complaint_description,
         "primary_issue": ticket.primary_issue or ticket.complaint_title,
         "secondary_issue": ticket.secondary_issue,
         "product_or_service": ticket.product_or_service,
+        "product_image_url": ticket.product_image_url,
+        "evidence_image_url": ticket.evidence_image_url,
         "order_reference": ticket.order_reference,
         "transaction_date": ticket.transaction_date,
         "previous_complaints_count": ticket.previous_complaints_count,
@@ -194,11 +203,11 @@ async def take_ticket_action(
     prev_status = ticket.status
     prev_action = ticket.human_reviewer_action
 
-    if payload.action == "Approve & Send Response":
+    if payload.action in ["Approve & Send Response", "Approve & Dispatch", "Approve & Send"]:
         ticket.is_automated_dispatch_blocked = False
         ticket.status = "Verified"
         ticket.human_reviewer_action = "Approved"
-        ticket.human_reviewer_notes = payload.notes or "Manually verified and approved by Support Supervisor."
+        ticket.human_reviewer_notes = payload.notes or "Manually verified and approved by Support Specialist."
         
     elif payload.action == "Override Classification":
         if payload.override_priority:
@@ -210,12 +219,20 @@ async def take_ticket_action(
         ticket.is_automated_dispatch_blocked = False
         ticket.human_reviewer_notes = payload.notes or "Classification overridden by agent supervisor."
 
-    elif payload.action == "Escalate to Tier 2 Manager":
+    elif payload.action in ["Escalate to Admin", "Escalate to Tier 2 Manager"]:
         ticket.final_priority = "P1"
-        ticket.status = "Manual Review Required"
+        ticket.status = "Escalated to Admin"
+        ticket.escalation_level = "Tier 6: Executive Incident Board"
         ticket.is_automated_dispatch_blocked = True
-        ticket.human_reviewer_action = "Escalated"
-        ticket.human_reviewer_notes = payload.notes or "Escalated to Tier 2 Executive Operations Manager."
+        ticket.human_reviewer_action = "Escalated to Admin"
+        ticket.human_reviewer_notes = payload.notes or "Escalated to System Admin for executive policy authorization."
+
+    elif payload.action in ["Admin Authorize & Dispatch", "Admin Override & Approve"]:
+        ticket.status = "Verified"
+        ticket.escalation_level = "Resolved by Admin"
+        ticket.human_reviewer_action = "Admin Approved"
+        ticket.is_automated_dispatch_blocked = False
+        ticket.human_reviewer_notes = payload.notes or "Executive authorization granted by System Admin."
 
     # Record audit log
     audit = AuditLog(

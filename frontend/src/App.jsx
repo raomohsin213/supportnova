@@ -13,10 +13,10 @@ import { Toaster } from 'sonner';
 import { fetchTickets } from './services/api';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('workspace');
+  const [activeTab, setActiveTab] = useState('customer');
   const [selectedTicketId, setSelectedTicketId] = useState('TC-ADV-001');
   const [blockedCount, setBlockedCount] = useState(0);
-  const [activeRole, setActiveRole] = useState('system_admin');
+  const [activeRole, setActiveRole] = useState('customer');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const refreshBadgeCount = async () => {
@@ -37,16 +37,18 @@ export default function App() {
   const handleTicketSubmitted = (newTicketId) => {
     setSelectedTicketId(newTicketId);
     refreshBadgeCount();
-    setActiveTab('workspace'); // Navigate straight to Diff Inspector!
+    setActiveTab('customer'); // Stay on customer view to see live ticket!
   };
 
   const handleInspectTicket = (ticketId) => {
     setSelectedTicketId(ticketId);
+    setActiveRole('support_agent');
     setActiveTab('workspace');
   };
 
   const handleSelectScenario = (scenarioId) => {
     setSelectedTicketId(scenarioId);
+    setActiveRole('support_agent');
     setActiveTab('workspace');
   };
 
@@ -65,9 +67,9 @@ export default function App() {
           setActiveRole(role);
           if (role === 'customer') {
             setActiveTab('customer');
-          } else if (role === 'reviewer') {
+          } else if (role === 'support_agent' || role === 'reviewer') {
             setActiveTab('queue');
-          } else if (role === 'support_agent') {
+          } else if (role === 'system_admin') {
             setActiveTab('workspace');
           }
         }}
@@ -88,6 +90,7 @@ export default function App() {
             selectedTicketId={selectedTicketId}
             onSelectTicket={(id) => setSelectedTicketId(id)}
             onOpenGuide={() => setIsGuideOpen(true)}
+            activeRole={activeRole}
           />
         )}
 

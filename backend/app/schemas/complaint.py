@@ -9,6 +9,8 @@ class ComplaintInput(BaseModel):
     complaint_title: str = Field(..., min_length=2, max_length=300, description="Summary title of the issue")
     complaint_description: str = Field(..., min_length=5, description="Full customer narrative")
     product_or_service: Optional[str] = Field(None, description="Product or service in dispute")
+    product_image_url: Optional[str] = Field(None, description="Image URL of the purchased product")
+    evidence_image_url: Optional[str] = Field(None, description="Evidence photo URL demonstrating the defect")
     order_reference: Optional[str] = Field(None, description="Order, shipment, or invoice reference ID")
     transaction_date: Optional[str] = Field(None, description="Date of the purchase or incident")
     customer_email: Optional[str] = Field(None, description="Customer email address for identification")

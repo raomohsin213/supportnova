@@ -164,6 +164,12 @@ export async function fetchRecentPublicComplaints() {
   return res.json();
 }
 
+export async function fetchCustomerComplaints(identifier) {
+  const res = await fetch(`${API_BASE}/complaints/by-customer/${encodeURIComponent(identifier)}`);
+  if (!res.ok) throw new Error('Failed to fetch customer complaints');
+  return res.json();
+}
+
 export async function loginUser(usernameOrEmail, password) {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',

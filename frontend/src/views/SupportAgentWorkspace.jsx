@@ -30,7 +30,9 @@ import {
   Info,
   CopyCheck,
   Repeat,
-  Layers
+  Layers,
+  Package,
+  Camera
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { StatusBadge, DiffPill, PriorityBadge } from '../components/StatusBadge';
@@ -98,7 +100,7 @@ const EVALUATOR_SCENARIOS = {
   }
 };
 
-export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpenGuide }) {
+export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpenGuide, activeRole = 'support_agent' }) {
   const [tickets, setTickets] = useState([]);
   const [currentId, setCurrentId] = useState(selectedTicketId || 'TC-ADV-001');
   const [ticketData, setTicketData] = useState(null);
@@ -513,45 +515,171 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
             </div>
           </div>
 
-          {/* Raw Customer Complaint Narrative Card */}
-          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                Raw Customer Input (&lt;complaint_text&gt; Isolation Boundary)
-              </span>
-              <span className="text-[11px] font-mono text-slate-400">Channel: {ticketData.channel}</span>
+          {/* Customer Case Narrative & Purchased Product/Defect Evidence Card */}
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Customer Case Narrative & Evidence
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                  Channel: {ticketData.channel}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500 font-mono">
+                {ticketData.customer_email && (
+                  <span className="text-slate-700 dark:text-slate-300 font-semibold">
+                    👤 {ticketData.customer_email}
+                  </span>
+                )}
+                {ticketData.order_id && (
+                  <span className="text-indigo-600 dark:text-indigo-400">
+                    📦 Order #{ticketData.order_id}
+                  </span>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans bg-slate-50 dark:bg-slate-950/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 select-text">
-              {ticketData.complaint_description}
-            </p>
+
+            {/* If product or evidence photo is present */}
+            {(ticketData.product_name || ticketData.product_image_url || ticketData.evidence_image_url) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
+                {/* Purchased Product Info */}
+                <div className="flex items-center gap-3">
+                  {ticketData.product_image_url ? (
+                    <img 
+                      src={ticketData.product_image_url} 
+                      alt={ticketData.product_name || 'Product'} 
+                      className="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-7 h-7 text-slate-400" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
+                      Purchased NovaStore Item
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {ticketData.product_name || 'NovaStore Verified Hardware'}
+                    </h4>
+                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
+                      Order ID: {ticketData.order_id || 'ORD-98421'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Evidence Image Preview */}
+                <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-800 pt-3 sm:pt-0 sm:pl-4">
+                  {ticketData.evidence_image_url ? (
+                    <div className="relative group">
+                      <img 
+                        src={ticketData.evidence_image_url} 
+                        alt="Defect Evidence" 
+                        className="w-16 h-16 rounded-xl object-cover border-2 border-rose-400 dark:border-rose-600 shadow-xs flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
+                        onClick={() => window.open(ticketData.evidence_image_url, '_blank')}
+                      />
+                      <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-rose-600 text-[9px] font-bold text-white shadow-xs">
+                        Photo
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-400">
+                      <Camera className="w-6 h-6" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-mono font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">
+                      Customer Defect Evidence
+                    </span>
+                    <p className="text-xs text-slate-700 dark:text-slate-300">
+                      {ticketData.evidence_image_url ? 'Physical Defect Photo Attached' : 'No photo uploaded'}
+                    </p>
+                    {ticketData.evidence_image_url && (
+                      <a 
+                        href={ticketData.evidence_image_url} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 mt-0.5"
+                      >
+                        <span>View Full Res Photo</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Escalation banner if escalated to admin */}
+            {ticketData.status === 'Escalated to Admin' && (
+              <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-800 flex items-start gap-3">
+                <ShieldAlert className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <div className="text-xs font-bold text-purple-900 dark:text-purple-200 uppercase tracking-wider font-mono">
+                    🚨 Tier 6 Executive Escalation Active
+                  </div>
+                  <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
+                    This ticket requires Administrative Authorization. Reviewer note: {ticketData.reviewer_notes || 'Elevated to System Admin for financial and legal approval.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+                Customer Issue Statement (&lt;complaint_text&gt; Isolation Boundary)
+              </span>
+              <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans bg-slate-50 dark:bg-slate-950/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 select-text">
+                {ticketData.complaint_description}
+              </p>
+            </div>
           </div>
 
           {/* Executive Dual-Pipeline Verdict Banner */}
           <div className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs ${
-            ticketData.is_automated_dispatch_blocked
+            ticketData.status === 'Escalated to Admin'
+              ? 'bg-purple-50 border-purple-200 text-purple-900 dark:bg-purple-950/30 dark:border-purple-800 dark:text-purple-200'
+              : ticketData.is_automated_dispatch_blocked
               ? 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-200'
               : 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-200'
           }`}>
             <div className="flex items-center gap-3.5">
               <div className={`p-3 rounded-xl flex-shrink-0 ${
-                ticketData.is_automated_dispatch_blocked
+                ticketData.status === 'Escalated to Admin'
+                  ? 'bg-purple-100 text-purple-700 border border-purple-300 dark:bg-purple-900/60 dark:text-purple-300 dark:border-purple-700'
+                  : ticketData.is_automated_dispatch_blocked
                   ? 'bg-rose-100 text-rose-700 border border-rose-300 dark:bg-rose-900/60 dark:text-rose-300 dark:border-rose-700'
                   : 'bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-900/60 dark:text-emerald-300 dark:border-emerald-700'
               }`}>
-                {ticketData.is_automated_dispatch_blocked ? <Lock className="w-6 h-6" /> : <Unlock className="w-6 h-6" />}
+                {ticketData.status === 'Escalated to Admin' ? (
+                  <ShieldAlert className="w-6 h-6" />
+                ) : ticketData.is_automated_dispatch_blocked ? (
+                  <Lock className="w-6 h-6" />
+                ) : (
+                  <Unlock className="w-6 h-6" />
+                )}
               </div>
               <div>
                 <div className="text-xs font-mono uppercase tracking-wider font-bold">
-                  {ticketData.is_automated_dispatch_blocked ? 'Automated Dispatch Quarantined' : 'Automated Dispatch Cleared'}
+                  {ticketData.status === 'Escalated to Admin'
+                    ? 'Tier 6 Admin Escalation'
+                    : ticketData.is_automated_dispatch_blocked
+                    ? 'Automated Dispatch Quarantined'
+                    : 'Automated Dispatch Cleared'}
                 </div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
-                  {ticketData.is_automated_dispatch_blocked
-                    ? 'Human Supervisor Authorization Required'
+                  {ticketData.status === 'Escalated to Admin'
+                    ? 'Executive System Admin Authorization Required'
+                    : ticketData.is_automated_dispatch_blocked
+                    ? 'Human Specialist Review Required'
                     : 'Ready for Immediate Automated Customer Dispatch'}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-                  {ticketData.is_automated_dispatch_blocked
+                  {ticketData.status === 'Escalated to Admin'
+                    ? (ticketData.reviewer_notes || 'Specialist has escalated this ticket to Admin for high-tier compensation authorization.')
+                    : ticketData.is_automated_dispatch_blocked
                     ? (diff.block_reason || 'Pipeline 2 detected rule discrepancies. Outgoing message is held.')
                     : 'Pipeline 1 (GenAI) and Pipeline 2 (Python) are in 100% agreement with active corporate policies.'}
                 </p>
@@ -559,15 +687,36 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
             </div>
 
             {/* Quick Action buttons right in verdict */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={() => handleAction('Approve & Dispatch')}
-                disabled={actionLoading}
-                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Approve & Send</span>
-              </button>
+            <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+              {activeRole === 'system_admin' ? (
+                <button
+                  onClick={() => handleAction('Admin Authorize & Dispatch')}
+                  disabled={actionLoading}
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-700 hover:to-indigo-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Admin Authorize & Dispatch</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleAction('Approve & Send Response')}
+                    disabled={actionLoading}
+                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Approve & Send</span>
+                  </button>
+                  <button
+                    onClick={() => handleAction('Escalate to Admin')}
+                    disabled={actionLoading}
+                    className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    <ArrowUpRight className="w-4 h-4" />
+                    <span>Escalate to Admin</span>
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => setOverrideModalOpen(true)}
                 className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-300 dark:border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -954,43 +1103,76 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                Support Supervisor Governance Action Bar
+                {activeRole === 'system_admin' ? '🛡️ System Administrator Executive Governance' : '🎧 Support Specialist Governance Action Bar'}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Review dual-pipeline divergence, approve compliant response, or escalate hazardous exceptions.
+                {activeRole === 'system_admin'
+                  ? 'High-authority executive control: authorize quarantined resolutions, dispatch financial compensation, or override classification.'
+                  : 'Review dual-pipeline divergence, approve compliant response, or escalate hazardous exceptions to System Admin.'}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-              {/* Button 1: Approve & Send */}
-              <button
-                onClick={() => handleAction('Approve & Send Response')}
-                disabled={actionLoading}
-                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-              >
-                <Check className="w-4 h-4" />
-                <span>Approve & Send Response</span>
-              </button>
+              {activeRole === 'system_admin' ? (
+                <>
+                  <button
+                    onClick={() => handleAction('Admin Authorize & Dispatch')}
+                    disabled={actionLoading}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Admin Authorize & Dispatch</span>
+                  </button>
+                  <button
+                    onClick={() => setOverrideModalOpen(true)}
+                    disabled={actionLoading}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sliders className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>Override Classification</span>
+                  </button>
+                  <button
+                    onClick={() => handleAction('Approve & Send Response')}
+                    disabled={actionLoading}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Standard Send</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Button 1: Approve & Send to Customer */}
+                  <button
+                    onClick={() => handleAction('Approve & Send Response')}
+                    disabled={actionLoading}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Approve & Send to Customer</span>
+                  </button>
 
-              {/* Button 2: Override Classification */}
-              <button
-                onClick={() => setOverrideModalOpen(true)}
-                disabled={actionLoading}
-                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Sliders className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <span>Override Classification</span>
-              </button>
+                  {/* Button 2: Escalate to Admin */}
+                  <button
+                    onClick={() => handleAction('Escalate to Admin')}
+                    disabled={actionLoading}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ArrowUpRight className="w-4 h-4" />
+                    <span>Escalate to Admin</span>
+                  </button>
 
-              {/* Button 3: Escalate to Tier 2 Manager */}
-              <button
-                onClick={() => handleAction('Escalate to Tier 2 Manager')}
-                disabled={actionLoading}
-                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ArrowUpRight className="w-4 h-4" />
-                <span>Escalate to Tier 2</span>
-              </button>
+                  {/* Button 3: Override Classification */}
+                  <button
+                    onClick={() => setOverrideModalOpen(true)}
+                    disabled={actionLoading}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sliders className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>Override Classification</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </>
