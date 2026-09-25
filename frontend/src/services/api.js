@@ -111,6 +111,49 @@ export async function updatePolicyStatus(docId, newStatus) {
   return res.json();
 }
 
+export async function fetchPolicyDetail(docId) {
+  const res = await fetch(`${API_BASE}/policies/${docId}`);
+  if (!res.ok) throw new Error(`Failed to fetch policy ${docId}`);
+  return res.json();
+}
+
+export async function createPolicy(payload) {
+  const res = await fetch(`${API_BASE}/policies/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to create policy document');
+  }
+  return res.json();
+}
+
+export async function updatePolicy(docId, payload) {
+  const res = await fetch(`${API_BASE}/policies/${docId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || `Failed to update policy ${docId}`);
+  }
+  return res.json();
+}
+
+export async function deletePolicy(docId) {
+  const res = await fetch(`${API_BASE}/policies/${docId}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || `Failed to delete policy ${docId}`);
+  }
+  return res.json();
+}
+
 export async function fetchRuleMatrix() {
   const res = await fetch(`${API_BASE}/rule-matrix`);
   if (!res.ok) throw new Error('Failed to fetch rule matrix');

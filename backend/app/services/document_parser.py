@@ -65,15 +65,15 @@ class DocumentParserService:
         # Metadata pattern extractors
         meta_id_match = re.search(r'(?:Policy\s*ID|Doc\s*ID|Document\s*ID)\s*[:=-]\s*([A-Z0-9\-_]+)', text, re.IGNORECASE)
         if meta_id_match:
-            doc_id = meta_id_match.group(1).strip()
+            doc_id = re.sub(r'[*_]', '', meta_id_match.group(1)).strip()
             
-        meta_title_match = re.search(r'(?:Title|Policy\s*Name|Document\s*Title)\s*[:=-]\s*([^\n\r]+)', text, re.IGNORECASE)
+        meta_title_match = re.search(r'(?:Title|Policy\s*Name|Document\s*Title)\s*[:=-]\s*([^\|\n\r]+)', text, re.IGNORECASE)
         if meta_title_match:
-            doc_title = meta_title_match.group(1).strip()
+            doc_title = re.sub(r'[*_]', '', meta_title_match.group(1)).strip()
             
-        meta_ver_match = re.search(r'(?:Version|Ver)\s*[:=-]\s*([^\n\r]+)', text, re.IGNORECASE)
+        meta_ver_match = re.search(r'(?:Version|Ver)\s*[:=-]\s*([^\|\n\r]+)', text, re.IGNORECASE)
         if meta_ver_match:
-            version_raw = meta_ver_match.group(1).strip()
+            version_raw = re.sub(r'[*_]', '', meta_ver_match.group(1)).strip()
             version = version_raw
             if "superseded" in version_raw.lower():
                 status = "Superseded"
@@ -81,31 +81,58 @@ class DocumentParserService:
                 status = "Deprecated"
             elif "active" in version_raw.lower():
                 status = "Active"
+
+        meta_status_match = re.search(r'(?:Status)\s*[:=-]\s*([^\|\n\r]+)', text, re.IGNORECASE)
+        if meta_status_match:
+            st = re.sub(r'[*_]', '', meta_status_match.group(1)).strip()
+            if st in ["Active", "Superseded", "Deprecated"]:
+                status = st
                 
         meta_date_match = re.search(r'(?:Effective\s*Date|Date)\s*[:=-]\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[A-Za-z]+\s+[0-9]{1,2},?\s+[0-9]{4})', text, re.IGNORECASE)
         if meta_date_match:
             effective_date = meta_date_match.group(1).strip()
 
-        meta_cat_match = re.search(r'(?:Category|Domain)\s*[:=-]\s*([^\n\r]+)', text, re.IGNORECASE)
+        meta_cat_match = re.search(r'(?:Category|Domain)\s*[:=-]\s*([^\|\n\r]+)', text, re.IGNORECASE)
         if meta_cat_match:
-            category = meta_cat_match.group(1).strip()
+            category = re.sub(r'[*_]', '', meta_cat_match.group(1)).strip()
 
-        # Logical section regex (e.g. "Section 1.0", "Section 5.2", "Clause 4", "DEL-POL-04, Section 5.2", "### 2. Refund Eligibility")
+        # Logical section regex (e.g. "Section 1.0", "Section 5.2", "## Section 1.0", "Clause 4", "DEL-POL-04, Section 5.2", "### 2. Refund Eligibility")
         section_pattern = re.compile(
-            r'^(?:(?:Section|Clause|Article)\s+([0-9]+(?:\.[0-9]+)*)|(?:###?\s+)?([0-9]+(?:\.[0-9]+)+)\s+([A-Za-z0-9\s\-_/]+)|([A-Z0-9\-_]+,\s*Section\s+[0-9]+(?:\.[0-9]+)*))\b',
+            r'^(?:#{1,4}\s*)?(?:(?:Section|Clause|Article|Rule)\s+([0-9]+(?:\.[0-9]+)*)|([0-9]+(?:\.[0-9]+)+)\s+([A-Za-z0-9\s\-_/]+)|([A-Z0-9\-_]+,\s*Section\s+[0-9]+(?:\.[0-9]+)*))\b',
             re.IGNORECASE
         )
         
         chunks: List[Dict[str, Any]] = []
-        current_section_id = "Section 1.0 - Overview"
-        current_heading = "Overview & Scope"
+        current_section_id = None
+        current_heading = None
         current_lines: List[str] = []
         
         def save_current_chunk():
             nonlocal current_lines, current_section_id, current_heading
             content_str = "\n".join(current_lines).strip()
+            # If no section ID set yet, this is preamble/header
+            if current_section_id is None:
+                cleaned_intro = [l for l in current_lines if not re.match(r'^(#|\*\*Doc|\*\*Ver|\*\*Cat|\*\*Eff|\*\*Status)', l.strip(), re.IGNORECASE)]
+                intro_text = "\n".join(cleaned_intro).strip()
+                if intro_text and len(intro_text) > 40:
+                    sec_id = "Section 1.0 - Overview"
+                    sec_head = "Overview & Scope"
+                    slug = "section_1_0_overview"
+                    chunks.append({
+                        "chunk_id": f"{doc_id}#{slug}",
+                        "doc_id": doc_id,
+                        "section_id": sec_id,
+                        "heading": sec_head,
+                        "content": intro_text,
+                        "category": category,
+                        "version": version,
+                        "status": status
+                    })
+                current_lines = []
+                return
+
             if content_str and len(content_str) > 20:
-                slug = re.sub(r'[^a-zA-Z0-9]', '_', current_section_id).lower()
+                slug = re.sub(r'[^a-zA-Z0-9]', '_', current_section_id).lower().strip('_')
                 chunk_id = f"{doc_id}#{slug}"
                 chunks.append({
                     "chunk_id": chunk_id,
@@ -120,24 +147,26 @@ class DocumentParserService:
             current_lines = []
 
         for line in lines:
-            if not line:
+            clean_line = line.strip()
+            if not clean_line or clean_line == "---":
                 continue
             
             # Check for section match
-            sec_match = section_pattern.match(line)
+            sec_match = section_pattern.match(clean_line)
             if sec_match:
                 save_current_chunk()
                 # Parse section ID and heading from line
-                parts = line.split(":", 1) if ":" in line else line.split(" - ", 1)
-                if len(parts) == 2:
-                    current_section_id = parts[0].replace("#", "").strip()
-                    current_heading = parts[1].strip()
+                trimmed = re.sub(r'^#{1,4}\s*', '', clean_line).strip()
+                split_match = re.split(r'\s*[:—–\-]\s*', trimmed, maxsplit=1)
+                if len(split_match) == 2 and split_match[1].strip():
+                    current_section_id = split_match[0].strip()
+                    current_heading = split_match[1].strip()
                 else:
-                    current_section_id = line.replace("#", "").strip()
-                    current_heading = line.replace("#", "").strip()
-                current_lines.append(line)
+                    current_section_id = trimmed
+                    current_heading = trimmed
+                current_lines.append(trimmed)
             else:
-                current_lines.append(line)
+                current_lines.append(clean_line)
 
         save_current_chunk()
 

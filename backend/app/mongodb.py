@@ -198,3 +198,45 @@ async def get_customer_history(customer_email: str) -> Dict[str, Any]:
     except Exception as e:
         logger.warning(f"Failed to get customer history: {e}")
         return {"error": str(e)}
+
+async def sync_policy_to_mongo(doc_data: Dict[str, Any], chunks_data: Optional[List[Dict[str, Any]]] = None) -> bool:
+    """Saves or updates a policy document and its chunks in MongoDB Atlas."""
+    try:
+        db = get_async_mongo_db()
+        if db is None:
+            return False
+        doc = dict(doc_data)
+        doc.pop("_id", None)
+        doc["updated_at_mongo"] = datetime.utcnow().isoformat() + "Z"
+        await db.policy_documents.update_one(
+            {"doc_id": doc["doc_id"]},
+            {"$set": doc},
+            upsert=True
+        )
+        if chunks_data is not None:
+            await db.policy_chunks.delete_many({"doc_id": doc["doc_id"]})
+            if chunks_data:
+                cleaned_chunks = []
+                for ch in chunks_data:
+                    c = dict(ch)
+                    c.pop("_id", None)
+                    c["doc_id"] = doc["doc_id"]
+                    cleaned_chunks.append(c)
+                await db.policy_chunks.insert_many(cleaned_chunks)
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to sync policy {doc_data.get('doc_id')} to MongoDB: {e}")
+        return False
+
+async def delete_policy_from_mongo(doc_id: str) -> bool:
+    """Deletes a policy document and its chunks from MongoDB Atlas."""
+    try:
+        db = get_async_mongo_db()
+        if db is None:
+            return False
+        await db.policy_documents.delete_one({"doc_id": doc_id})
+        await db.policy_chunks.delete_many({"doc_id": doc_id})
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to delete policy {doc_id} from MongoDB: {e}")
+        return False
