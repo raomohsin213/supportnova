@@ -52,6 +52,7 @@ class ComplaintTicket(Base):
     is_automated_dispatch_blocked = Column(Boolean, default=False)
     human_reviewer_action = Column(String(50), default="Pending")  # Pending, Approved, Overridden, Escalated
     human_reviewer_notes = Column(Text, nullable=True)
+    official_resolution_message = Column(Text, nullable=True)
     
     # Advanced SLA, PII, Duplicates & Repeat Tracking
     pii_masked_description = Column(Text, nullable=True)

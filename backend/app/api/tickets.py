@@ -208,6 +208,9 @@ async def take_ticket_action(
         ticket.status = "Verified"
         ticket.human_reviewer_action = "Approved"
         ticket.human_reviewer_notes = payload.notes or "Manually verified and approved by Support Specialist."
+        genai = ticket.genai_output or {}
+        base_resp = genai.get("professional_response") or "Thank you for contacting SupportNova. We have reviewed your complaint and approved warranty coverage."
+        ticket.official_resolution_message = f"{base_resp}\n\n[Specialist Resolution]: {ticket.human_reviewer_notes}"
         
     elif payload.action == "Override Classification":
         if payload.override_priority:
@@ -218,6 +221,9 @@ async def take_ticket_action(
         ticket.human_reviewer_action = "Overridden"
         ticket.is_automated_dispatch_blocked = False
         ticket.human_reviewer_notes = payload.notes or "Classification overridden by agent supervisor."
+        genai = ticket.genai_output or {}
+        base_resp = genai.get("professional_response") or "Thank you for contacting SupportNova. Classification updated."
+        ticket.official_resolution_message = f"{base_resp}\n\n[Supervisor Note]: {ticket.human_reviewer_notes}"
 
     elif payload.action in ["Escalate to Admin", "Escalate to Tier 2 Manager"]:
         ticket.final_priority = "P1"
@@ -226,6 +232,7 @@ async def take_ticket_action(
         ticket.is_automated_dispatch_blocked = True
         ticket.human_reviewer_action = "Escalated to Admin"
         ticket.human_reviewer_notes = payload.notes or "Escalated to System Admin for executive policy authorization."
+        ticket.official_resolution_message = "Your case has been escalated to Tier 6 Executive Administration for formal compensation & policy sign-off."
 
     elif payload.action in ["Admin Authorize & Dispatch", "Admin Override & Approve"]:
         ticket.status = "Verified"
@@ -233,6 +240,9 @@ async def take_ticket_action(
         ticket.human_reviewer_action = "Admin Approved"
         ticket.is_automated_dispatch_blocked = False
         ticket.human_reviewer_notes = payload.notes or "Executive authorization granted by System Admin."
+        genai = ticket.genai_output or {}
+        base_resp = genai.get("professional_response") or "Executive authorization confirmed."
+        ticket.official_resolution_message = f"{base_resp}\n\n[Executive Admin Authorization]: {ticket.human_reviewer_notes}"
 
     # Record audit log
     audit = AuditLog(
