@@ -119,6 +119,15 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
   const [overrideDepartment, setOverrideDepartment] = useState('Logistics Support');
   const [agentNotes, setAgentNotes] = useState('');
 
+  // Approval Modal State (Custom Response to Customer)
+  const [approveModalOpen, setApproveModalOpen] = useState(false);
+  const [customerReplyText, setCustomerReplyText] = useState('');
+  const [specialistAuditNote, setSpecialistAuditNote] = useState('');
+
+  // Escalation Modal State (Message to Admin)
+  const [escalateModalOpen, setEscalateModalOpen] = useState(false);
+  const [escalateReason, setEscalateReason] = useState('');
+
   // Accordion toggle states
   const [showEntities, setShowEntities] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
@@ -161,6 +170,48 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
     setDrawerPolicyId(policyId);
     setDrawerSection(section);
     setDrawerOpen(true);
+  };
+
+  const handleOpenApproveModal = () => {
+    const p1Output = ticketData?.pipeline_1_genai || {};
+    const baseMsg = ticketData?.official_resolution_message ||
+      p1Output.professional_response ||
+      `Dear ${ticketData?.customer_name || 'Valued Customer'},\n\nWe have thoroughly reviewed your complaint regarding "${ticketData?.complaint_title || ticketData?.product_or_service || 'your purchased product'}". We are pleased to confirm that your claim has been verified and approved under our corporate warranty policy.\n\nA replacement/resolution dispatch has been authorized, and updated tracking information will be provided within 24 hours.\n\nThank you for choosing SupportNova.`;
+    setCustomerReplyText(baseMsg);
+    setSpecialistAuditNote(ticketData?.human_reviewer_notes || 'Defect verified against corporate warranty policy; approved for customer dispatch.');
+    setApproveModalOpen(true);
+  };
+
+  const handleOpenEscalateModal = () => {
+    setEscalateReason(ticketData?.human_reviewer_notes || '');
+    setEscalateModalOpen(true);
+  };
+
+  const handleConfirmApproval = () => {
+    if (!customerReplyText.trim()) {
+      toast.error('Customer reply required', {
+        description: 'Please write or verify the resolution message before approving.'
+      });
+      return;
+    }
+    handleAction('Approve & Send Response', {
+      override_response: customerReplyText.trim(),
+      notes: specialistAuditNote.trim() || 'Verified and approved by Support Specialist.'
+    });
+    setApproveModalOpen(false);
+  };
+
+  const handleConfirmEscalation = () => {
+    if (!escalateReason.trim()) {
+      toast.error('Escalation message required', {
+        description: 'Please write a clear message explaining why you are sending this ticket to the System Admin.'
+      });
+      return;
+    }
+    handleAction('Escalate to Admin', {
+      notes: escalateReason.trim()
+    });
+    setEscalateModalOpen(false);
   };
 
   const handleAction = async (actionType, customPayload = {}) => {
@@ -441,6 +492,77 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
             </div>
           </div>
 
+          {/* SPECIALIST ESCALATION BANNER FOR SYSTEM ADMIN & REVIEWERS */}
+          {ticketData.status === 'Escalated to Admin' && (
+            <div className="bg-purple-50 dark:bg-purple-950/40 border-2 border-purple-300 dark:border-purple-800 p-5 rounded-2xl shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">
+                    <ArrowUpRight className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300">
+                      Tier 6 Executive Incident Escalation
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      Escalated to System Administration for Executive Sign-Off
+                    </h3>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-700 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  P1 Priority (2-Hour Executive SLA)
+                </span>
+              </div>
+
+              {/* Specialist Reason Note Box */}
+              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-purple-200 dark:border-purple-800/80 shadow-2xs">
+                <div className="text-[11px] font-bold text-purple-600 dark:text-purple-400 font-mono uppercase flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" />
+                  Specialist's Stated Reason for Admin Escalation:
+                </div>
+                <p className="text-xs text-slate-900 dark:text-slate-100 font-medium mt-1.5 leading-relaxed bg-purple-50/50 dark:bg-purple-950/20 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 font-sans">
+                  "{ticketData.human_reviewer_notes || 'Specialist flagged ticket for executive administrator review.'}"
+                </p>
+              </div>
+
+              {activeRole === 'system_admin' ? (
+                <div className="flex items-center justify-between text-xs text-purple-900 dark:text-purple-200 pt-1 font-sans">
+                  <span>👑 <strong>Executive Guidance:</strong> Review the specialist's reason above, inspect the dual-pipeline comparison, and click <strong>"Admin Authorize & Dispatch"</strong> below to approve resolution or <strong>"Override"</strong> to change routing.</span>
+                </div>
+              ) : (
+                <div className="text-xs text-purple-700 dark:text-purple-400 pt-0.5">
+                  🔒 Automated dispatch is locked. Awaiting executive sign-off from System Administrator.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* VERIFIED RESOLUTION BANNER IF TICKET HAS BEEN APPROVED */}
+          {ticketData.status === 'Verified' && ticketData.official_resolution_message && (
+            <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 p-4 rounded-2xl shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                    Officially Approved & Dispatched to Customer
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold">
+                    {ticketData.human_reviewer_action || 'Approved'}
+                  </span>
+                </div>
+                {ticketData.human_reviewer_notes && (
+                  <span className="text-[11px] text-emerald-700 dark:text-emerald-300 font-mono">
+                    Staff Note: {ticketData.human_reviewer_notes}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800/60 whitespace-pre-line italic">
+                "{ticketData.official_resolution_message}"
+              </p>
+            </div>
+          )}
+
           {/* Customer Case Narrative & Purchased Product/Defect Evidence Card */}
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -626,7 +748,7 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               ) : (
                 <>
                   <button
-                    onClick={() => handleAction('Approve & Send Response')}
+                    onClick={handleOpenApproveModal}
                     disabled={actionLoading}
                     className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
                   >
@@ -634,7 +756,7 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                     <span>Approve & Send</span>
                   </button>
                   <button
-                    onClick={() => handleAction('Escalate to Admin')}
+                    onClick={handleOpenEscalateModal}
                     disabled={actionLoading}
                     className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
                   >
@@ -1058,19 +1180,19 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                     <span>Override Classification</span>
                   </button>
                   <button
-                    onClick={() => handleAction('Approve & Send Response')}
+                    onClick={handleOpenApproveModal}
                     disabled={actionLoading}
                     className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
-                    <span>Standard Send</span>
+                    <span>Standard Send / Custom Reply</span>
                   </button>
                 </>
               ) : (
                 <>
                   {/* Button 1: Approve & Send to Customer */}
                   <button
-                    onClick={() => handleAction('Approve & Send Response')}
+                    onClick={handleOpenApproveModal}
                     disabled={actionLoading}
                     className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
@@ -1080,7 +1202,7 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
 
                   {/* Button 2: Escalate to Admin */}
                   <button
-                    onClick={() => handleAction('Escalate to Admin')}
+                    onClick={handleOpenEscalateModal}
                     disabled={actionLoading}
                     className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
@@ -1118,8 +1240,21 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               </button>
             </div>
 
+            {/* Informational Callout: What does Override do? */}
+            <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-[11px] text-indigo-900 dark:text-indigo-200 space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-indigo-700 dark:text-indigo-300">
+                <Info className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>What does Override Classification do?</span>
+              </div>
+              <p className="leading-relaxed text-slate-600 dark:text-slate-300">
+                SupportNova's automated pipelines determine priority and routing based on AI and policy rules. If automated triage misclassified this complaint, use <strong>Override</strong> to manually correct the SLA Priority (P1–P4) or reassign the handling department. This unblocks dispatch and records an immutable audit trail.
+              </p>
+            </div>
+
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Target Department</label>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Target Department <span className="font-normal text-slate-400 font-mono">(Current: {ticketData?.assigned_department || 'Logistics'})</span>
+              </label>
               <select
                 value={overrideDepartment}
                 onChange={(e) => setOverrideDepartment(e.target.value)}
@@ -1134,7 +1269,9 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Override SLA Priority</label>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Override SLA Priority <span className="font-normal text-slate-400 font-mono">(Current: {ticketData?.final_priority || 'P3'})</span>
+              </label>
               <select
                 value={overridePriority}
                 onChange={(e) => setOverridePriority(e.target.value)}
@@ -1173,6 +1310,277 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                 className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer"
               >
                 Apply Override & Unblock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SPECIALIST APPROVAL & CUSTOMER RESOLUTION COMPOSER MODAL */}
+      {approveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Review & Send Resolution to Customer
+                  </h3>
+                  <p className="text-xs text-slate-500 font-mono">
+                    Ticket #{ticketData.complaint_id} • {ticketData.customer_name} ({ticketData.customer_tier} Tier)
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setApproveModalOpen(false)} 
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* "What do I approve?" Educational Card */}
+            <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                <HelpCircle className="w-4 h-4 flex-shrink-0" />
+                <span>What are you approving?</span>
+              </div>
+              <p className="leading-relaxed text-slate-700 dark:text-slate-300 text-[11px]">
+                You are verifying this quarantined complaint against corporate warranty policy, releasing the automated dispatch block, and sending an <strong>official verified resolution message</strong> directly to the customer's portal. Review or edit the message below before confirming.
+              </p>
+            </div>
+
+            {/* Complaint Context Summary */}
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">Customer Complaint:</span>
+                <p className="font-medium text-slate-800 dark:text-slate-200 line-clamp-2 mt-0.5">
+                  "{ticketData.complaint_title}"
+                </p>
+                <span className="text-[11px] text-slate-500 font-mono block mt-1">
+                  Product: {ticketData.product_or_service || 'Store Item'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">Attached Defect Photo:</span>
+                {ticketData.evidence_image_url ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <img 
+                      src={ticketData.evidence_image_url} 
+                      alt="Defect" 
+                      className="w-10 h-10 rounded-lg object-cover border border-slate-200 dark:border-slate-700" 
+                    />
+                    <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">Photo Attached (Verified)</span>
+                  </div>
+                ) : (
+                  <span className="text-[11px] text-slate-400 italic block mt-1">No defect photo attached (Optional)</span>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Templates Toolbar */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  Quick Reply Templates (Click to Insert):
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCustomerReplyText(
+                    `Dear ${ticketData.customer_name || 'Customer'},\n\nWe have thoroughly reviewed your complaint regarding "${ticketData.complaint_title || ticketData.product_or_service}". We are pleased to confirm that your warranty replacement has been officially APPROVED under corporate policy DEL-POL-04. A new replacement order has been scheduled for express dispatch. Carrier tracking information will be provided within 24 hours.\n\nThank you for choosing SupportNova.`
+                  )}
+                  className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-medium border border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer"
+                >
+                  📦 Warranty Replacement
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerReplyText(
+                    `Dear ${ticketData.customer_name || 'Customer'},\n\nThank you for reaching out regarding order #${ticketData.order_reference || 'N/A'}. We have approved your return request and a prepaid return shipping label has been generated. Please package the item securely and present the label to DHL/FedEx. Once scanned at the transit depot, your replacement will ship immediately.\n\nBest regards,\nSupportNova Team`
+                  )}
+                  className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-medium border border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer"
+                >
+                  🏷️ Prepaid Return Label
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerReplyText(
+                    `Dear ${ticketData.customer_name || 'Customer'},\n\nThank you for contacting SupportNova. Our diagnostic team has completed preliminary analysis of your defect report. Under our expedited repair guarantee, we are arranging a courier pickup of your unit for rapid hardware servicing at our authorized lab.\n\nSincerely,\nSupport Specialist`
+                  )}
+                  className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-medium border border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer"
+                >
+                  ⚡ Expedited Repair
+                </button>
+              </div>
+            </div>
+
+            {/* Editable Official Reply to Customer */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <Send className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Official Reply to Customer (Delivered to Customer Portal) *</span>
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">{customerReplyText.length} chars</span>
+              </div>
+              <textarea
+                rows={6}
+                value={customerReplyText}
+                onChange={(e) => setCustomerReplyText(e.target.value)}
+                placeholder="Type or edit the official message that will be delivered to the customer..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-sans text-slate-900 dark:text-white leading-relaxed focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                required
+              />
+            </div>
+
+            {/* Internal Staff Rationale Note */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                <span>Internal Staff Rationale Note (Recorded in Audit Trail)</span>
+              </label>
+              <input
+                type="text"
+                value={specialistAuditNote}
+                onChange={(e) => setSpecialistAuditNote(e.target.value)}
+                placeholder="e.g. Verified defect against DEL-POL-04; releasing automated dispatch lock."
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+              />
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setApproveModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmApproval}
+                disabled={actionLoading}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
+              >
+                <Check className="w-4 h-4" />
+                <span>Confirm Approval & Send to Customer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ESCALATE TO ADMIN MODAL */}
+      {escalateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400">
+                  <ArrowUpRight className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Escalate Complaint to System Admin
+                  </h3>
+                  <p className="text-xs text-slate-500 font-mono">
+                    Tier 6 Executive Board • Incident Ticket #{ticketData.complaint_id}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setEscalateModalOpen(false)} 
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Explainer Notice */}
+            <div className="p-3.5 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-200 space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
+                <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+                <span>Executive Escalation Protocol</span>
+              </div>
+              <p className="leading-relaxed text-slate-700 dark:text-slate-300 text-[11px]">
+                Escalating will promote this ticket to <strong>P1 Priority (2-Hour Executive SLA)</strong> and forward it to the Administrator's Clearance Cockpit. Please write the exact reason so the Admin understands what decision or sign-off is needed.
+              </p>
+            </div>
+
+            {/* Quick Reason Chips */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                <span>Quick Escalation Tags (Click to Append):</span>
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  '💰 Financial Claim Exceeds $500',
+                  '🔥 Thermal / Battery Fire Hazard',
+                  '⚖️ Formal Legal Threat / Attorney',
+                  '🛡️ Adversarial Prompt Injection Attack',
+                  '📜 Policy Ambiguity / Exception Request'
+                ].map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      if (!escalateReason.includes(tag)) {
+                        setEscalateReason(prev => prev ? `${prev}\n• ${tag}` : `• ${tag}`);
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-[11px] font-medium border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Agent's Message for Admin Textarea */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                  <span>Agent Message for Admin (Reason for Escalation) *</span>
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">Visible to Admin</span>
+              </div>
+              <textarea
+                rows={4}
+                value={escalateReason}
+                onChange={(e) => setEscalateReason(e.target.value)}
+                placeholder="Explain why this ticket is being escalated to the admin (e.g. Customer demanded $500 cash compensation; exceeds specialist authorization limit. Requesting executive board review.)..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white leading-relaxed focus:ring-2 focus:ring-purple-500 focus:outline-hidden"
+                required
+              />
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setEscalateModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmEscalation}
+                disabled={actionLoading}
+                className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
+              >
+                <ArrowUpRight className="w-4 h-4" />
+                <span>Confirm Escalation to Admin</span>
               </button>
             </div>
           </div>

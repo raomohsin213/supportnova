@@ -248,8 +248,22 @@ export function ManualReviewQueue({ onInspectTicket }) {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 max-w-xs truncate text-slate-700 dark:text-slate-300 font-sans">
-                      {t.complaint_title}
+                    <td className="py-3.5 px-4 max-w-xs text-slate-700 dark:text-slate-300 font-sans">
+                      <div className="font-semibold text-slate-900 dark:text-white truncate">
+                        {t.complaint_title}
+                      </div>
+                      {t.status === 'Escalated to Admin' && t.human_reviewer_notes && (
+                        <div className="mt-1 flex items-center gap-1 text-[11px] font-mono text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800 line-clamp-1" title={t.human_reviewer_notes}>
+                          <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">Admin Note: {t.human_reviewer_notes}</span>
+                        </div>
+                      )}
+                      {t.status === 'Verified' && t.official_resolution_message && (
+                        <div className="mt-1 flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-sans line-clamp-1 italic" title={t.official_resolution_message}>
+                          <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">Sent: {t.official_resolution_message}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <PriorityBadge priority={t.final_priority || 'P3'} />

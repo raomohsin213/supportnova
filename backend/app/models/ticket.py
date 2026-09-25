@@ -132,10 +132,19 @@ class ComplaintTicket(Base):
                 or genai.get("professional_response") 
                 or "Your complaint has been verified and resolved."
             )
-            if self.human_reviewer_notes:
+            if self.human_reviewer_notes and self.human_reviewer_notes not in customer_msg and "[Staff Resolution Note]" not in customer_msg:
                 customer_msg = f"{customer_msg}\n\n[Staff Resolution Note]: {self.human_reviewer_notes}"
+        elif self.status == "Escalated to Admin":
+            customer_msg = (
+                f"Your complaint has been elevated to Tier 6 Executive Administration for formal policy review. "
+                f"A Senior Administrator is actively reviewing this ticket.\n\n"
+                f"[Escalation Reason]: {self.human_reviewer_notes or 'High-priority executive authorization requested.'}"
+            )
         else:
-            customer_msg = "Your complaint and attached defect evidence photo have been logged successfully. Support Specialist is reviewing the drafted resolution against corporate warranty policy. You will receive the official verified response here once approved."
+            if self.evidence_image_url:
+                customer_msg = "Your complaint and attached defect evidence photo have been logged successfully. Support Specialist is reviewing the drafted resolution against corporate policy. You will receive the official verified response here once approved."
+            else:
+                customer_msg = "Your complaint has been logged successfully. Support Specialist is reviewing the drafted resolution against corporate policy. You will receive the official verified response here once approved."
         return {
             "complaint_id": self.complaint_id,
             "complaint_title": self.complaint_title,

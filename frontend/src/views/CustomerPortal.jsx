@@ -397,41 +397,6 @@ const INITIAL_PURCHASES = {
 };
 
 // -------------------------------------------------------------
-// PRESET DEFECT EVIDENCE IMAGES LIBRARY
-// -------------------------------------------------------------
-const DEFECT_EVIDENCE_PRESETS = [
-  {
-    id: 'ev-1',
-    label: 'Cracked Glass / Shattered Screen',
-    url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'ev-2',
-    label: 'Broken Headband / Plastic Fracture',
-    url: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'ev-3',
-    label: 'Smoking Battery / Scorched Electronics',
-    url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'ev-4',
-    label: 'Dead Pixels / Screen Display Glitch',
-    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'ev-5',
-    label: 'Water Damage & Moisture Ingress',
-    url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=600&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'ev-6',
-    label: 'Crushed Outer Parcel Box (Shipping Damage)',
-    url: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&auto=format&fit=crop&q=80'
-  }
-];
-
 export function CustomerPortal() {
   // Active Customer profile state
   const [activeCustomer, setActiveCustomer] = useState(PRE_SEEDED_CUSTOMERS[0]);
@@ -451,8 +416,32 @@ export function CustomerPortal() {
   const [complaintCategory, setComplaintCategory] = useState('Hardware Defect & Warranty');
   const [complaintDesc, setComplaintDesc] = useState('');
   const [evidenceImageUrl, setEvidenceImageUrl] = useState('');
+  const [imageUploadMode, setImageUploadMode] = useState('upload'); // 'upload' or 'url'
+  const [fileName, setFileName] = useState('');
   const [filingSubmitting, setFilingSubmitting] = useState(false);
   const [submittedTicketId, setSubmittedTicketId] = useState('');
+
+  // Handle local file upload (converts to base64 Data URL)
+  const handleImageFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file (PNG, JPG, WebP, etc.)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setEvidenceImageUrl(event.target.result);
+      setFileName(file.name);
+      toast.success('Photo attached successfully', { description: file.name });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClearEvidenceImage = () => {
+    setEvidenceImageUrl('');
+    setFileName('');
+  };
 
   // Load customer complaints whenever active customer changes or after submission
   const loadMyTickets = async () => {
@@ -480,20 +469,21 @@ export function CustomerPortal() {
     });
   };
 
-  // Open modal pre-populated with order details
+  // Open modal pre-populated with order details (image is strictly optional)
   const handleOpenFilingModal = (order) => {
     setSelectedOrder(order);
     if (order.suggestedIssue) {
       setComplaintTitle(order.suggestedIssue.title);
       setComplaintCategory(order.suggestedIssue.category);
       setComplaintDesc(order.suggestedIssue.desc);
-      setEvidenceImageUrl(order.suggestedIssue.evidenceImage);
     } else {
       setComplaintTitle(`Defect reported on ${order.productName}`);
       setComplaintCategory('Hardware Defect & Warranty');
       setComplaintDesc('');
-      setEvidenceImageUrl(DEFECT_EVIDENCE_PRESETS[0].url);
     }
+    setEvidenceImageUrl('');
+    setFileName('');
+    setImageUploadMode('upload');
     setFilingModalOpen(true);
   };
 
@@ -515,7 +505,7 @@ export function CustomerPortal() {
         complaint_description: complaintDesc,
         product_or_service: selectedOrder.productName,
         product_image_url: selectedOrder.productImage,
-        evidence_image_url: evidenceImageUrl || selectedOrder.productImage,
+        evidence_image_url: evidenceImageUrl.trim() ? evidenceImageUrl.trim() : null,
         order_reference: selectedOrder.orderId,
         transaction_date: selectedOrder.date.split(' ')[0],
         previous_complaints_count: 0
@@ -1042,57 +1032,116 @@ export function CustomerPortal() {
                 />
               </div>
 
-              {/* Defect Evidence Image Selection */}
+              {/* Defect Evidence Image Selection (Strictly Optional) */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <Camera className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                  <span>Attach Defect Evidence Photo (Required for Warranty Verification)</span>
-                </label>
-
-                {/* Preset Defect Photos Chips */}
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {DEFECT_EVIDENCE_PRESETS.map((preset) => {
-                    const isSelected = evidenceImageUrl === preset.url;
-                    return (
-                      <div
-                        key={preset.id}
-                        onClick={() => setEvidenceImageUrl(preset.url)}
-                        className={`border rounded-xl p-1.5 cursor-pointer text-center space-y-1 transition-all ${
-                          isSelected
-                            ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/60 ring-2 ring-indigo-500'
-                            : 'border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                        }`}
-                      >
-                        <img 
-                          src={preset.url} 
-                          alt={preset.label} 
-                          className="w-full h-12 object-cover rounded-lg"
-                        />
-                        <div className="text-[9px] font-semibold text-slate-700 dark:text-slate-300 line-clamp-1">
-                          {preset.label}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Custom URL or uploaded image input */}
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="url"
-                    value={evidenceImageUrl}
-                    onChange={(e) => setEvidenceImageUrl(e.target.value)}
-                    placeholder="Or paste evidence photo URL..."
-                    className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs font-mono"
-                  />
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <span>Attach Defect Evidence Photo <span className="font-normal text-slate-400">(Optional)</span></span>
+                  </label>
                   {evidenceImageUrl && (
-                    <img 
-                      src={evidenceImageUrl} 
-                      alt="Preview" 
-                      className="w-8 h-8 rounded-md object-cover border"
-                    />
+                    <button
+                      type="button"
+                      onClick={handleClearEvidenceImage}
+                      className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer font-medium"
+                    >
+                      <X className="w-3 h-3" />
+                      <span>Remove Photo</span>
+                    </button>
                   )}
                 </div>
+
+                {/* Mode Selector Tabs: Upload File vs Paste URL */}
+                <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setImageUploadMode('upload')}
+                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      imageUploadMode === 'upload'
+                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Image File</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageUploadMode('url')}
+                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      imageUploadMode === 'url'
+                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Paste Image Link / URL</span>
+                  </button>
+                </div>
+
+                {/* Upload from Device Dropzone */}
+                {imageUploadMode === 'upload' ? (
+                  <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600 rounded-xl p-4 text-center cursor-pointer transition-colors bg-slate-50/60 dark:bg-slate-950/60 relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    />
+                    {evidenceImageUrl ? (
+                      <div className="flex items-center gap-3 justify-center">
+                        <img 
+                          src={evidenceImageUrl} 
+                          alt="Uploaded Evidence Preview" 
+                          className="w-14 h-14 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shadow-xs flex-shrink-0"
+                        />
+                        <div className="text-left">
+                          <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-xs">
+                            {fileName || 'Evidence Photo Attached'}
+                          </div>
+                          <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                            ✓ Ready to attach with complaint
+                          </div>
+                          <div className="text-[10px] text-slate-400">Click or drop another file to replace</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1 py-1">
+                        <Camera className="w-6 h-6 text-slate-400 mx-auto" />
+                        <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          Click to select a photo from your computer or drag & drop
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          Supports PNG, JPG, WebP, GIF • Image is completely optional
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Paste URL Mode */
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        value={evidenceImageUrl}
+                        onChange={(e) => setEvidenceImageUrl(e.target.value)}
+                        placeholder="https://... (Paste Google Search or online defect photo link)"
+                        className="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                      />
+                      {evidenceImageUrl && (
+                        <img 
+                          src={evidenceImageUrl} 
+                          alt="URL Preview" 
+                          className="w-9 h-9 rounded-lg object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      Copy the image address from Google or any website and paste it above, or leave blank if no photo.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
