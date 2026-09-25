@@ -55,7 +55,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
     }
 
     if (filterType === 'inbox') {
-      return t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined';
+      return t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined' || t.status === 'Reopened';
     }
     if (filterType === 'blocked') {
       return t.status === 'Quarantined' || t.status === 'Manual Review Required' || (t.is_automated_dispatch_blocked && t.status !== 'Escalated to Admin');
@@ -69,7 +69,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
     return true; // 'all'
   });
 
-  const inboxCount = tickets.filter(t => t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined').length;
+  const inboxCount = tickets.filter(t => t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined' || t.status === 'Reopened').length;
   const blockedCount = tickets.filter(t => t.status === 'Quarantined' || t.status === 'Manual Review Required' || (t.is_automated_dispatch_blocked && t.status !== 'Escalated to Admin')).length;
   const escalatedCount = tickets.filter(t => t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6').length;
   const p1Count = tickets.filter(t => t.final_priority === 'P1').length;

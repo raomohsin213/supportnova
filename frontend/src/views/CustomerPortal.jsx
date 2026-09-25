@@ -39,7 +39,7 @@ import {
   Eye,
   Info
 } from 'lucide-react';
-import { trackComplaint, fetchRecentPublicComplaints, submitComplaint, fetchCustomerComplaints } from '../services/api';
+import { trackComplaint, fetchRecentPublicComplaints, submitComplaint, fetchCustomerComplaints, customerReplyTicket, customerCloseTicket } from '../services/api';
 import { StatusBadge } from '../components/StatusBadge';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -400,7 +400,23 @@ const INITIAL_PURCHASES = {
 export function CustomerPortal() {
   // Active Customer profile state
   const [activeCustomer, setActiveCustomer] = useState(PRE_SEEDED_CUSTOMERS[0]);
-  const [customerPurchases, setCustomerPurchases] = useState(INITIAL_PURCHASES);
+  const [customerPurchases, setCustomerPurchases] = useState(() => {
+    try {
+      const saved = localStorage.getItem('supportnova_customer_purchases');
+      return saved ? JSON.parse(saved) : INITIAL_PURCHASES;
+    } catch (e) {
+      return INITIAL_PURCHASES;
+    }
+  });
+
+  // Sync purchases to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('supportnova_customer_purchases', JSON.stringify(customerPurchases));
+    } catch (e) {
+      console.error('Failed to persist customer purchases:', e);
+    }
+  }, [customerPurchases]);
   
   // Navigation tabs in Customer Portal: 'orders', 'tickets', 'store'
   const [activeSubTab, setActiveSubTab] = useState('orders');
@@ -408,6 +424,11 @@ export function CustomerPortal() {
   // User's filed tickets list
   const [myTickets, setMyTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
+
+  // Customer interactive reply and ticket closure state
+  const [replyingTicketId, setReplyingTicketId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [actionInProgress, setActionInProgress] = useState(false);
   
   // Modal / Filing state
   const [filingModalOpen, setFilingModalOpen] = useState(false);
@@ -515,7 +536,7 @@ export function CustomerPortal() {
       setSubmittedTicketId(result.complaint_id);
       setFilingModalOpen(false);
       toast.success(`Complaint #${result.complaint_id} Submitted!`, {
-        description: 'SupportNova Dual-Pipeline is now analyzing your complaint with active warranty policies.'
+        description: 'Your complaint has been logged securely. Our support team is reviewing your claim against corporate warranty policies.'
       });
       // Refresh user's tickets and switch to tickets tab
       await loadMyTickets();
@@ -524,6 +545,44 @@ export function CustomerPortal() {
       toast.error('Submission failed', { description: err.message });
     } finally {
       setFilingSubmitting(false);
+    }
+  };
+
+  // Customer replies to support team (reopens ticket)
+  const handleSendCustomerReply = async (complaintId) => {
+    if (!replyText.trim()) {
+      toast.error('Please write a reply message');
+      return;
+    }
+    setActionInProgress(true);
+    try {
+      await customerReplyTicket(complaintId, replyText.trim(), activeCustomer.email);
+      toast.success('Reply Sent to Support!', {
+        description: 'Your ticket has been reopened and placed in the specialist review queue.'
+      });
+      setReplyText('');
+      setReplyingTicketId(null);
+      await loadMyTickets();
+    } catch (err) {
+      toast.error('Failed to send reply', { description: err.message });
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
+  // Customer accepts resolution and approves ticket closure
+  const handleCustomerCloseTicket = async (complaintId) => {
+    setActionInProgress(true);
+    try {
+      await customerCloseTicket(complaintId, 'Resolution accepted by customer');
+      toast.success('Ticket Closed with Mutual Agreement', {
+        description: 'Thank you for your confirmation! Your issue is marked as Resolved & Closed.'
+      });
+      await loadMyTickets();
+    } catch (err) {
+      toast.error('Failed to close ticket', { description: err.message });
+    } finally {
+      setActionInProgress(false);
     }
   };
 
@@ -855,19 +914,129 @@ export function CustomerPortal() {
                   </div>
 
                   {/* Official Response from AI / Support Team */}
-                  <div className="p-4 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 space-y-2">
+                  <div className="p-4 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
                         <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         Official Resolution Message for Customer:
                       </span>
                       <span className="text-[10px] font-mono uppercase bg-white dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-700 font-bold">
-                        {t.human_reviewer_action === 'Approved' ? 'Agent Approved' : (t.human_reviewer_action === 'Admin Approved' ? 'Admin Authorized' : 'Live Status')}
+                        {t.status === 'Resolved & Closed' || t.is_closed ? 'Closed & Resolved' : (t.status === 'Reopened' ? 'Reopened' : (t.human_reviewer_action === 'Approved' ? 'Agent Approved' : (t.human_reviewer_action === 'Admin Approved' ? 'Admin Authorized' : 'Live Status')))}
                       </span>
                     </div>
                     <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans whitespace-pre-line italic">
                       "{t.customer_response || 'Your complaint has been accepted into the queue and is being evaluated against policy rules.'}"
                     </p>
+
+                    {/* Full Interactive Conversation Thread (if replies exist) */}
+                    {t.conversation_history && t.conversation_history.length > 1 && (
+                      <div className="mt-3 pt-3 border-t border-indigo-200/60 dark:border-indigo-800/60 space-y-2">
+                        <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1">
+                          <MessageSquare className="w-3 h-3" />
+                          <span>Conversation & Resolution History ({t.conversation_history.length} messages)</span>
+                        </span>
+                        <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                          {t.conversation_history.map((msg, mIdx) => (
+                            <div 
+                              key={mIdx} 
+                              className={`p-2.5 rounded-xl text-xs ${
+                                msg.sender === 'customer' 
+                                  ? 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' 
+                                  : msg.action === 'customer_accepted_close' || msg.action === 'ticket_closed'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                                  : 'bg-indigo-100/70 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 text-indigo-900 dark:text-indigo-100'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400 mb-1">
+                                <span className="font-bold flex items-center gap-1">
+                                  {msg.sender === 'customer' ? '👤 ' : (msg.action === 'customer_accepted_close' ? '✅ ' : '🛡️ ')}
+                                  {msg.sender_name || (msg.sender === 'customer' ? 'You' : 'Support Specialist')}
+                                </span>
+                                <span>{msg.timestamp || 'Recent'}</span>
+                              </div>
+                              <p className="whitespace-pre-line text-xs font-sans leading-relaxed">{msg.message}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Customer Action Bar: Accept & Close vs Reply */}
+                    <div className="pt-2 border-t border-indigo-200/50 dark:border-indigo-800/50">
+                      {t.status === 'Resolved & Closed' || t.is_closed ? (
+                        <div className="flex items-center gap-2 p-2.5 bg-emerald-100/80 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 rounded-xl text-emerald-800 dark:text-emerald-200 text-xs font-semibold">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                          <span>This ticket has been officially resolved and closed with customer agreement.</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+                              Satisfied with our response, or need further assistance?
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleCustomerCloseTicket(t.complaint_id)}
+                                disabled={actionInProgress}
+                                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Accept Resolution & Close Ticket</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (replyingTicketId === t.complaint_id) {
+                                    setReplyingTicketId(null);
+                                    setReplyText('');
+                                  } else {
+                                    setReplyingTicketId(t.complaint_id);
+                                    setReplyText('');
+                                  }
+                                }}
+                                className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                <span>{replyingTicketId === t.complaint_id ? 'Cancel Reply' : 'Reply to Support'}</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Expandable Reply Composer */}
+                          {replyingTicketId === t.complaint_id && (
+                            <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 space-y-2 shadow-xs animate-in fade-in duration-200">
+                              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                                Write your reply to Support (This will reopen the ticket for specialist review):
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="State what adjustments you require or provide additional details..."
+                                className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                              />
+                              <div className="flex items-center justify-end gap-2 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => { setReplyingTicketId(null); setReplyText(''); }}
+                                  className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendCustomerReply(t.complaint_id)}
+                                  disabled={actionInProgress || !replyText.trim()}
+                                  className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>{actionInProgress ? 'Sending...' : 'Send Reply & Reopen Ticket'}</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

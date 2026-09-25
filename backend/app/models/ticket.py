@@ -67,6 +67,7 @@ class ComplaintTicket(Base):
     extracted_entities_json = Column(Text, nullable=True)
     clarification_questions_json = Column(Text, nullable=True)
     follow_up_message = Column(Text, nullable=True)
+    conversation_history_json = Column(Text, nullable=True, default="[]")
     
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -119,6 +120,17 @@ class ComplaintTicket(Base):
     def clarification_questions(self, val: list):
         self.clarification_questions_json = json.dumps(val)
 
+    @property
+    def conversation_history(self) -> list:
+        try:
+            return json.loads(self.conversation_history_json) if self.conversation_history_json else []
+        except Exception:
+            return []
+
+    @conversation_history.setter
+    def conversation_history(self, val: list):
+        self.conversation_history_json = json.dumps(val)
+
     def to_customer_dict(self) -> dict:
         """Safe customer-facing view excluding internal diff scores and validation engine logs."""
         genai = self.genai_output
@@ -140,11 +152,45 @@ class ComplaintTicket(Base):
                 f"A Senior Administrator is actively reviewing this ticket.\n\n"
                 f"[Escalation Reason]: {self.human_reviewer_notes or 'High-priority executive authorization requested.'}"
             )
+        elif self.status in ["Resolved & Closed", "Closed"]:
+            customer_msg = (
+                self.official_resolution_message 
+                or "This ticket has been officially resolved and closed with mutual agreement."
+            )
+        elif self.status == "Reopened":
+            customer_msg = "Your reply has been received. The ticket has been reopened and is awaiting specialist review."
         else:
             if self.evidence_image_url:
                 customer_msg = "Your complaint and attached defect evidence photo have been logged successfully. Support Specialist is reviewing the drafted resolution against corporate policy. You will receive the official verified response here once approved."
             else:
                 customer_msg = "Your complaint has been logged successfully. Support Specialist is reviewing the drafted resolution against corporate policy. You will receive the official verified response here once approved."
+        
+        # Build customer conversation thread
+        conv = self.conversation_history
+        if not conv:
+            conv = [
+                {
+                    "id": f"msg-init-{self.complaint_id}",
+                    "sender": "customer",
+                    "sender_name": self.customer_name,
+                    "message": self.complaint_description,
+                    "timestamp": self.created_at.strftime("%Y-%m-%d %H:%M UTC") if self.created_at else "Just now",
+                    "action": "complaint_submitted"
+                }
+            ]
+            if is_approved or self.official_resolution_message:
+                conv.append({
+                    "id": f"msg-agent-{self.complaint_id}",
+                    "sender": "agent",
+                    "sender_name": "Support Specialist",
+                    "message": customer_msg,
+                    "timestamp": self.updated_at.strftime("%Y-%m-%d %H:%M UTC") if self.updated_at else "Just now",
+                    "action": "specialist_response"
+                })
+
+        is_closed = self.status in ["Resolved & Closed", "Closed"]
+        has_agent_response = is_approved or bool(self.official_resolution_message)
+
         return {
             "complaint_id": self.complaint_id,
             "complaint_title": self.complaint_title,
@@ -169,5 +215,9 @@ class ComplaintTicket(Base):
             "sla_target_hours": self.sla_target_hours,
             "is_sla_at_risk": self.is_sla_at_risk,
             "is_duplicate": self.is_duplicate,
-            "is_repeat_complaint": self.is_repeat_complaint
+            "is_repeat_complaint": self.is_repeat_complaint,
+            "conversation_history": conv,
+            "can_reply": not is_closed,
+            "is_closed": is_closed,
+            "has_agent_response": has_agent_response
         }

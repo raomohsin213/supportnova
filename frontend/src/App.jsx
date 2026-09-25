@@ -14,7 +14,7 @@ import { fetchTickets } from './services/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('customer');
-  const [selectedTicketId, setSelectedTicketId] = useState('TC-ADV-001');
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [blockedCount, setBlockedCount] = useState(0);
   const [activeRole, setActiveRole] = useState('customer');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
@@ -60,7 +60,12 @@ export default function App() {
       {/* Main Top Navigation */}
       <Navbar 
         activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+        setActiveTab={(tab) => {
+          if (tab === 'workspace') {
+            setSelectedTicketId(null);
+          }
+          setActiveTab(tab);
+        }} 
         blockedCount={blockedCount}
         activeRole={activeRole}
         onRoleChange={(role) => {
@@ -70,6 +75,7 @@ export default function App() {
           } else if (role === 'support_agent' || role === 'reviewer') {
             setActiveTab('queue');
           } else if (role === 'system_admin') {
+            setSelectedTicketId(null);
             setActiveTab('workspace');
           }
         }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   SplitSquareVertical, 
   CheckCircle2, 
+  AlertCircle,
   AlertTriangle, 
   AlertOctagon, 
   ShieldAlert, 
@@ -102,7 +103,7 @@ const EVALUATOR_SCENARIOS = {
 
 export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpenGuide, activeRole = 'support_agent' }) {
   const [tickets, setTickets] = useState([]);
-  const [currentId, setCurrentId] = useState(selectedTicketId || 'TC-ADV-001');
+  const [currentId, setCurrentId] = useState(selectedTicketId || '');
   const [ticketData, setTicketData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -138,15 +139,27 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
     async function loadTickets() {
       try {
         const res = await fetchTickets({ limit: 50 });
-        setTickets(res.tickets || []);
-        if (!selectedTicketId && res.tickets && res.tickets.length > 0) {
-          setCurrentId(res.tickets[0].complaint_id);
+        const list = res.tickets || [];
+        setTickets(list);
+        if (selectedTicketId && list.some(t => t.complaint_id === selectedTicketId)) {
+          setCurrentId(selectedTicketId);
+        } else if (list.length > 0) {
+          // Always default to the most recent ticket in the database!
+          setCurrentId(list[0].complaint_id);
+          if (onSelectTicket) onSelectTicket(list[0].complaint_id);
         }
       } catch (err) {
         console.error('Failed to load tickets:', err);
       }
     }
     loadTickets();
+  }, [selectedTicketId]);
+
+  // Synchronize whenever selectedTicketId prop changes externally
+  useEffect(() => {
+    if (selectedTicketId) {
+      setCurrentId(selectedTicketId);
+    }
   }, [selectedTicketId]);
 
   // Load ticket details when currentId changes
@@ -685,6 +698,80 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
             </div>
           </div>
 
+          {/* LIVE CUSTOMER CONVERSATION & RESOLUTION TIMELINE */}
+          {ticketData.conversation_history && ticketData.conversation_history.length > 0 && (
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <span>Customer & Specialist Conversation Thread</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold">
+                        {ticketData.conversation_history.length} Event{ticketData.conversation_history.length > 1 ? 's' : ''}
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-mono">
+                      Full audit trail of customer statements, specialist approvals, customer replies, and mutual closures.
+                    </p>
+                  </div>
+                </div>
+                {ticketData.status === 'Reopened' && (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white animate-pulse flex items-center gap-1.5 shadow-xs">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    Customer Replied • Action Required
+                  </span>
+                )}
+                {ticketData.status === 'Resolved & Closed' && (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white flex items-center gap-1.5 shadow-xs">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Resolved & Closed
+                  </span>
+                )}
+              </div>
+
+              {/* Conversation Bubbles */}
+              <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                {ticketData.conversation_history.map((item, idx) => {
+                  const isCustomer = item.sender === 'customer';
+                  const isClosure = item.action === 'customer_accepted_close' || item.action === 'ticket_closed' || item.action === 'Close Ticket';
+                  return (
+                    <div 
+                      key={idx}
+                      className={`p-3.5 rounded-xl text-xs space-y-1.5 ${
+                        isCustomer 
+                          ? 'bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' 
+                          : isClosure
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100'
+                          : 'bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-indigo-900 dark:text-indigo-100'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                        <span className="font-bold flex items-center gap-1.5">
+                          {isCustomer ? '👤 ' : (isClosure ? '✅ ' : '🛡️ ')}
+                          <span className={isCustomer ? 'text-slate-700 dark:text-slate-200' : isClosure ? 'text-emerald-700 dark:text-emerald-300' : 'text-indigo-700 dark:text-indigo-300'}>
+                            {item.sender_name || (isCustomer ? ticketData.customer_name : 'Support Specialist')}
+                          </span>
+                          {item.action && (
+                            <span className="text-[10px] font-normal px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                              {item.action}
+                            </span>
+                          )}
+                        </span>
+                        <span>{item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}</span>
+                      </div>
+                      <p className="whitespace-pre-line text-xs font-sans leading-relaxed">
+                        {item.message}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Executive Dual-Pipeline Verdict Banner */}
           <div className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs ${
             ticketData.status === 'Escalated to Admin'
@@ -771,6 +858,20 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               >
                 <Sliders className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <span>Override</span>
+              </button>
+              {/* Mutual Resolution & Close Action */}
+              <button
+                onClick={() => handleAction('Close Ticket', { notes: 'Resolution confirmed with customer; ticket formally closed by specialist.' })}
+                disabled={actionLoading || ticketData.status === 'Resolved & Closed'}
+                className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50 ${
+                  ticketData.status === 'Resolved & Closed'
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 border border-slate-300 dark:border-slate-700 cursor-not-allowed'
+                    : 'bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white'
+                }`}
+                title="Mark ticket resolved and close case"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>{ticketData.status === 'Resolved & Closed' ? 'Resolved & Closed' : 'Approve & Close'}</span>
               </button>
             </div>
           </div>

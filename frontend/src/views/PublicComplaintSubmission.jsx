@@ -222,15 +222,15 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
   const runDualPipelineSubmission = async (payload) => {
     setSubmitting(true);
     setError(null);
-    setPipelineStep('Executing Pipeline 1 (GenAI Intelligence)...');
+    setPipelineStep('Submitting complaint securely...');
 
     try {
       setTimeout(() => {
-        setPipelineStep('Executing Pipeline 2 (Ground-Truth Deterministic Engine)...');
+        setPipelineStep('Verifying order & warranty policies...');
       }, 600);
 
       setTimeout(() => {
-        setPipelineStep('Synthesizing Dual-Pipeline Diff & Calculating Governance Scores...');
+        setPipelineStep('Registering ticket with support specialists...');
       }, 1200);
 
       const result = await submitComplaint(payload);

@@ -6,7 +6,8 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from datetime import datetime
+from sqlalchemy import select, func, desc, or_
 from app.config import settings
 from app.database import get_db, SyncSessionLocal
 from app.models.ticket import ComplaintTicket
@@ -32,6 +33,19 @@ async def submit_complaint(
     complaint_id = complaint_data.complaint_id or f"TICK-{uuid.uuid4().hex[:8].upper()}"
     complaint_data.complaint_id = complaint_id
 
+    # Calculate actual historical complaint count for this customer
+    actual_prev_count = 0
+    if complaint_data.customer_email or complaint_data.customer_name:
+        conds = []
+        if complaint_data.customer_email:
+            conds.append(ComplaintTicket.customer_email.ilike(complaint_data.customer_email))
+        if complaint_data.customer_name:
+            conds.append(ComplaintTicket.customer_name.ilike(complaint_data.customer_name))
+        prev_count_stmt = select(func.count(ComplaintTicket.complaint_id)).where(or_(*conds))
+        prev_count_res = await async_db.execute(prev_count_stmt)
+        actual_prev_count = prev_count_res.scalar() or 0
+    complaint_data.previous_complaints_count = actual_prev_count
+
     # 1. Pipeline 1: GenAI Probabilistic Analysis
     genai_output = await genai_pipeline.analyze(complaint_data)
 
@@ -45,6 +59,18 @@ async def submit_complaint(
     # 3. Module 5: Dual-Pipeline Comparison & Diff Synthesis
     diff_summary = diff_engine.generate_diff(complaint_data, genai_output, validation_output)
 
+    # Initial conversation thread
+    initial_conv = [
+        {
+            "id": f"msg-init-{complaint_id}",
+            "sender": "customer",
+            "sender_name": complaint_data.customer_name or "Customer",
+            "message": complaint_data.complaint_description,
+            "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            "action": "complaint_submitted"
+        }
+    ]
+
     # 4. Persistence into SQLite via async_db
     ticket = ComplaintTicket(
         complaint_id=complaint_id,
@@ -55,7 +81,7 @@ async def submit_complaint(
         complaint_description=complaint_data.complaint_description,
         order_reference=complaint_data.order_reference,
         transaction_date=complaint_data.transaction_date,
-        previous_complaints_count=complaint_data.previous_complaints_count,
+        previous_complaints_count=actual_prev_count,
         genai_output_json=genai_output.model_dump_json(),
         validation_output_json=validation_output.model_dump_json(),
         diff_summary_json=json.dumps(diff_summary),
@@ -88,7 +114,8 @@ async def submit_complaint(
         repeat_count=validation_output.repeat_count,
         extracted_entities_json=json.dumps(validation_output.extracted_entities),
         clarification_questions_json=json.dumps(validation_output.clarification_questions),
-        follow_up_message=validation_output.follow_up_message
+        follow_up_message=validation_output.follow_up_message,
+        conversation_history_json=json.dumps(initial_conv)
     )
 
     async_db.add(ticket)
@@ -242,14 +269,17 @@ async def get_customer_complaints(
     """
     Returns all complaints for a specific customer by name or email.
     """
+    ident = identifier.strip()
     stmt = (
         select(ComplaintTicket)
         .where(
-            (ComplaintTicket.customer_name == identifier) | 
-            (ComplaintTicket.customer_email == identifier)
+            or_(
+                ComplaintTicket.customer_name.ilike(f"%{ident}%"),
+                ComplaintTicket.customer_email.ilike(ident)
+            )
         )
-        .order_by(ComplaintTicket.created_at.desc())
-        .limit(50)
+        .order_by(desc(ComplaintTicket.created_at))
+        .limit(100)
     )
     result = await async_db.execute(stmt)
     tickets = result.scalars().all()

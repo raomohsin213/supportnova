@@ -49,6 +49,24 @@ def get_sync_db():
 async def init_db():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        try:
+            from sqlalchemy import text
+            cur = await conn.execute(text("PRAGMA table_info(complaint_tickets)"))
+            cols = [r[1] for r in cur.fetchall()]
+            if cols and "conversation_history_json" not in cols:
+                await conn.execute(text("ALTER TABLE complaint_tickets ADD COLUMN conversation_history_json TEXT DEFAULT '[]'"))
+        except Exception:
+            pass
 
 def init_sync_db():
     Base.metadata.create_all(bind=sync_engine)
+    try:
+        with sync_engine.connect() as conn:
+            from sqlalchemy import text
+            cur = conn.execute(text("PRAGMA table_info(complaint_tickets)"))
+            cols = [r[1] for r in cur.fetchall()]
+            if cols and "conversation_history_json" not in cols:
+                conn.execute(text("ALTER TABLE complaint_tickets ADD COLUMN conversation_history_json TEXT DEFAULT '[]'"))
+                conn.commit()
+    except Exception:
+        pass

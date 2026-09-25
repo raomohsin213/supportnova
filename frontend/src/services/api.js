@@ -227,3 +227,29 @@ export async function fetchLatestBenchmark() {
 export function getBenchmarkExportUrl() {
   return `${API_BASE}/benchmark/export-report`;
 }
+
+export async function customerReplyTicket(complaintId, message, customerEmail = null) {
+  const res = await fetch(`${API_BASE}/tickets/${complaintId}/customer-reply`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, customer_email: customerEmail })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to send reply');
+  }
+  return res.json();
+}
+
+export async function customerCloseTicket(complaintId, satisfactionNotes = null) {
+  const res = await fetch(`${API_BASE}/tickets/${complaintId}/customer-close`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ satisfaction_notes: satisfactionNotes })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to close ticket');
+  }
+  return res.json();
+}
