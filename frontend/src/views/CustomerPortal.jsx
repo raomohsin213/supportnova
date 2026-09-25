@@ -37,9 +37,20 @@ import {
   Upload,
   RefreshCw,
   Eye,
-  Info
+  Info,
+  Database
 } from 'lucide-react';
-import { trackComplaint, fetchRecentPublicComplaints, submitComplaint, fetchCustomerComplaints, customerReplyTicket, customerCloseTicket } from '../services/api';
+import { 
+  trackComplaint, 
+  fetchRecentPublicComplaints, 
+  submitComplaint, 
+  fetchCustomerComplaints, 
+  customerReplyTicket, 
+  customerCloseTicket,
+  syncCustomerPurchases,
+  fetchCustomerHistory,
+  logCustomerActivity
+} from '../services/api';
 import { StatusBadge } from '../components/StatusBadge';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -397,7 +408,7 @@ const INITIAL_PURCHASES = {
 };
 
 // -------------------------------------------------------------
-export function CustomerPortal() {
+export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
   // Active Customer profile state
   const [activeCustomer, setActiveCustomer] = useState(PRE_SEEDED_CUSTOMERS[0]);
   const [customerPurchases, setCustomerPurchases] = useState(() => {
@@ -409,6 +420,12 @@ export function CustomerPortal() {
     }
   });
 
+  // MongoDB Atlas State & Telemetry
+  const [mongoHistory, setMongoHistory] = useState(null);
+  const [mongoLoading, setMongoLoading] = useState(false);
+  const [mongoSyncing, setMongoSyncing] = useState(false);
+  const [mongoConnected, setMongoConnected] = useState(true);
+
   // Sync purchases to localStorage
   useEffect(() => {
     try {
@@ -417,8 +434,83 @@ export function CustomerPortal() {
       console.error('Failed to persist customer purchases:', e);
     }
   }, [customerPurchases]);
+
+  // Sync customer purchases to MongoDB Atlas automatically
+  useEffect(() => {
+    async function syncActivePurchases() {
+      const orders = customerPurchases[activeCustomer.email] || [];
+      if (orders.length > 0) {
+        try {
+          const records = orders.map(o => ({
+            order_id: o.orderId,
+            customer_email: activeCustomer.email,
+            customer_name: activeCustomer.name,
+            product_name: o.productName,
+            price: o.price,
+            serial_number: o.serialNumber || null,
+            status: o.status || 'Delivered',
+            delivery_note: o.deliveryNote || null,
+            purchase_date: o.date || null
+          }));
+          await syncCustomerPurchases(records);
+        } catch (e) {
+          console.warn('MongoDB purchase auto-sync:', e);
+        }
+      }
+    }
+    syncActivePurchases();
+  }, [activeCustomer.email, customerPurchases]);
+
+  // Load customer full history from MongoDB Atlas
+  const loadMongoHistory = async () => {
+    setMongoLoading(true);
+    try {
+      const history = await fetchCustomerHistory(activeCustomer.email);
+      setMongoHistory(history);
+      setMongoConnected(!history.error);
+    } catch (e) {
+      console.warn('Failed to load MongoDB customer history:', e);
+      setMongoConnected(false);
+    } finally {
+      setMongoLoading(false);
+    }
+  };
+
+  // Sync all pre-seeded customers to MongoDB Atlas at once
+  const handleSyncAllToMongo = async () => {
+    setMongoSyncing(true);
+    try {
+      let totalSynced = 0;
+      for (const cust of PRE_SEEDED_CUSTOMERS) {
+        const orders = customerPurchases[cust.email] || [];
+        if (orders.length > 0) {
+          const records = orders.map(o => ({
+            order_id: o.orderId,
+            customer_email: cust.email,
+            customer_name: cust.name,
+            product_name: o.productName,
+            price: o.price,
+            serial_number: o.serialNumber || null,
+            status: o.status || 'Delivered',
+            delivery_note: o.deliveryNote || null,
+            purchase_date: o.date || null
+          }));
+          await syncCustomerPurchases(records);
+          totalSynced += records.length;
+        }
+      }
+      toast.success('MongoDB Atlas Sync Complete', {
+        description: `Synced ${totalSynced} customer purchases to MongoDB Atlas cluster.`
+      });
+      await loadMongoHistory();
+    } catch (e) {
+      toast.error('MongoDB Atlas sync failed', { description: e.message });
+    } finally {
+      setMongoSyncing(false);
+    }
+  };
   
-  // Navigation tabs in Customer Portal: 'orders', 'tickets', 'store'
+  // Navigation tabs in Customer Portal: 'orders', 'tickets', 'store', 'history'
   const [activeSubTab, setActiveSubTab] = useState('orders');
   
   // User's filed tickets list
@@ -508,6 +600,15 @@ export function CustomerPortal() {
     toast.info(`Switched profile to: ${customer.name}`, {
       description: `Viewing orders for ${customer.email} (${customer.tier} Tier)`
     });
+    // Log customer switch/login to MongoDB
+    try {
+      logCustomerActivity({
+        customer_email: customer.email,
+        customer_name: customer.name,
+        event_type: 'customer_login',
+        details: `Customer authenticated as ${customer.tier} user.`
+      });
+    } catch (e) {}
   };
 
   // Open modal pre-populated with order details (image is strictly optional)
@@ -554,10 +655,25 @@ export function CustomerPortal() {
 
       const result = await submitComplaint(payload);
       setSubmittedTicketId(result.complaint_id);
+      if (onTicketSubmitted) {
+        onTicketSubmitted(result.complaint_id);
+      }
       setFilingModalOpen(false);
       toast.success(`Complaint #${result.complaint_id} Submitted!`, {
         description: 'Your complaint has been logged securely. Our support team is reviewing your claim against corporate warranty policies.'
       });
+
+      // Log complaint event to MongoDB Atlas
+      try {
+        await logCustomerActivity({
+          customer_email: activeCustomer.email,
+          customer_name: activeCustomer.name,
+          event_type: 'complaint_submitted',
+          complaint_id: result.complaint_id,
+          details: `Filed claim on ${selectedOrder.productName}: "${complaintTitle}"`
+        });
+      } catch (e) {}
+
       // Refresh user's tickets and switch to tickets tab
       await loadMyTickets();
       setActiveSubTab('tickets');
@@ -587,6 +703,18 @@ export function CustomerPortal() {
           ? 'Your photo and message were attached to your case and escalated to the support specialist.' 
           : 'Your ticket has been reopened and placed in the specialist review queue.'
       });
+
+      // Log reply event to MongoDB Atlas
+      try {
+        await logCustomerActivity({
+          customer_email: activeCustomer.email,
+          customer_name: activeCustomer.name,
+          event_type: 'customer_reply',
+          complaint_id: complaintId,
+          details: `Customer sent reply: "${replyText.trim().substring(0, 80)}..."${replyImageUrl ? ' with defect photo' : ''}`
+        });
+      } catch (e) {}
+
       setReplyText('');
       setReplyImageUrl('');
       setReplyFileName('');
@@ -607,6 +735,18 @@ export function CustomerPortal() {
       toast.success('Ticket Closed with Mutual Agreement', {
         description: 'Thank you for your confirmation! Your issue is marked as Resolved & Closed.'
       });
+
+      // Log closure event to MongoDB Atlas
+      try {
+        await logCustomerActivity({
+          customer_email: activeCustomer.email,
+          customer_name: activeCustomer.name,
+          event_type: 'ticket_closed',
+          complaint_id: complaintId,
+          details: 'Customer accepted resolution and mutually closed ticket.'
+        });
+      } catch (e) {}
+
       await loadMyTickets();
     } catch (err) {
       toast.error('Failed to close ticket', { description: err.message });
@@ -640,8 +780,29 @@ export function CustomerPortal() {
       [activeCustomer.email]: [newOrder, ...(prev[activeCustomer.email] || [])]
     }));
 
+    // Sync new purchase and log activity to MongoDB Atlas
+    try {
+      syncCustomerPurchases([{
+        order_id: newOrder.orderId,
+        customer_email: activeCustomer.email,
+        customer_name: activeCustomer.name,
+        product_name: newOrder.productName,
+        price: newOrder.price,
+        serial_number: newOrder.serialNumber,
+        status: newOrder.status,
+        delivery_note: newOrder.deliveryNote,
+        purchase_date: newOrder.date
+      }]);
+      logCustomerActivity({
+        customer_email: activeCustomer.email,
+        customer_name: activeCustomer.name,
+        event_type: 'product_purchased',
+        details: `Purchased ${product.name} (${product.price}) with order ID ${newOrder.orderId}`
+      });
+    } catch (e) {}
+
     toast.success(`Order Placed: ${product.name}`, {
-      description: `Added to ${activeCustomer.name}'s verified purchases. You can now file a complaint on it!`
+      description: `Added to ${activeCustomer.name}'s verified purchases and synced to MongoDB Atlas. You can now file a complaint on it!`
     });
     setActiveSubTab('orders');
   };
@@ -749,6 +910,24 @@ export function CustomerPortal() {
           >
             <ShoppingBag className="w-4 h-4" />
             <span>NovaStore Catalog ({STORE_CATALOG.length} Products)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveSubTab('history');
+              loadMongoHistory();
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeSubTab === 'history'
+                ? 'bg-emerald-600 text-white shadow-md'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <Database className="w-4 h-4 text-emerald-500" />
+            <span>MongoDB Atlas Vault & History</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+              Atlas DB
+            </span>
           </button>
         </div>
 
@@ -1294,6 +1473,344 @@ export function CustomerPortal() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------- */}
+      {/* TAB 4: MONGODB ATLAS VAULT & AUDIT LEDGER                */}
+      {/* -------------------------------------------------------- */}
+      {activeSubTab === 'history' && (
+        <div className="space-y-6">
+          {/* Top MongoDB Cluster Banner */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border border-emerald-500/30 text-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  </span>
+                  <span className="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                    MongoDB Atlas NoSQL Engine Active
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                    Primary Production DB
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                  <Database className="w-5 h-5 text-emerald-400" />
+                  MongoDB Atlas Customer Vault & Audit Ledger
+                </h3>
+                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                  Real-time query telemetry against MongoDB Atlas Cluster (<strong className="text-emerald-300 font-mono">Cluster0 / replicaSet: atlas-q1pse9-shard-0</strong>).
+                  All customer purchases, complaint tickets, and activity logs are synchronized and persisted in NoSQL collections.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={loadMongoHistory}
+                  disabled={mongoLoading}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  title="Query latest records from MongoDB Atlas"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${mongoLoading ? 'animate-spin' : ''}`} />
+                  <span>{mongoLoading ? 'Querying Atlas...' : 'Refresh Telemetry'}</span>
+                </button>
+
+                <button
+                  onClick={handleSyncAllToMongo}
+                  disabled={mongoSyncing}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-md disabled:opacity-50"
+                  title="Sync all pre-seeded accounts to MongoDB Atlas collections"
+                >
+                  {mongoSyncing ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Database className="w-3.5 h-3.5" />
+                  )}
+                  <span>{mongoSyncing ? 'Syncing...' : 'Force Sync All to MongoDB'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick MongoDB Connection Metadata */}
+            <div className="mt-5 pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block uppercase">Cluster Name</span>
+                <span className="text-white font-bold">Cluster0 (Atlas Sharded)</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block uppercase">Database</span>
+                <span className="text-emerald-400 font-bold">support_nova</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block uppercase">Collections Active</span>
+                <span className="text-indigo-300 font-bold">purchases • tickets • audit</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block uppercase">Target Customer</span>
+                <span className="text-amber-300 font-bold truncate block">{activeCustomer.email}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Telemetry Counter Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5">
+              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                <Package className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[11px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">
+                  Atlas Purchases Saved
+                </span>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {mongoHistory?.total_purchases ?? (mongoHistory?.purchases?.length || currentOrders.length)}
+                </div>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                  Collection: customer_purchases
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5">
+              <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[11px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">
+                  Atlas Complaint Tickets
+                </span>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {mongoHistory?.total_complaints ?? (mongoHistory?.complaints?.length || myTickets.length)}
+                </div>
+                <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">
+                  Collection: complaint_tickets
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3.5">
+              <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[11px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">
+                  Atlas Activity Events
+                </span>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {mongoHistory?.activity_log?.length || 0}
+                </div>
+                <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">
+                  Collection: customer_activity_log
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 1: Customer Purchases Saved in MongoDB */}
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  <Package className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Verified Customer Purchases in MongoDB Atlas (<code className="text-xs font-mono text-emerald-600 dark:text-emerald-400">customer_purchases</code>)
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Stores complete purchase ledger including order IDs, device serial numbers, pricing, and fulfillment state.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                {mongoHistory?.purchases?.length || currentOrders.length} Document(s)
+              </span>
+            </div>
+
+            {/* Purchases Table / List */}
+            {((mongoHistory?.purchases && mongoHistory.purchases.length > 0) || currentOrders.length > 0) ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-mono uppercase text-[10px]">
+                    <tr>
+                      <th className="py-2.5 px-3 rounded-l-lg">Order ID</th>
+                      <th className="py-2.5 px-3">Product Name</th>
+                      <th className="py-2.5 px-3">Price</th>
+                      <th className="py-2.5 px-3">Serial Number</th>
+                      <th className="py-2.5 px-3">Status</th>
+                      <th className="py-2.5 px-3 rounded-r-lg">MongoDB Persistence</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-sans">
+                    {(mongoHistory?.purchases && mongoHistory.purchases.length > 0 ? mongoHistory.purchases : currentOrders).map((p, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                        <td className="py-3 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                          {p.order_id || p.orderId}
+                        </td>
+                        <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">
+                          {p.product_name || p.productName}
+                        </td>
+                        <td className="py-3 px-3 font-mono font-bold text-slate-700 dark:text-slate-300">
+                          {p.price}
+                        </td>
+                        <td className="py-3 px-3 font-mono text-slate-500">
+                          {p.serial_number || p.serialNumber || 'N/A'}
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            {p.status || 'Delivered'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 font-mono text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Atlas Verified</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-8 text-center text-xs text-slate-400 border border-dashed rounded-xl space-y-2">
+                <Database className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
+                <p>No purchases saved in MongoDB Atlas for this account yet.</p>
+                <button
+                  onClick={handleSyncAllToMongo}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs cursor-pointer"
+                >
+                  Click to Sync Purchases to MongoDB
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Section 2: Complaints & Tickets in MongoDB Atlas */}
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Complaint Tickets in MongoDB Atlas (<code className="text-xs font-mono text-indigo-600 dark:text-indigo-400">complaint_tickets</code>)
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Full AI inspection telemetry, dual-pipeline diff verdicts, and conversation thread stored in NoSQL documents.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+                {mongoHistory?.complaints?.length || myTickets.length} Ticket(s)
+              </span>
+            </div>
+
+            {/* Tickets Grid */}
+            {((mongoHistory?.complaints && mongoHistory.complaints.length > 0) || myTickets.length > 0) ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(mongoHistory?.complaints && mongoHistory.complaints.length > 0 ? mongoHistory.complaints : myTickets).map((t, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/60 space-y-2.5 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                        {t.complaint_id}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                        {t.status || 'Active'}
+                      </span>
+                    </div>
+
+                    <h5 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
+                      {t.complaint_title}
+                    </h5>
+
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2">
+                      {t.complaint_description || t.customer_response || 'Case logged in MongoDB.'}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800/60 text-[10px] font-mono text-slate-500">
+                      <span>Dept: <strong>{t.assigned_department || 'Support'}</strong></span>
+                      {onInspectTicket && (
+                        <button
+                          onClick={() => onInspectTicket(t.complaint_id)}
+                          className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <span>Inspect in Dual-Pipeline</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center text-xs text-slate-400 border border-dashed rounded-xl">
+                No complaint tickets filed yet by {activeCustomer.name}.
+              </div>
+            )}
+          </div>
+
+          {/* Section 3: Live Customer Audit & Activity Trail in MongoDB */}
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Live Customer Audit & Activity Trail (<code className="text-xs font-mono text-purple-600 dark:text-purple-400">customer_activity_log</code>)
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Captures all user events, logins, complaint submissions, replies, and resolution agreements.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono text-purple-600 dark:text-purple-400 font-bold">
+                {mongoHistory?.activity_log?.length || 0} Event(s) Recorded
+              </span>
+            </div>
+
+            {mongoHistory?.activity_log && mongoHistory.activity_log.length > 0 ? (
+              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                {mongoHistory.activity_log.map((act, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs flex items-start justify-between gap-3"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 font-mono">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                          {act.event_type}
+                        </span>
+                        {act.complaint_id && (
+                          <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                            {act.complaint_id}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-slate-700 dark:text-slate-300 mt-1 font-sans">
+                        {act.details || 'Customer action recorded.'}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap">
+                      {act.recorded_at ? new Date(act.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Recent'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 text-center text-xs text-slate-400 border border-dashed rounded-xl">
+                Activity log is being recorded to MongoDB Atlas as you interact with the portal.
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import json
 import uuid
 import shutil
+import pydantic
 from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
@@ -291,3 +292,63 @@ async def get_customer_complaints(
     result = await async_db.execute(stmt)
     tickets = result.scalars().all()
     return [t.to_customer_dict() for t in tickets]
+
+# ---------------------------------------------------------------
+# CUSTOMER HISTORY & PURCHASE PERSISTENCE (MongoDB Atlas)
+# ---------------------------------------------------------------
+
+class PurchaseRecord(pydantic.BaseModel):
+    order_id: str
+    customer_email: str
+    customer_name: Optional[str] = None
+    product_name: str
+    product_id: Optional[str] = None
+    price: Optional[str] = None
+    serial_number: Optional[str] = None
+    status: Optional[str] = "Delivered"
+    delivery_note: Optional[str] = None
+    purchase_date: Optional[str] = None
+
+class ActivityRecord(pydantic.BaseModel):
+    customer_email: str
+    customer_name: Optional[str] = None
+    event_type: str   # e.g. "login", "complaint_submitted", "customer_reply", "ticket_closed"
+    complaint_id: Optional[str] = None
+    details: Optional[str] = None
+
+@router.post("/sync-purchases")
+async def sync_customer_purchases(records: list[PurchaseRecord]):
+    """
+    Saves customer purchase records to MongoDB Atlas.
+    Called by the frontend Customer Portal when a customer logs in,
+    ensuring their order history is persisted in MongoDB.
+    """
+    from app.mongodb import sync_customer_purchase
+    saved = 0
+    for record in records:
+        ok = await sync_customer_purchase(record.model_dump())
+        if ok:
+            saved += 1
+    return {"saved": saved, "total": len(records)}
+
+@router.get("/customer-history/{customer_email}")
+async def get_customer_full_history(customer_email: str):
+    """
+    Returns a customer's full history from MongoDB Atlas:
+    - All purchases (from customer_purchases collection)
+    - All complaint tickets (from complaint_tickets collection)
+    - Activity log (from customer_activity_log collection)
+    """
+    from app.mongodb import get_customer_history
+    history = await get_customer_history(customer_email)
+    return history
+
+@router.post("/log-activity")
+async def log_customer_activity(record: ActivityRecord):
+    """
+    Records a customer activity event in MongoDB Atlas.
+    Tracks logins, complaint submissions, replies, and closures.
+    """
+    from app.mongodb import sync_customer_activity
+    ok = await sync_customer_activity(record.model_dump())
+    return {"logged": ok}

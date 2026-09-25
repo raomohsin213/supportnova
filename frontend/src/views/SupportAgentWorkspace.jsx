@@ -129,6 +129,10 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
   const [escalateModalOpen, setEscalateModalOpen] = useState(false);
   const [escalateReason, setEscalateReason] = useState('');
 
+  // Agent Inline Reply State
+  const [agentReplyText, setAgentReplyText] = useState('');
+  const [agentReplySending, setAgentReplySending] = useState(false);
+
   // Accordion toggle states
   const [showEntities, setShowEntities] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
@@ -212,6 +216,36 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
       notes: specialistAuditNote.trim() || 'Verified and approved by Support Specialist.'
     });
     setApproveModalOpen(false);
+  };
+
+  const handleSendAgentReply = async () => {
+    if (!agentReplyText.trim()) {
+      toast.error('Reply cannot be empty', {
+        description: 'Please type a message before sending.'
+      });
+      return;
+    }
+    setAgentReplySending(true);
+    try {
+      await takeTicketAction(currentId, {
+        action: 'Agent Reply',
+        override_response: agentReplyText.trim(),
+        notes: 'Agent sent a follow-up reply to the customer.'
+      });
+      toast.success('Reply Sent to Customer', {
+        description: 'Your message has been delivered to the customer portal.'
+      });
+      setAgentReplyText('');
+      // Refresh ticket
+      const updated = await fetchTicketDetail(currentId);
+      setTicketData(updated);
+    } catch (err) {
+      toast.error('Failed to send reply', {
+        description: err.message || 'Unable to send reply.'
+      });
+    } finally {
+      setAgentReplySending(false);
+    }
   };
 
   const handleConfirmEscalation = () => {
@@ -302,6 +336,22 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               </option>
             ))}
           </select>
+
+          <button
+            onClick={() => {
+              if (tickets.length > 0) {
+                const latestId = tickets[0].complaint_id;
+                setCurrentId(latestId);
+                if (onSelectTicket) onSelectTicket(latestId);
+                toast.info('Switched to Latest Ticket', { description: `Active: ${latestId} (${tickets[0].customer_name})` });
+              }
+            }}
+            className="px-2.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+            title="Switch directly to newest submitted complaint"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Latest Ticket</span>
+          </button>
 
           <button
             onClick={async () => {
@@ -788,6 +838,65 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                   );
                 })}
               </div>
+
+              {/* AGENT INLINE REPLY COMPOSER */}
+              {ticketData.status !== 'Resolved & Closed' && (
+                <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800">
+                      <Send className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Reply to Customer</span>
+                    {ticketData.status === 'Reopened' && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 font-bold animate-pulse">Customer is waiting for your response</span>
+                    )}
+                  </div>
+                  {/* Quick reply chips */}
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {[
+                      { label: '📋 Request Serial Number', text: `Dear ${ticketData.customer_name || 'Customer'},\n\nThank you for your reply. To proceed with your case, could you please provide the product serial number? You can usually find it on the box label or under the device.\n\nBest regards,\nSupport Specialist` },
+                      { label: '📷 Request Photos', text: `Dear ${ticketData.customer_name || 'Customer'},\n\nTo resolve this quickly, please provide clear photos of the damage or defect. You can upload images directly when replying.\n\nThank you,\nSupport Specialist` },
+                      { label: '✅ Acknowledge Info', text: `Dear ${ticketData.customer_name || 'Customer'},\n\nThank you for the information. We have recorded your details and our team is working on your case. We will update you shortly with the resolution.\n\nBest regards,\nSupport Specialist` },
+                      { label: '🔧 Troubleshoot Steps', text: `Dear ${ticketData.customer_name || 'Customer'},\n\nPlease try the following troubleshooting steps:\n1. Power off the device completely\n2. Wait 30 seconds and power on again\n3. Check if the issue persists\n\nIf the problem continues, please let us know and we will proceed with a replacement/repair.\n\nSupport Specialist` }
+                    ].map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => setAgentReplyText(chip.text)}
+                        className="px-2 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 text-[10px] font-medium border border-sky-200 dark:border-sky-800 transition-colors cursor-pointer"
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <textarea
+                      rows={3}
+                      value={agentReplyText}
+                      onChange={(e) => setAgentReplyText(e.target.value)}
+                      placeholder="Type your reply to the customer here..."
+                      className="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white leading-relaxed focus:ring-2 focus:ring-sky-500 focus:outline-hidden resize-none"
+                    />
+                    <button
+                      onClick={handleSendAgentReply}
+                      disabled={agentReplySending || !agentReplyText.trim()}
+                      className="self-end px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {agentReplySending ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Send Reply</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

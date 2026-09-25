@@ -331,6 +331,28 @@ async def take_ticket_action(
         })
         ticket.conversation_history = conv
 
+    elif payload.action in ["Agent Reply", "Reply to Customer"]:
+        # Freeform agent reply — does NOT change ticket to Verified/Approved.
+        # Simply adds the agent's message to conversation thread and marks
+        # ticket as "Awaiting Customer" so the customer knows they need to respond.
+        reply_msg = payload.override_response or payload.notes or ""
+        if not reply_msg.strip():
+            raise HTTPException(status_code=400, detail="Reply message cannot be empty.")
+        ticket.status = "Awaiting Customer"
+        ticket.human_reviewer_action = "Replied"
+        ticket.human_reviewer_notes = payload.notes or "Agent sent a follow-up reply to the customer."
+        ticket.official_resolution_message = reply_msg.strip()
+
+        conv.append({
+            "id": f"msg-reply-{uuid.uuid4().hex[:6]}",
+            "sender": "agent",
+            "sender_name": "Support Specialist",
+            "message": reply_msg.strip(),
+            "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            "action": "agent_reply"
+        })
+        ticket.conversation_history = conv
+
     elif payload.action in ["Close Ticket", "Resolve & Close Ticket", "Approve & Close"]:
         ticket.status = "Resolved & Closed"
         ticket.is_automated_dispatch_blocked = False

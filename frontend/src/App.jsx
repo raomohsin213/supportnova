@@ -61,9 +61,6 @@ export default function App() {
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={(tab) => {
-          if (tab === 'workspace') {
-            setSelectedTicketId(null);
-          }
           setActiveTab(tab);
         }} 
         blockedCount={blockedCount}
@@ -75,7 +72,6 @@ export default function App() {
           } else if (role === 'support_agent' || role === 'reviewer') {
             setActiveTab('queue');
           } else if (role === 'system_admin') {
-            setSelectedTicketId(null);
             setActiveTab('workspace');
           }
         }}
@@ -113,7 +109,10 @@ export default function App() {
         )}
 
         {activeTab === 'customer' && (
-          <CustomerPortal />
+          <CustomerPortal 
+            onTicketSubmitted={handleTicketSubmitted}
+            onInspectTicket={handleInspectTicket}
+          />
         )}
 
         {activeTab === 'benchmark' && (

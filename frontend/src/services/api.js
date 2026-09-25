@@ -257,3 +257,38 @@ export async function customerCloseTicket(complaintId, satisfactionNotes = null)
   }
   return res.json();
 }
+
+export async function syncCustomerPurchases(records) {
+  const res = await fetch(`${API_BASE}/complaints/sync-purchases`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(records)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to sync customer purchases to MongoDB');
+  }
+  return res.json();
+}
+
+export async function fetchCustomerHistory(customerEmail) {
+  const res = await fetch(`${API_BASE}/complaints/customer-history/${encodeURIComponent(customerEmail)}`);
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to fetch customer history from MongoDB');
+  }
+  return res.json();
+}
+
+export async function logCustomerActivity(record) {
+  const res = await fetch(`${API_BASE}/complaints/log-activity`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(record)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to log customer activity to MongoDB');
+  }
+  return res.json();
+}

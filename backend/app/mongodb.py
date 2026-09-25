@@ -122,3 +122,79 @@ def sync_ticket_to_mongo_sync(ticket_data: Dict[str, Any]) -> bool:
     except Exception as e:
         logger.warning(f"Failed sync to MongoDB (sync): {e}")
         return False
+
+async def sync_customer_purchase(purchase_data: Dict[str, Any]) -> bool:
+    """Saves a customer purchase record to MongoDB Atlas."""
+    try:
+        db = get_async_mongo_db()
+        if db is None:
+            return False
+        doc = dict(purchase_data)
+        doc.pop("_id", None)
+        doc["updated_at_mongo"] = datetime.utcnow().isoformat() + "Z"
+        # Upsert by order_id + customer_email
+        filter_key = {}
+        if doc.get("order_id"):
+            filter_key["order_id"] = doc["order_id"]
+        if doc.get("customer_email"):
+            filter_key["customer_email"] = doc["customer_email"]
+        if not filter_key:
+            filter_key = {"order_id": doc.get("order_id", f"ORD-{datetime.utcnow().timestamp()}")}
+        await db.customer_purchases.update_one(
+            filter_key,
+            {"$set": doc},
+            upsert=True
+        )
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to sync purchase to MongoDB: {e}")
+        return False
+
+async def sync_customer_activity(activity_data: Dict[str, Any]) -> bool:
+    """Saves a customer activity event (login, complaint, reply, close) to MongoDB Atlas."""
+    try:
+        db = get_async_mongo_db()
+        if db is None:
+            return False
+        doc = dict(activity_data)
+        doc.pop("_id", None)
+        doc["recorded_at"] = datetime.utcnow().isoformat() + "Z"
+        await db.customer_activity_log.insert_one(doc)
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to sync customer activity to MongoDB: {e}")
+        return False
+
+async def get_customer_history(customer_email: str) -> Dict[str, Any]:
+    """Retrieves a customer's full history from MongoDB Atlas (purchases, complaints, activity)."""
+    try:
+        db = get_async_mongo_db()
+        if db is None:
+            return {"error": "MongoDB not configured"}
+        
+        purchases = []
+        async for doc in db.customer_purchases.find({"customer_email": customer_email}).sort("updated_at_mongo", -1):
+            doc.pop("_id", None)
+            purchases.append(doc)
+        
+        complaints = []
+        async for doc in db.complaint_tickets.find({"customer_email": customer_email}).sort("created_at", -1):
+            doc.pop("_id", None)
+            complaints.append(doc)
+        
+        activity = []
+        async for doc in db.customer_activity_log.find({"customer_email": customer_email}).sort("recorded_at", -1).limit(50):
+            doc.pop("_id", None)
+            activity.append(doc)
+        
+        return {
+            "customer_email": customer_email,
+            "purchases": purchases,
+            "complaints": complaints,
+            "activity_log": activity,
+            "total_purchases": len(purchases),
+            "total_complaints": len(complaints)
+        }
+    except Exception as e:
+        logger.warning(f"Failed to get customer history: {e}")
+        return {"error": str(e)}
