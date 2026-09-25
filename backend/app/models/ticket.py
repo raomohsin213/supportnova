@@ -131,6 +131,49 @@ class ComplaintTicket(Base):
     def conversation_history(self, val: list):
         self.conversation_history_json = json.dumps(val)
 
+    def to_mongo_dict(self) -> dict:
+        """Serializes complete ticket object for MongoDB Atlas document storage."""
+        return {
+            "complaint_id": self.complaint_id,
+            "complaint_title": self.complaint_title,
+            "complaint_description": self.complaint_description,
+            "customer_name": self.customer_name,
+            "customer_email": self.customer_email,
+            "customer_tier": self.customer_tier,
+            "channel": self.channel,
+            "product_or_service": self.product_or_service,
+            "product_image_url": self.product_image_url,
+            "evidence_image_url": self.evidence_image_url,
+            "order_reference": self.order_reference,
+            "transaction_date": self.transaction_date,
+            "status": self.status,
+            "assigned_department": self.assigned_department,
+            "primary_department": self.primary_department,
+            "supporting_departments": self.supporting_departments,
+            "primary_issue": self.primary_issue,
+            "secondary_issue": self.secondary_issue,
+            "final_priority": self.final_priority,
+            "final_urgency": self.final_urgency,
+            "final_sentiment": self.final_sentiment,
+            "escalation_level": self.escalation_level,
+            "coverage_score": self.coverage_score,
+            "traceability_score": self.traceability_score,
+            "routing_score": self.routing_score,
+            "overall_confidence_score": self.overall_confidence_score,
+            "is_automated_dispatch_blocked": self.is_automated_dispatch_blocked,
+            "human_reviewer_action": self.human_reviewer_action,
+            "human_reviewer_notes": self.human_reviewer_notes,
+            "official_resolution_message": self.official_resolution_message,
+            "is_duplicate": self.is_duplicate,
+            "duplicate_of_id": self.duplicate_of_id,
+            "is_repeat_complaint": self.is_repeat_complaint,
+            "repeat_count": self.repeat_count,
+            "sla_target_hours": self.sla_target_hours,
+            "conversation_history": self.conversation_history,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
+
     def to_customer_dict(self) -> dict:
         """Safe customer-facing view excluding internal diff scores and validation engine logs."""
         genai = self.genai_output

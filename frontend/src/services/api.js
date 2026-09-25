@@ -228,11 +228,15 @@ export function getBenchmarkExportUrl() {
   return `${API_BASE}/benchmark/export-report`;
 }
 
-export async function customerReplyTicket(complaintId, message, customerEmail = null) {
+export async function customerReplyTicket(complaintId, message, customerEmail = null, evidenceImageUrl = null) {
   const res = await fetch(`${API_BASE}/tickets/${complaintId}/customer-reply`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, customer_email: customerEmail })
+    body: JSON.stringify({ 
+      message, 
+      customer_email: customerEmail,
+      evidence_image_url: evidenceImageUrl
+    })
   });
   if (!res.ok) {
     const err = await res.json();

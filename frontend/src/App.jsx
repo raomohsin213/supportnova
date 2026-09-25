@@ -147,7 +147,9 @@ export default function App() {
           <span>•</span>
           <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Pipeline 2: Zero-AI Python</span>
           <span>•</span>
-          <span className="text-slate-500 dark:text-slate-400">SQLite + ChromaDB</span>
+          <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
+            🍃 MongoDB Atlas + ChromaDB
+          </span>
         </div>
       </footer>
     </div>

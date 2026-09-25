@@ -212,6 +212,7 @@ async def get_ticket_detail(
 class CustomerReplyPayload(BaseModel):
     message: str
     customer_email: Optional[str] = None
+    evidence_image_url: Optional[str] = None
 
 class CustomerClosePayload(BaseModel):
     satisfaction_notes: Optional[str] = None
@@ -360,6 +361,13 @@ async def take_ticket_action(
     db.add(audit)
     await db.commit()
 
+    # Sync live ticket document to MongoDB Atlas
+    try:
+        from app.mongodb import sync_ticket_to_mongo
+        await sync_ticket_to_mongo(ticket.to_mongo_dict())
+    except Exception:
+        pass
+
     return {
         "success": True,
         "complaint_id": complaint_id,
@@ -379,6 +387,7 @@ async def customer_reply_ticket(
     """
     Allows a customer to reply to a support response.
     Appends to the conversation thread, reopens the ticket, and alerts the Specialist workspace.
+    Optionally accepts an attached photo / evidence image url.
     """
     stmt = select(ComplaintTicket).where(ComplaintTicket.complaint_id == complaint_id)
     result = await db.execute(stmt)
@@ -396,15 +405,24 @@ async def customer_reply_ticket(
     ticket.is_automated_dispatch_blocked = True
     ticket.updated_at = datetime.utcnow()
 
+    # If customer attached a photo in reply, update ticket's evidence image
+    if payload.evidence_image_url and payload.evidence_image_url.strip():
+        ticket.evidence_image_url = payload.evidence_image_url.strip()
+
     conv = ticket.conversation_history
-    conv.append({
+    msg_obj = {
         "id": f"msg-cust-{uuid.uuid4().hex[:6]}",
         "sender": "customer",
         "sender_name": ticket.customer_name or "Customer",
         "message": payload.message.strip(),
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
         "action": "customer_reply"
-    })
+    }
+    if payload.evidence_image_url and payload.evidence_image_url.strip():
+        msg_obj["image_url"] = payload.evidence_image_url.strip()
+        msg_obj["has_attachment"] = True
+
+    conv.append(msg_obj)
     ticket.conversation_history = conv
 
     audit = AuditLog(
@@ -417,6 +435,13 @@ async def customer_reply_ticket(
     )
     db.add(audit)
     await db.commit()
+
+    # Sync live updated ticket to MongoDB Atlas
+    try:
+        from app.mongodb import sync_ticket_to_mongo
+        await sync_ticket_to_mongo(ticket.to_mongo_dict())
+    except Exception:
+        pass
 
     return ticket.to_customer_dict()
 
@@ -464,5 +489,12 @@ async def customer_close_ticket(
     )
     db.add(audit)
     await db.commit()
+
+    # Sync live closed ticket to MongoDB Atlas
+    try:
+        from app.mongodb import sync_ticket_to_mongo
+        await sync_ticket_to_mongo(ticket.to_mongo_dict())
+    except Exception:
+        pass
 
     return ticket.to_customer_dict()

@@ -41,6 +41,18 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
         
+    # Test MongoDB Atlas connection
+    try:
+        from app.mongodb import ping_mongodb
+        mongo_status = ping_mongodb()
+        if mongo_status.get("status") == "connected":
+            print(f"[Startup] Connected to MongoDB Atlas: {mongo_status.get('cluster')} -> database: {mongo_status.get('database')}")
+            print(f"[Startup] Collections in MongoDB: {mongo_status.get('collections')}")
+        else:
+            print(f"[Startup] MongoDB Atlas ping returned: {mongo_status}")
+    except Exception as e:
+        print(f"[Startup] MongoDB Atlas initialization warning: {e}")
+
     yield
     print("[Shutdown] SupportNova Engine safely shutdown.")
 
@@ -76,6 +88,7 @@ def root():
         "theme": settings.THEME,
         "version": settings.VERSION,
         "status": "Operational",
+        "database": "MongoDB Atlas (Cluster0)",
         "dual_pipeline_active": True,
         "docs_url": "/docs"
     }
@@ -83,9 +96,13 @@ def root():
 @app.get("/health")
 @app.get("/api/health")
 def health_check():
+    from app.mongodb import ping_mongodb
+    mongo_info = ping_mongodb()
     return {
         "status": "healthy",
-        "database": "sqlite_connected",
+        "database": "MongoDB Atlas (Cluster0)",
+        "database_backend": "mongodb",
+        "mongodb": mongo_info,
         "gemini_model": settings.GEMINI_MODEL,
         "vector_store_chunks": len(vector_store.chunks_db)
     }

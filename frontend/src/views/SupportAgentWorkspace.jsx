@@ -765,6 +765,25 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                       <p className="whitespace-pre-line text-xs font-sans leading-relaxed">
                         {item.message}
                       </p>
+                      {item.image_url && (
+                        <div className="mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center gap-3">
+                          <img 
+                            src={item.image_url} 
+                            alt="Customer Defect Photo" 
+                            onClick={() => window.open(item.image_url, '_blank')}
+                            className="max-h-36 rounded-xl object-cover border-2 border-rose-400 dark:border-rose-600 shadow-xs cursor-pointer hover:scale-105 transition-transform" 
+                            title="Click to view full photo"
+                          />
+                          <div className="text-left text-xs">
+                            <span className="font-bold text-rose-600 dark:text-rose-400 block font-mono text-[10px] uppercase">
+                              📷 Defect Photo Uploaded by Customer
+                            </span>
+                            <span className="text-[11px] text-slate-500 block">
+                              Click photo to inspect full resolution evidence.
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

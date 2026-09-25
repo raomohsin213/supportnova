@@ -428,7 +428,27 @@ export function CustomerPortal() {
   // Customer interactive reply and ticket closure state
   const [replyingTicketId, setReplyingTicketId] = useState(null);
   const [replyText, setReplyText] = useState('');
+  const [replyImageUrl, setReplyImageUrl] = useState('');
+  const [replyImageMode, setReplyImageMode] = useState('upload'); // 'upload' or 'url'
+  const [replyFileName, setReplyFileName] = useState('');
   const [actionInProgress, setActionInProgress] = useState(false);
+
+  // Handle image upload for customer reply
+  const handleReplyImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file (PNG, JPG, WebP, etc.)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setReplyImageUrl(event.target.result);
+      setReplyFileName(file.name);
+      toast.success('Defect photo attached to reply', { description: file.name });
+    };
+    reader.readAsDataURL(file);
+  };
   
   // Modal / Filing state
   const [filingModalOpen, setFilingModalOpen] = useState(false);
@@ -548,7 +568,7 @@ export function CustomerPortal() {
     }
   };
 
-  // Customer replies to support team (reopens ticket)
+  // Customer replies to support team (reopens ticket, optionally with evidence photo)
   const handleSendCustomerReply = async (complaintId) => {
     if (!replyText.trim()) {
       toast.error('Please write a reply message');
@@ -556,11 +576,20 @@ export function CustomerPortal() {
     }
     setActionInProgress(true);
     try {
-      await customerReplyTicket(complaintId, replyText.trim(), activeCustomer.email);
-      toast.success('Reply Sent to Support!', {
-        description: 'Your ticket has been reopened and placed in the specialist review queue.'
+      await customerReplyTicket(
+        complaintId, 
+        replyText.trim(), 
+        activeCustomer.email,
+        replyImageUrl.trim() ? replyImageUrl.trim() : null
+      );
+      toast.success(replyImageUrl.trim() ? 'Reply & Defect Photo Sent!' : 'Reply Sent to Support!', {
+        description: replyImageUrl.trim() 
+          ? 'Your photo and message were attached to your case and escalated to the support specialist.' 
+          : 'Your ticket has been reopened and placed in the specialist review queue.'
       });
       setReplyText('');
+      setReplyImageUrl('');
+      setReplyFileName('');
       setReplyingTicketId(null);
       await loadMyTickets();
     } catch (err) {
@@ -955,6 +984,20 @@ export function CustomerPortal() {
                                 <span>{msg.timestamp || 'Recent'}</span>
                               </div>
                               <p className="whitespace-pre-line text-xs font-sans leading-relaxed">{msg.message}</p>
+                              {msg.image_url && (
+                                <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-800/60">
+                                  <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 uppercase font-bold block mb-1">
+                                    📷 Attached Defect Photo:
+                                  </span>
+                                  <img 
+                                    src={msg.image_url} 
+                                    alt="Attached Evidence" 
+                                    onClick={() => window.open(msg.image_url, '_blank')}
+                                    className="max-h-48 rounded-xl object-cover border-2 border-indigo-300 dark:border-indigo-700 shadow-xs cursor-pointer hover:scale-[1.02] transition-transform" 
+                                    title="Click to view full photo"
+                                  />
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -988,9 +1031,13 @@ export function CustomerPortal() {
                                   if (replyingTicketId === t.complaint_id) {
                                     setReplyingTicketId(null);
                                     setReplyText('');
+                                    setReplyImageUrl('');
+                                    setReplyFileName('');
                                   } else {
                                     setReplyingTicketId(t.complaint_id);
                                     setReplyText('');
+                                    setReplyImageUrl('');
+                                    setReplyFileName('');
                                   }
                                 }}
                                 className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
@@ -1003,22 +1050,160 @@ export function CustomerPortal() {
 
                           {/* Expandable Reply Composer */}
                           {replyingTicketId === t.complaint_id && (
-                            <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 space-y-2 shadow-xs animate-in fade-in duration-200">
-                              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
-                                Write your reply to Support (This will reopen the ticket for specialist review):
-                              </label>
-                              <textarea
-                                rows={3}
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                placeholder="State what adjustments you require or provide additional details..."
-                                className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
-                              />
+                            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-indigo-400 dark:border-indigo-600 space-y-3 shadow-md animate-in fade-in duration-200">
+                              <div>
+                                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                                  Write your reply to Support (This will reopen the ticket for specialist review):
+                                </label>
+                                <textarea
+                                  rows={3}
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  placeholder="State what adjustments you require or provide additional details..."
+                                  className="w-full mt-1.5 p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                                />
+                              </div>
+
+                              {/* Evidence Photo Attachment Section for Reply */}
+                              <div className="p-3 bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
+                                <div className="flex items-center justify-between">
+                                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                    <Camera className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                                    <span>Attach Defect Photo <span className="font-normal text-slate-500">(Required if specialist requested photo, or optional)</span></span>
+                                  </label>
+                                  {replyImageUrl && (
+                                    <button
+                                      type="button"
+                                      onClick={() => { setReplyImageUrl(''); setReplyFileName(''); }}
+                                      className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                                    >
+                                      <X className="w-3 h-3" />
+                                      <span>Remove Photo</span>
+                                    </button>
+                                  )}
+                                </div>
+
+                                {/* Attachment Mode Switcher Tabs */}
+                                <div className="flex items-center gap-1 p-1 bg-slate-200/60 dark:bg-slate-900 rounded-lg border border-slate-300/60 dark:border-slate-800 text-xs">
+                                  <button
+                                    type="button"
+                                    onClick={() => setReplyImageMode('upload')}
+                                    className={`flex-1 py-1 px-2.5 rounded-md font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                                      replyImageMode === 'upload' 
+                                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-2xs' 
+                                        : 'text-slate-600 dark:text-slate-400'
+                                    }`}
+                                  >
+                                    <Upload className="w-3 h-3" />
+                                    <span>Upload from Device</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setReplyImageMode('url')}
+                                    className={`flex-1 py-1 px-2.5 rounded-md font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                                      replyImageMode === 'url' 
+                                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-2xs' 
+                                        : 'text-slate-600 dark:text-slate-400'
+                                    }`}
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span>Paste Image Link</span>
+                                  </button>
+                                </div>
+
+                                {/* Upload Dropzone */}
+                                {replyImageMode === 'upload' ? (
+                                  <div className="border border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-400 rounded-lg p-3 text-center cursor-pointer transition-colors bg-white dark:bg-slate-900 relative">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleReplyImageUpload}
+                                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                    />
+                                    {replyImageUrl ? (
+                                      <div className="flex items-center gap-3 justify-center">
+                                        <img 
+                                          src={replyImageUrl} 
+                                          alt="Reply Evidence" 
+                                          className="w-12 h-12 rounded-lg object-cover border border-slate-300 dark:border-slate-700 shadow-xs"
+                                        />
+                                        <div className="text-left">
+                                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate max-w-[200px]">
+                                            {replyFileName || 'Photo Attached'}
+                                          </span>
+                                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold block">
+                                            ✓ Ready to send to specialist
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="py-1 space-y-1">
+                                        <Camera className="w-5 h-5 text-slate-400 mx-auto" />
+                                        <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                                          Click to choose defect photo or drag & drop
+                                        </div>
+                                        <div className="text-[10px] text-slate-400">PNG, JPG, WebP supported</div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  /* Paste URL Input */
+                                  <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="url"
+                                        value={replyImageUrl}
+                                        onChange={(e) => setReplyImageUrl(e.target.value)}
+                                        placeholder="https://... (Paste defect photo URL)"
+                                        className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono text-slate-900 dark:text-white"
+                                      />
+                                      {replyImageUrl && (
+                                        <img 
+                                          src={replyImageUrl} 
+                                          alt="Preview" 
+                                          className="w-8 h-8 rounded-lg object-cover border border-slate-300 dark:border-slate-700 flex-shrink-0" 
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Quick Sample Defect Photos for Instant 1-Click Testing */}
+                                <div className="pt-1">
+                                  <span className="text-[10px] text-slate-500 font-medium block mb-1">Quick Sample Photos (Click to attach instantly):</span>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {[
+                                      { label: '📷 Broken OLED Screen', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80' },
+                                      { label: '📦 Crushed Transit Box', url: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&auto=format&fit=crop&q=80' },
+                                      { label: '🔌 Defective / Burnt Port', url: 'https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600&auto=format&fit=crop&q=80' }
+                                    ].map((sample, sIdx) => (
+                                      <button
+                                        key={sIdx}
+                                        type="button"
+                                        onClick={() => {
+                                          setReplyImageUrl(sample.url);
+                                          setReplyFileName(sample.label);
+                                          toast.success(`Attached photo: ${sample.label}`);
+                                        }}
+                                        className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-[10px] font-medium border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer"
+                                      >
+                                        {sample.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+
                               <div className="flex items-center justify-end gap-2 pt-1">
                                 <button
                                   type="button"
-                                  onClick={() => { setReplyingTicketId(null); setReplyText(''); }}
-                                  className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium"
+                                  onClick={() => { 
+                                    setReplyingTicketId(null); 
+                                    setReplyText(''); 
+                                    setReplyImageUrl('');
+                                    setReplyFileName('');
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium cursor-pointer"
                                 >
                                   Cancel
                                 </button>

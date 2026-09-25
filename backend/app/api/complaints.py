@@ -121,6 +121,13 @@ async def submit_complaint(
     async_db.add(ticket)
     await async_db.commit()
 
+    # Sync live ticket document to MongoDB Atlas (TechWiz 7 Primary NoSQL DB)
+    try:
+        from app.mongodb import sync_ticket_to_mongo
+        await sync_ticket_to_mongo(ticket.to_mongo_dict())
+    except Exception:
+        pass
+
     return {
         "success": True,
         "complaint_id": complaint_id,

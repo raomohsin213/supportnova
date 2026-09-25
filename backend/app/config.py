@@ -18,10 +18,18 @@ class Settings(BaseSettings):
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
     OPENROUTER_DEFAULT_MODEL: str = os.getenv("OPENROUTER_DEFAULT_MODEL", "nvidia/nemotron-3.5-lightning:free")
     
-    # Database
+    # Database - SQLite & MongoDB Atlas
     DATABASE_PATH: Path = BASE_DIR / "support_nova.db"
     ASYNC_DATABASE_URL: str = f"sqlite+aiosqlite:///{DATABASE_PATH.as_posix()}"
     SYNC_DATABASE_URL: str = f"sqlite:///{DATABASE_PATH.as_posix()}"
+    
+    # MongoDB Atlas (TechWiz 7 Primary NoSQL Database)
+    MONGODB_URI: str = os.getenv(
+        "MONGODB_URI",
+        "mongodb://raomohsin213_db_user:zTuFHnspVLwqjET3@ac-qxyian5-shard-00-00.tiiipht.mongodb.net:27017,ac-qxyian5-shard-00-01.tiiipht.mongodb.net:27017,ac-qxyian5-shard-00-02.tiiipht.mongodb.net:27017/?ssl=true&replicaSet=atlas-q1pse9-shard-0&authSource=admin&appName=Cluster0"
+    )
+    MONGODB_DB_NAME: str = os.getenv("MONGODB_DB_NAME", "support_nova")
+    DATABASE_BACKEND: str = os.getenv("DATABASE_BACKEND", "mongodb")
     
     # Policy Uploads
     UPLOAD_DIR: Path = BASE_DIR / "uploads" / "policies"
