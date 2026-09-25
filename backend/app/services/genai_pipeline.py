@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import httpx
 from typing import List, Dict, Any, Optional
 from app.config import settings
 from app.schemas.complaint import ComplaintInput
@@ -100,6 +101,92 @@ Return a valid JSON object matching the required schema with these exact keys:
 """
         return prompt
 
+    def _clean_and_parse_json(self, raw_str: str, complaint_id: str) -> Optional[GenAIComplaintAnalysis]:
+        """Cleans markdown JSON fences and builds validated GenAIComplaintAnalysis model."""
+        try:
+            cleaned = raw_str.strip()
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+            elif cleaned.startswith("```"):
+                cleaned = cleaned[3:]
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+            cleaned = cleaned.strip()
+
+            data = json.loads(cleaned)
+            data["complaint_id"] = complaint_id
+
+            # Ensure collections conform to schema types
+            if not isinstance(data.get("extracted_entities"), dict):
+                data["extracted_entities"] = {}
+            if not isinstance(data.get("clarification_questions"), list):
+                data["clarification_questions"] = []
+            if not isinstance(data.get("resolution_steps"), list):
+                data["resolution_steps"] = []
+            if not isinstance(data.get("supporting_departments"), list):
+                data["supporting_departments"] = []
+
+            return GenAIComplaintAnalysis(**data)
+        except Exception as e:
+            print(f"[Pipeline 1] JSON parsing error from LLM response: {e}")
+            return None
+
+    async def _call_gemini(self, prompt: str, complaint_id: str) -> Optional[GenAIComplaintAnalysis]:
+        """Attempts live inference via Google GenAI SDK."""
+        if not self.client:
+            return None
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    temperature=0.1
+                )
+            )
+            return self._clean_and_parse_json(response.text, complaint_id)
+        except Exception as e:
+            print(f"[Pipeline 1] Gemini API call failed: {e}")
+            return None
+
+    async def _call_groq(self, prompt: str, complaint_id: str) -> Optional[GenAIComplaintAnalysis]:
+        """Calls Groq LPU engine as a fast, high-performance fallback."""
+        groq_key = settings.GROQ_API_KEY or os.getenv("GROQ_API_KEY", "")
+        if not groq_key:
+            return None
+        try:
+            headers = {
+                "Authorization": f"Bearer {groq_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": settings.GROQ_MODEL or "openai/gpt-oss-120b",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are the SupportNova AI Complaint Intelligence Engine. Return ONLY valid RFC 8259 JSON matching the requested schema. No surrounding markdown code fences or conversational text."
+                    },
+                    {"role": "user", "content": prompt}
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.1
+            }
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                res = await client.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data["choices"][0]["message"]["content"]
+                    result = self._clean_and_parse_json(content, complaint_id)
+                    if result:
+                        print(f"[Pipeline 1] Successfully analyzed complaint using Groq ({payload['model']})")
+                        return result
+                else:
+                    print(f"[Pipeline 1] Groq API call failed (HTTP {res.status_code}): {res.text}")
+                    return None
+        except Exception as e:
+            print(f"[Pipeline 1] Groq API call error: {e}")
+            return None
+
     async def analyze(
         self,
         complaint: ComplaintInput,
@@ -107,7 +194,7 @@ Return a valid JSON object matching the required schema with these exact keys:
     ) -> GenAIComplaintAnalysis:
         """
         Executes Pipeline 1 GenAI analysis.
-        Uses live Gemini API if key is available, else runs high-fidelity emulator.
+        Uses live Gemini API -> Cascades to Groq LPU Engine -> Falls back to high-fidelity emulator.
         """
         complaint_id = complaint.complaint_id or f"TICK-{os.urandom(4).hex().upper()}"
         
@@ -116,26 +203,22 @@ Return a valid JSON object matching the required schema with these exact keys:
             query = f"{complaint.complaint_title} {complaint.complaint_description}"
             retrieved_chunks = vector_store.search(query, top_k=3)
 
-        # 2. Try Live Gemini API call if client is configured and not running in automated tests
+        # 2. Try Live LLMs if not running in automated unit tests
         is_test = os.environ.get("PYTEST_CURRENT_TEST") is not None or (complaint.complaint_id and complaint.complaint_id.startswith("TEST-"))
-        if not is_test and self.client:
-            try:
-                prompt = self.build_prompt(complaint, retrieved_chunks)
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        temperature=0.1
-                    )
-                )
-                raw_json = json.loads(response.text)
-                raw_json["complaint_id"] = complaint_id
-                return GenAIComplaintAnalysis(**raw_json)
-            except Exception as e:
-                print(f"[Pipeline 1] Gemini API call failed or quota exceeded ({e}). Falling back to deterministic GenAI engine.")
+        if not is_test:
+            prompt = self.build_prompt(complaint, retrieved_chunks)
+            
+            # Step A: Primary Model - Google Gemini
+            gemini_result = await self._call_gemini(prompt, complaint_id)
+            if gemini_result:
+                return gemini_result
 
-        # 3. Intelligent Deterministic GenAI Emulator
+            # Step B: Fallback Model - Groq LPU Engine (GPT-OSS-120B)
+            groq_result = await self._call_groq(prompt, complaint_id)
+            if groq_result:
+                return groq_result
+
+        # 3. Deterministic GenAI Emulator (used for unit tests and offline fallback)
         return self._emulate_genai_analysis(complaint, complaint_id, retrieved_chunks)
 
     def _emulate_genai_analysis(

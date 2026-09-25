@@ -77,7 +77,7 @@ async def submit_complaint(
         final_urgency=validation_output.calculated_urgency,
         final_sentiment=genai_output.sentiment,
         escalation_level=validation_output.escalation_level,
-        is_automated_dispatch_blocked=True,
+        is_automated_dispatch_blocked=validation_output.block_automated_dispatch,
         human_reviewer_action="Quarantined - Safety/Policy Block" if validation_output.block_automated_dispatch else "Pending Specialist Approval",
         pii_masked_description=validation_engine.mask_pii(complaint_data.complaint_description),
         sla_target_hours=2 if validation_output.calculated_priority == "P1" else (8 if validation_output.calculated_priority == "P2" else (24 if validation_output.calculated_priority == "P3" else 48)),

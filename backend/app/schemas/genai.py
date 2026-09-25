@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Dict, List
+from typing import Literal, Optional, Dict, List, Any
 from pydantic import BaseModel, Field
 
 class GenAIComplaintAnalysis(BaseModel):
@@ -25,5 +25,5 @@ class GenAIComplaintAnalysis(BaseModel):
     follow_up_message: Optional[str] = Field(None, description="Concrete follow-up message sent to customer if further investigation is needed")
     internal_agent_guidance: str
     clarification_questions: List[str] = Field(default_factory=list, description="Specific questions if critical details are missing from the complaint")
-    extracted_entities: Dict[str, str] = Field(default_factory=dict, description="Extracted entities (Order ID, Tracking, Amounts, Dates, Serials)")
+    extracted_entities: Dict[str, Any] = Field(default_factory=dict, description="Extracted entities (Order ID, Tracking, Amounts, Dates, Serials)")
     prohibited_action_detected: bool = False

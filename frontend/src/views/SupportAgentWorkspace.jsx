@@ -728,7 +728,7 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                   {ticketData.status === 'Escalated to Admin'
                     ? (ticketData.reviewer_notes || 'Specialist has escalated this ticket to Admin for high-tier compensation authorization.')
                     : ticketData.is_automated_dispatch_blocked
-                    ? (diff.block_reason || 'Pipeline 2 detected rule discrepancies. Outgoing message is held.')
+                    ? (diff.block_reason || (diff.mismatches && diff.mismatches.length > 0 ? 'Pipeline 2 detected rule discrepancies. Outgoing message is held.' : 'Automated dispatch held pending specialist sign-off.'))
                     : 'Pipeline 1 (GenAI) and Pipeline 2 (Python) are in 100% agreement with active corporate policies.'}
                 </p>
               </div>
