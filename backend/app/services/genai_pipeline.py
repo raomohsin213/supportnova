@@ -187,6 +187,47 @@ Return a valid JSON object matching the required schema with these exact keys:
             print(f"[Pipeline 1] Groq API call error: {e}")
             return None
 
+    async def _call_openrouter(self, prompt: str, complaint_id: str) -> Optional[GenAIComplaintAnalysis]:
+        """Calls OpenRouter Multi-Model engine as tertiary fallback."""
+        openrouter_key = settings.OPENROUTER_API_KEY or os.getenv("OPENROUTER_API_KEY", "")
+        if not openrouter_key:
+            return None
+        try:
+            headers = {
+                "Authorization": f"Bearer {openrouter_key}",
+                "HTTP-Referer": "https://supportnova.ai",
+                "X-Title": "SupportNova AI Governance Engine",
+                "Content-Type": "application/json"
+            }
+            model = settings.OPENROUTER_DEFAULT_MODEL or "inclusionai/ling-3.0-flash-fin:free"
+            payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are the SupportNova AI Complaint Intelligence Engine. Return ONLY valid RFC 8259 JSON matching the requested schema. No surrounding markdown code fences or conversational text."
+                    },
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.1
+            }
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                res = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        content = choices[0]["message"]["content"]
+                        result = self._clean_and_parse_json(content, complaint_id)
+                        if result:
+                            print(f"[Pipeline 1] Successfully analyzed complaint using OpenRouter ({model})")
+                            return result
+                print(f"[Pipeline 1] OpenRouter API call failed (HTTP {res.status_code}): {res.text[:200]}")
+                return None
+        except Exception as e:
+            print(f"[Pipeline 1] OpenRouter API call error: {e}")
+            return None
+
     async def analyze(
         self,
         complaint: ComplaintInput,
@@ -194,7 +235,7 @@ Return a valid JSON object matching the required schema with these exact keys:
     ) -> GenAIComplaintAnalysis:
         """
         Executes Pipeline 1 GenAI analysis.
-        Uses live Gemini API -> Cascades to Groq LPU Engine -> Falls back to high-fidelity emulator.
+        Uses live Gemini API -> Cascades to Groq LPU Engine -> Cascades to OpenRouter -> Falls back to high-fidelity emulator.
         """
         complaint_id = complaint.complaint_id or f"TICK-{os.urandom(4).hex().upper()}"
         
@@ -213,10 +254,15 @@ Return a valid JSON object matching the required schema with these exact keys:
             if gemini_result:
                 return gemini_result
 
-            # Step B: Fallback Model - Groq LPU Engine (GPT-OSS-120B)
+            # Step B: Fast Fallback Model - Groq LPU Engine (GPT-OSS-120B)
             groq_result = await self._call_groq(prompt, complaint_id)
             if groq_result:
                 return groq_result
+
+            # Step C: Multi-Model Cascade - OpenRouter Engine
+            openrouter_result = await self._call_openrouter(prompt, complaint_id)
+            if openrouter_result:
+                return openrouter_result
 
         # 3. Deterministic GenAI Emulator (used for unit tests and offline fallback)
         return self._emulate_genai_analysis(complaint, complaint_id, retrieved_chunks)
