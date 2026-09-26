@@ -1040,11 +1040,11 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                         <StatusBadge status={t.status} />
                         {t.is_automated_dispatch_blocked ? (
                           <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            ⏳ Under Human Specialist Review
+                            Under Review
                           </span>
                         ) : (
                           <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            ✨ AI Verified & Dispatched
+                            AI Verified & Dispatched
                           </span>
                         )}
                       </div>
@@ -1128,7 +1128,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                             >
                               <div className="flex items-center justify-between text-[10px] font-mono text-[#64748B] mb-1">
                                 <span className="font-bold flex items-center gap-1.5">
-                                  {msg.sender === 'customer' ? '👤 ' : (msg.action === 'customer_accepted_close' ? '✅ ' : '🛡️ ')}
+                                  {msg.sender === 'customer' ? '' : (msg.action === 'customer_accepted_close' ? '' : '')}
                                   <span className={msg.sender === 'customer' ? 'text-[#334155]' : (msg.action === 'customer_accepted_close' ? 'text-emerald-700' : 'text-indigo-600 font-bold')}>
                                     {msg.sender_name || (msg.sender === 'customer' ? 'You' : 'Support Specialist')}
                                   </span>
@@ -1139,7 +1139,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                               {msg.image_url && (
                                 <div className="mt-2.5 pt-2 border-t border-slate-200/80">
                                   <span className="text-[10px] font-mono text-rose-600 uppercase font-bold block mb-1">
-                                    📷 Attached Defect Photo:
+                                    Attached Defect Photo:
                                   </span>
                                   <img 
                                     src={msg.image_url} 
@@ -1284,7 +1284,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                             {replyFileName || 'Photo Attached'}
                                           </span>
                                           <span className="text-[10px] text-emerald-600 font-semibold block">
-                                            ✓ Ready to send to specialist
+                                            Ready to send to specialist
                                           </span>
                                         </div>
                                       </div>
@@ -1325,9 +1325,9 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                   <span className="text-[10px] text-[#64748B] font-medium block mb-1">Quick Sample Photos (Click to attach instantly):</span>
                                   <div className="flex flex-wrap gap-1.5">
                                     {[
-                                      { label: '📷 Broken OLED Screen', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80' },
-                                      { label: '📦 Crushed Transit Box', url: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&auto=format&fit=crop&q=80' },
-                                      { label: '🔌 Defective / Burnt Port', url: 'https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600&auto=format&fit=crop&q=80' }
+                                      { label: 'Broken OLED Screen', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80' },
+                                      { label: 'Crushed Transit Box', url: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&auto=format&fit=crop&q=80' },
+                                      { label: 'Defective / Burnt Port', url: 'https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600&auto=format&fit=crop&q=80' }
                                     ].map((sample, sIdx) => (
                                       <button
                                         key={sIdx}
@@ -1606,7 +1606,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                             {fileName || 'Evidence Photo Attached'}
                           </div>
                           <div className="text-[10px] text-emerald-600 font-semibold">
-                            ✓ Ready to attach with complaint
+                            Ready to attach with complaint
                           </div>
                           <div className="text-[10px] text-[#64748B]">Click or drop another file to replace</div>
                         </div>
