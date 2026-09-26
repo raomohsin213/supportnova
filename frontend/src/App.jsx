@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 import { JudgeGuideModal } from './components/JudgeGuideModal';
+import { AuthLoginModal, SYSTEM_PERSONAS } from './components/AuthLoginModal';
 import { PublicComplaintSubmission } from './views/PublicComplaintSubmission';
 import { SupportAgentWorkspace } from './views/SupportAgentWorkspace';
 import { ManualReviewQueue } from './views/ManualReviewQueue';
@@ -10,15 +11,17 @@ import { PolicyRegistryManager } from './views/PolicyRegistryManager';
 import { RuleMatrixManager } from './views/RuleMatrixManager';
 import { CustomerPortal } from './views/CustomerPortal';
 import { BenchmarkAuditCockpit } from './views/BenchmarkAuditCockpit';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import { fetchTickets } from './services/api';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('workspace');
+  const [activeTab, setActiveTab] = useState('queue');
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [blockedCount, setBlockedCount] = useState(0);
   const [activeRole, setActiveRole] = useState('support_agent');
+  const [currentUser, setCurrentUser] = useState(SYSTEM_PERSONAS.support_agent);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const refreshBadgeCount = async () => {
     try {
@@ -43,14 +46,50 @@ export default function App() {
 
   const handleInspectTicket = (ticketId) => {
     setSelectedTicketId(ticketId);
-    setActiveRole('support_agent');
+    if (activeRole === 'customer') {
+      setActiveRole('support_agent');
+      setCurrentUser(SYSTEM_PERSONAS.support_agent);
+    }
     setActiveTab('workspace');
   };
 
   const handleSelectScenario = (scenarioId) => {
     setSelectedTicketId(scenarioId);
-    setActiveRole('support_agent');
+    if (activeRole === 'customer') {
+      setActiveRole('support_agent');
+      setCurrentUser(SYSTEM_PERSONAS.support_agent);
+    }
     setActiveTab('workspace');
+  };
+
+  const handleRoleChange = (role) => {
+    setActiveRole(role);
+    const persona = SYSTEM_PERSONAS[role];
+    if (persona) {
+      setCurrentUser(persona);
+    }
+    if (role === 'customer') {
+      setActiveTab('customer');
+      toast.info('Switched to Customer persona (NovaStore & Orders)');
+    } else if (role === 'support_agent') {
+      setActiveTab('queue');
+      toast.info('Switched to Support Specialist persona (Clearances & Queue)');
+    } else if (role === 'system_admin') {
+      setActiveTab('workspace');
+      toast.info('Switched to Executive System Admin persona (Full Authority)');
+    }
+  };
+
+  const handleLoginFromModal = (userPayload) => {
+    setActiveRole(userPayload.role);
+    setCurrentUser(userPayload);
+    if (userPayload.role === 'customer') {
+      setActiveTab('customer');
+    } else if (userPayload.role === 'support_agent') {
+      setActiveTab('queue');
+    } else if (userPayload.role === 'system_admin') {
+      setActiveTab('workspace');
+    }
   };
 
   return (
@@ -58,22 +97,14 @@ export default function App() {
       {/* Global Toast Notifications (Sonner) */}
       <Toaster position="top-right" richColors closeButton expand={false} />
 
-      {/* Left Navigation Sidebar */}
+      {/* Left Navigation Sidebar (Strict RBAC, Finova styling) */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         blockedCount={blockedCount}
         activeRole={activeRole}
-        onRoleChange={(role) => {
-          setActiveRole(role);
-          if (role === 'customer') {
-            setActiveTab('customer');
-          } else if (role === 'support_agent' || role === 'reviewer') {
-            setActiveTab('queue');
-          } else if (role === 'system_admin') {
-            setActiveTab('workspace');
-          }
-        }}
+        onRoleChange={handleRoleChange}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Shell Container (Offset by sidebar width: ml-64) */}
@@ -82,6 +113,16 @@ export default function App() {
         <TopHeader
           onOpenGuide={() => setIsGuideOpen(true)}
           onSelectScenario={handleSelectScenario}
+          activeRole={activeRole}
+          onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        />
+
+        {/* Glassmorphic Auth & Role Switcher Modal (Reference Image 2) */}
+        <AuthLoginModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          activeRole={activeRole}
+          onLogin={handleLoginFromModal}
         />
 
         {/* Evaluator / Judge Interactive Walkthrough Modal */}
@@ -92,7 +133,7 @@ export default function App() {
         />
 
         {/* Main Content Container: ml-64 p-8 min-h-screen bg-[var(--bg-canvas)] */}
-        <main className="flex-1 p-8 bg-[var(--bg-canvas)]">
+        <main className="flex-1 p-6 sm:p-8 bg-[var(--bg-canvas)]">
           {activeTab === 'workspace' && (
             <SupportAgentWorkspace 
               selectedTicketId={selectedTicketId}

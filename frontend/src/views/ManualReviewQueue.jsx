@@ -12,7 +12,8 @@ import {
   Camera, 
   ArrowUpRight, 
   Inbox, 
-  CheckCircle2 
+  CheckCircle2,
+  Filter
 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { fetchTickets } from '../services/api';
@@ -79,11 +80,11 @@ export function ManualReviewQueue({ onInspectTicket }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#7947EA]/15 text-[#C084FC] border border-[#7947EA]/30 text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#7947EA]/15 text-[#C084FC] border border-[#7947EA]/30 text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-xs whitespace-nowrap">
             <ShieldAlert className="w-3.5 h-3.5" />
             Specialist Review & Triage Cockpit
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Clearances & Manual Review Queue
           </h1>
           <p className="text-xs text-slate-400 mt-1">
@@ -101,14 +102,14 @@ export function ManualReviewQueue({ onInspectTicket }) {
       </div>
 
       {/* Main Finova Recent Transactions Style Card */}
-      <div className="rounded-3xl p-6 bg-[#111424] border border-white/[0.09] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] space-y-5">
+      <div className="rounded-3xl p-5 sm:p-6 bg-[#111424] border border-white/[0.09] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] space-y-5">
         {/* Top Filter Tabs & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
           {/* Smooth Pill Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             <button
               onClick={() => setFilterType('all')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                 filterType === 'all'
                   ? 'finova-pill-active'
                   : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
@@ -119,7 +120,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
 
             <button
               onClick={() => setFilterType('blocked')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 ${
                 filterType === 'blocked'
                   ? 'bg-gradient-to-r from-[#FF4D73] to-[#FF7B54] text-white shadow-[0_4px_15px_rgba(255,77,115,0.35)]'
                   : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
@@ -131,7 +132,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
 
             <button
               onClick={() => setFilterType('p1')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 ${
                 filterType === 'p1'
                   ? 'bg-gradient-to-r from-[#FF7B54] to-[#F59E0B] text-white shadow-[0_4px_15px_rgba(255,123,84,0.35)]'
                   : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
@@ -143,7 +144,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
 
             <button
               onClick={() => setFilterType('cleared')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 ${
                 filterType === 'cleared'
                   ? 'bg-gradient-to-r from-[#059669] to-[#10B981] text-white shadow-[0_4px_15px_rgba(16,185,129,0.35)]'
                   : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
@@ -155,7 +156,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
           </div>
 
           {/* Embedded Search Bar */}
-          <div className="relative w-full sm:w-80">
+          <div className="relative w-full lg:w-80 shrink-0">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -167,17 +168,17 @@ export function ManualReviewQueue({ onInspectTicket }) {
           </div>
         </div>
 
-        {/* The Table */}
+        {/* The Responsive Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="text-xs font-semibold text-slate-400 tracking-wider pb-4 border-b border-white/[0.06] uppercase">
-                <th className="py-3 px-4">Item & Case</th>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Priority</th>
-                <th className="py-3 px-4">Department</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Action</th>
+                <th className="py-3 px-4 min-w-[280px]">Item & Case</th>
+                <th className="py-3 px-4 min-w-[160px]">Customer</th>
+                <th className="py-3 px-4 w-24">Priority</th>
+                <th className="py-3 px-4 min-w-[140px]">Department</th>
+                <th className="py-3 px-4 min-w-[160px]">Status</th>
+                <th className="py-3 px-4 w-24 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
@@ -216,10 +217,10 @@ export function ManualReviewQueue({ onInspectTicket }) {
                             <img 
                               src={t.product_image_url} 
                               alt={t.product_name || 'Product'} 
-                              className="w-10 h-10 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                              className="w-10 h-10 rounded-xl object-cover border border-white/10 shrink-0"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-xl bg-[#7947EA]/10 border border-[#7947EA]/20 text-[#C084FC] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <div className="w-10 h-10 rounded-xl bg-[#7947EA]/10 border border-[#7947EA]/20 text-[#C084FC] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                               <Package className="w-5 h-5" />
                             </div>
                           )}
@@ -253,7 +254,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
                       {/* Priority Dot & Badge */}
                       <td className="py-4.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${priorityDot.split(' ')[0]}`}></span>
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${priorityDot.split(' ')[0]}`}></span>
                           <span className="font-mono font-bold text-xs text-white">
                             {t.final_priority || 'P3'}
                           </span>
