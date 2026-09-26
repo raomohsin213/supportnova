@@ -274,18 +274,18 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
   const categories = ['ALL', ...new Set(policies.map(p => p.category))];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="space-y-6 pb-20 w-full min-w-0">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#7B3FE4]/15 to-[#FF4B72]/15 text-[#FF4B72] border border-[#7B3FE4]/30 text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-xs">
             <FileText className="w-3.5 h-3.5" />
             Module 1: Traceable Chunking & Policy Registry
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight">
             Corporate Policy Document Manager
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[#64748B] mt-1">
             Documents parsed into traceable citations stored in SQLite, indexed in Vector Store, and synced to MongoDB Atlas.
           </p>
         </div>
@@ -294,10 +294,10 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={loadPolicies}
-            className="px-3.5 py-2.5 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-white/[0.08] transition-colors cursor-pointer shadow-xs"
+            className="px-4 py-2 rounded-full bg-white hover:bg-slate-50 text-[#475569] text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition-colors cursor-pointer shadow-xs"
             title="Reload policies from database"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-indigo-600 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
 
@@ -308,15 +308,15 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
               setCreateContent('');
               setCreateModalOpen(true);
             }}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#059669] to-[#10B981] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_20px_rgba(16,185,129,0.35)] border border-white/10 transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
           >
-            <FilePlus className="w-4 h-4" />
+            <FilePlus className="w-4 h-4 text-emerald-400" />
             <span>Create New Policy</span>
           </button>
 
           <button
             onClick={() => setUploadModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_20px_rgba(123,63,228,0.35)] border border-white/10 transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
           >
             <UploadCloud className="w-4 h-4" />
             <span>Upload File</span>
@@ -325,27 +325,27 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
       </div>
 
       {/* Search and Category Filter Toolbar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-[#111525]/85 border border-white/[0.08] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-[28px] bg-white border border-slate-100 shadow-card">
         <div className="w-full sm:w-72">
           <input
             type="text"
             placeholder="Search by ID, title, keyword..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4] font-sans"
+            className="w-full px-4 py-2 rounded-full bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 font-sans"
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          <span className="text-[11px] font-mono text-slate-400 whitespace-nowrap">Filter:</span>
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          <span className="text-[11px] font-mono text-[#64748B] whitespace-nowrap">Filter:</span>
           {categories.slice(0, 6).map((cat) => (
             <button
               key={cat}
               onClick={() => setCategoryFilter(cat)}
-              className={`px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 categoryFilter === cat
-                  ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_15px_rgba(123,63,228,0.35)] border border-white/15'
-                  : 'bg-[#15192B] hover:bg-[#1C223A] text-slate-300 border border-white/[0.06]'
+                  ? 'bg-[#0F172A] text-white shadow-xs'
+                  : 'bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569]'
               }`}
             >
               {cat}
@@ -356,13 +356,13 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
       {/* Policies Grid */}
       {loading ? (
-        <div className="p-20 text-center text-xs text-slate-400 space-y-3 bg-[#111525]/85 rounded-2xl border border-white/[0.08] shadow-2xl">
-          <div className="w-8 h-8 border-2 border-[#7B3FE4] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <div className="p-20 text-center text-xs text-[#64748B] space-y-3 bg-white rounded-[28px] border border-slate-100 shadow-card">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="font-mono">Querying Corporate Policy Registry & Vector Store...</p>
         </div>
       ) : filteredPolicies.length === 0 ? (
-        <div className="p-20 text-center text-xs text-slate-400 space-y-3 bg-[#111525]/85 rounded-2xl border border-dashed border-white/[0.1]">
-          <FileText className="w-8 h-8 text-slate-600 mx-auto" />
+        <div className="p-20 text-center text-xs text-[#64748B] space-y-3 bg-white rounded-[28px] border border-dashed border-slate-200 shadow-card">
+          <FileText className="w-8 h-8 text-slate-400 mx-auto" />
           <p>No policy documents matched your search filter.</p>
         </div>
       ) : (
@@ -372,23 +372,23 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
             return (
               <div
                 key={p.doc_id}
-                className={`p-6 rounded-2xl border transition-all space-y-4 flex flex-col justify-between backdrop-blur-xl ${
+                className={`p-6 rounded-[28px] border transition-all space-y-4 flex flex-col justify-between shadow-card hover:shadow-lg ${
                   isActive 
-                    ? 'bg-[#111525]/85 border-white/[0.08] hover:border-[#7B3FE4]/40 hover:shadow-[0_12px_35px_-10px_rgba(123,63,228,0.25)] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)]' 
-                    : 'bg-[#FF4B72]/5 border-[#FF4B72]/20'
+                    ? 'bg-white border-slate-100' 
+                    : 'bg-rose-50/30 border-rose-100'
                 }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-[#7B3FE4]/15 text-[#C084FC] border border-[#7B3FE4]/35 shadow-[0_0_12px_rgba(123,63,228,0.2)]">
+                    <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                       {p.doc_id}
                     </span>
                     <button
                       onClick={() => handleStatusToggle(p.doc_id, p.status)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
+                      className={`px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer border ${
                         isActive
-                          ? 'bg-[#10B981]/15 text-[#34D399] border-[#10B981]/35 shadow-[0_0_10px_rgba(16,185,129,0.2)] hover:bg-[#10B981]/25'
-                          : 'bg-[#FF4B72]/15 text-[#FF7F59] border-[#FF4B72]/35 shadow-[0_0_10px_rgba(255,75,114,0.2)] hover:bg-[#FF4B72]/25'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                          : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
                       }`}
                       title="Click to toggle policy status"
                     >
@@ -397,52 +397,52 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-extrabold text-white leading-snug">
+                    <h3 className="text-sm font-bold text-[#0F172A] leading-snug">
                       {p.doc_title}
                     </h3>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-2 font-mono text-[11px]">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-[#64748B] mt-2 font-mono text-[11px]">
                       <span className="flex items-center gap-1">
-                        <Tag className="w-3.5 h-3.5 text-[#06B6D4]" />
+                        <Tag className="w-3.5 h-3.5 text-indigo-600" />
                         {p.category}
                       </span>
-                      <span className="text-white/20">•</span>
+                      <span className="text-slate-300">•</span>
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-[#FF7F59]" />
+                        <Calendar className="w-3.5 h-3.5 text-amber-500" />
                         {p.effective_date}
                       </span>
-                      <span className="text-white/20">•</span>
-                      <span className="text-[#C084FC] font-bold">
+                      <span className="text-slate-300">•</span>
+                      <span className="text-indigo-600 font-bold">
                         {p.version}
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#08090E]/70 border border-white/[0.06] flex items-center justify-between text-xs">
-                    <span className="text-slate-400 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-[#7B3FE4]" />
+                  <div className="p-3.5 rounded-2xl bg-[#F6F8FC] border border-slate-200/50 flex items-center justify-between text-xs">
+                    <span className="text-[#64748B] flex items-center gap-1.5 font-medium">
+                      <Layers className="w-3.5 h-3.5 text-indigo-600" />
                       Logical Sections / Chunks:
                     </span>
-                    <span className="font-mono font-bold text-white">{p.chunk_count} Sections</span>
+                    <span className="font-mono font-bold text-[#0F172A]">{p.chunk_count} Sections</span>
                   </div>
                 </div>
 
                 {/* Card Actions: Browse Drawer, Edit, Delete */}
-                <div className="pt-3 border-t border-white/[0.06] flex items-center gap-2">
+                <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
                   <button
                     onClick={() => {
                       setActivePolicyId(p.doc_id);
                       setDrawerOpen(true);
                     }}
-                    className="flex-1 py-2 px-3 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-white/[0.08]"
+                    className="flex-1 py-2 px-4 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-slate-200/50 shadow-xs"
                     title="Open citation drawer"
                   >
                     <span>Browse</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-[#06B6D4]" />
+                    <ExternalLink className="w-3.5 h-3.5 text-indigo-600" />
                   </button>
 
                   <button
                     onClick={() => handleOpenEdit(p)}
-                    className="p-2 rounded-xl bg-[#7B3FE4]/15 hover:bg-[#7B3FE4]/25 text-[#C084FC] border border-[#7B3FE4]/35 transition-colors cursor-pointer shadow-[0_0_10px_rgba(123,63,228,0.2)]"
+                    className="p-2.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 transition-colors cursor-pointer shadow-xs"
                     title="Edit policy metadata & clauses"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -450,7 +450,7 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
                   <button
                     onClick={() => setDeleteConfirmId(p.doc_id)}
-                    className="p-2 rounded-xl bg-[#FF4B72]/15 hover:bg-[#FF4B72]/25 text-[#FF7F59] border border-[#FF4B72]/35 transition-colors cursor-pointer shadow-[0_0_10px_rgba(255,75,114,0.2)]"
+                    className="p-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 transition-colors cursor-pointer shadow-xs"
                     title="Delete policy"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -464,14 +464,14 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
       {/* CREATE NEW POLICY MODAL */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08090E]/85 backdrop-blur-md overflow-y-auto">
-          <div className="w-full max-w-2xl bg-[#0F121E] border border-white/[0.1] rounded-3xl p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] space-y-4 my-8">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-[32px] p-6 shadow-board space-y-4 my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <FilePlus className="w-5 h-5 text-[#10B981]" />
-                <h3 className="text-base font-extrabold text-white">Create New Corporate Policy Document</h3>
+                <FilePlus className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-bold text-[#0F172A]">Create New Corporate Policy Document</h3>
               </div>
-              <button onClick={() => setCreateModalOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button onClick={() => setCreateModalOpen(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -479,8 +479,8 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
             <form onSubmit={handleCreatePolicy} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Document ID <span className="text-[#FF4B72]">*</span>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
+                    Document ID <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -488,25 +488,25 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                     placeholder="e.g. WRN-POL-25, BAT-SOP-22"
                     value={createDocId}
                     onChange={(e) => setCreateDocId(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Version
                   </label>
                   <input
                     type="text"
                     value={createVersion}
                     onChange={(e) => setCreateVersion(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Policy Title <span className="text-[#FF4B72]">*</span>
+                <label className="block text-xs font-semibold text-[#334155] mb-1">
+                  Policy Title <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -514,17 +514,17 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                   placeholder="e.g. Autonomous Extended Warranty & Screen Defect Protocol"
                   value={createTitle}
                   onChange={(e) => setCreateTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Category</label>
                   <select
                     value={createCategory}
                     onChange={(e) => setCreateCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="Hardware & Warranty">Hardware & Warranty</option>
                     <option value="Delivery & Logistics">Delivery & Logistics</option>
@@ -536,20 +536,20 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Effective Date</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Effective Date</label>
                   <input
                     type="date"
                     value={createEffectiveDate}
                     onChange={(e) => setCreateEffectiveDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Initial Status</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Initial Status</label>
                   <select
                     value={createStatus}
                     onChange={(e) => setCreateStatus(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="Active">Active</option>
                     <option value="Superseded">Superseded</option>
@@ -560,13 +560,13 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-300">
+                  <label className="text-xs font-semibold text-[#334155]">
                     Policy Markdown Content & Section Headings
                   </label>
                   <button
                     type="button"
                     onClick={handleInsertTemplate}
-                    className="text-[11px] text-[#34D399] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                    className="text-[11px] text-emerald-600 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Auto-Fill Sample Warranty Policy</span>
@@ -577,22 +577,22 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                   placeholder={`## Section 1.0 — Overview & Eligibility\nDefine the basic rules and qualification criteria here...\n\n## Section 2.0 — Authorized Remedy & SLA\nSpecify the resolution remedies (repair, exchange, refund)...`}
                   value={createContent}
                   onChange={(e) => setCreateContent(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4] leading-relaxed resize-y"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500 leading-relaxed resize-y"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-300 text-xs font-semibold border border-white/[0.08] cursor-pointer"
+                  className="px-5 py-2.5 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569] text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#059669] to-[#10B981] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_20px_rgba(16,185,129,0.35)] border border-white/10 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -614,29 +614,29 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
       {/* EDIT POLICY MODAL */}
       {editModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08090E]/85 backdrop-blur-md overflow-y-auto">
-          <div className="w-full max-w-2xl bg-[#0F121E] border border-white/[0.1] rounded-3xl p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] space-y-4 my-8">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-[32px] p-6 shadow-board space-y-4 my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <Edit2 className="w-5 h-5 text-[#C084FC]" />
-                <h3 className="text-base font-extrabold text-white">
-                  Edit Policy: <span className="font-mono text-[#FF4B72]">{editDocId}</span>
+                <Edit2 className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-base font-bold text-[#0F172A]">
+                  Edit Policy: <span className="font-mono text-indigo-600">{editDocId}</span>
                 </h3>
               </div>
-              <button onClick={() => setEditModalOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button onClick={() => setEditModalOpen(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {editLoading ? (
-              <div className="p-12 text-center text-xs text-slate-400 space-y-2">
-                <div className="w-6 h-6 border-2 border-[#7B3FE4] border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="p-12 text-center text-xs text-[#64748B] space-y-2">
+                <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
                 <p>Loading policy clauses from registry...</p>
               </div>
             ) : (
               <form onSubmit={handleSaveEdit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Document Title
                   </label>
                   <input
@@ -644,44 +644,44 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                     required
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+                    <label className="block text-xs font-semibold text-[#334155] mb-1">Category</label>
                     <input
                       type="text"
                       value={editCategory}
                       onChange={(e) => setEditCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Version</label>
+                    <label className="block text-xs font-semibold text-[#334155] mb-1">Version</label>
                     <input
                       type="text"
                       value={editVersion}
                       onChange={(e) => setEditVersion(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Effective Date</label>
+                    <label className="block text-xs font-semibold text-[#334155] mb-1">Effective Date</label>
                     <input
                       type="text"
                       value={editEffectiveDate}
                       onChange={(e) => setEditEffectiveDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Status</label>
+                    <label className="block text-xs font-semibold text-[#334155] mb-1">Status</label>
                     <select
                       value={editStatus}
                       onChange={(e) => setEditStatus(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="Active">Active</option>
                       <option value="Superseded">Superseded</option>
@@ -691,29 +691,29 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">
                     Policy Content & Sections (Updates re-chunk & re-index automatically)
                   </label>
                   <textarea
                     rows={8}
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4] leading-relaxed resize-y"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500 leading-relaxed resize-y"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => setEditModalOpen(false)}
-                    className="px-4 py-2 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-300 text-xs font-semibold border border-white/[0.08] cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569] text-xs font-semibold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10 cursor-pointer disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                   >
                     {submitting ? (
                       <>
@@ -736,27 +736,27 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
       {/* DELETE CONFIRMATION DIALOG */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08090E]/85 backdrop-blur-md">
-          <div className="w-full max-w-md bg-[#0F121E] border border-white/[0.1] rounded-3xl p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] space-y-4">
-            <div className="flex items-center gap-3 text-[#FF4B72]">
-              <div className="p-2.5 rounded-2xl bg-[#FF4B72]/15 border border-[#FF4B72]/30 shadow-[0_0_15px_rgba(255,75,114,0.3)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white border border-slate-200 rounded-[32px] p-6 shadow-board space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-100 shadow-xs">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-extrabold text-white">Delete Policy Document?</h3>
-                <span className="font-mono text-xs font-bold text-[#FF4B72]">{deleteConfirmId}</span>
+                <h3 className="text-base font-bold text-[#0F172A]">Delete Policy Document?</h3>
+                <span className="font-mono text-xs font-bold text-rose-600">{deleteConfirmId}</span>
               </div>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Are you sure you want to permanently delete <strong className="text-white">{deleteConfirmId}</strong>? This action will remove all traceable sections from SQLite, purge embeddings from the Vector Store, and remove documents from MongoDB Atlas.
+            <p className="text-xs text-[#64748B] leading-relaxed">
+              Are you sure you want to permanently delete <strong className="text-[#0F172A]">{deleteConfirmId}</strong>? This action will remove all traceable sections from SQLite, purge embeddings from the Vector Store, and remove documents from MongoDB Atlas.
             </p>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-300 text-xs font-semibold border border-white/[0.08] cursor-pointer"
+                className="px-5 py-2.5 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569] text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -764,7 +764,7 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                 type="button"
                 onClick={() => handleDeletePolicy(deleteConfirmId)}
                 disabled={submitting}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#E11D48] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_20px_rgba(255,75,114,0.4)] border border-white/10 cursor-pointer disabled:opacity-50"
+                className="px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
               >
                 {submitting ? 'Deleting...' : 'Delete Permanently'}
               </button>
@@ -775,73 +775,73 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
 
       {/* UPLOAD FILE MODAL */}
       {uploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08090E]/85 backdrop-blur-md">
-          <div className="w-full max-w-lg bg-[#0F121E] border border-white/[0.1] rounded-3xl p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-[32px] p-6 shadow-board space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-[#C084FC]" />
-                <h3 className="text-sm font-extrabold text-white">Upload Policy Document File</h3>
+                <UploadCloud className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-sm font-bold text-[#0F172A]">Upload Policy Document File</h3>
               </div>
-              <button onClick={() => setUploadModalOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button onClick={() => setUploadModalOpen(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleUploadSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Document File (.pdf, .docx, .md, .txt) <span className="text-[#FF4B72]">*</span>
+                <label className="block text-xs font-semibold text-[#334155] mb-1">
+                  Document File (.pdf, .docx, .md, .txt) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="file"
                   required
                   accept=".pdf,.docx,.doc,.txt,.md"
                   onChange={(e) => setSelectedFile(e.target.files[0])}
-                  className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7B3FE4]/20 file:text-[#C084FC] hover:file:bg-[#7B3FE4]/30 cursor-pointer"
+                  className="w-full text-xs text-[#475569] file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Document ID</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Document ID</label>
                   <input
                     type="text"
                     placeholder="e.g. SEC-POL-08"
                     value={uploadDocId}
                     onChange={(e) => setUploadDocId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Version</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Version</label>
                   <input
                     type="text"
                     placeholder="e.g. v1.0-Active"
                     value={uploadVersion}
                     onChange={(e) => setUploadVersion(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Document Title</label>
+                <label className="block text-xs font-semibold text-[#334155] mb-1">Document Title</label>
                 <input
                   type="text"
                   placeholder="e.g. Data Security & Incident Protocol"
                   value={uploadDocTitle}
                   onChange={(e) => setUploadDocTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Category / Domain</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Category / Domain</label>
                   <select
                     value={uploadCategory}
                     onChange={(e) => setUploadCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="Hardware & Warranty">Hardware & Warranty</option>
                     <option value="Delivery & Logistics">Delivery & Logistics</option>
@@ -852,28 +852,28 @@ Claims under $1,500 with photographic evidence are automatically authorized for 
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Effective Date</label>
+                  <label className="block text-xs font-semibold text-[#334155] mb-1">Effective Date</label>
                   <input
                     type="date"
                     value={uploadEffectiveDate}
                     onChange={(e) => setUploadEffectiveDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:bg-white focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setUploadModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-300 text-xs font-semibold border border-white/[0.08] cursor-pointer"
+                  className="px-5 py-2.5 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569] text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white text-xs font-bold disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10"
+                  className="px-6 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-sm"
                 >
                   {submitting ? (
                     <>

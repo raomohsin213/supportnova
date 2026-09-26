@@ -340,26 +340,26 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#7B3FE4]/15 to-[#FF4B72]/15 text-[#FF4B72] border border-[#7B3FE4]/30 text-xs font-mono font-bold uppercase tracking-wider mb-3 shadow-xs">
-          <Sparkles className="w-3.5 h-3.5 text-[#C084FC]" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 text-xs font-mono font-bold uppercase tracking-wider mb-3 shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
           SRS Section 1.2 & 1.6 Multi-Channel Intake Engine
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-black text-[#0F172A] tracking-tight">
           Customer Complaint Intake Portal
         </h1>
-        <p className="mt-2 text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-2 text-sm text-[#64748B] max-w-2xl mx-auto leading-relaxed">
           Concurrent Dual-Pipeline Ingestion: Evaluated simultaneously via Probabilistic GenAI and 100% deterministic Python ground-truth verification.
         </p>
       </div>
 
       {/* Adversarial Preset Shortcuts */}
-      <div className="p-6 bg-[#0F121E]/90 backdrop-blur-xl rounded-3xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+      <div className="p-6 bg-white rounded-[28px] border border-slate-100 shadow-card">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-[#C084FC]" />
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0F172A] flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-indigo-600" />
             Adversarial Benchmark Templates (One-Click Testing)
           </span>
-          <span className="text-[11px] text-slate-400 font-mono">Finova Test Suite</span>
+          <span className="text-[11px] text-[#94A3B8] font-mono">Finova Test Suite</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -373,16 +373,16 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
                 onClick={() => applyPreset(preset)}
                 className={`p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3.5 cursor-pointer ${
                   isSelected 
-                    ? 'bg-[#7B3FE4]/20 border-[#7B3FE4]/60 text-white shadow-[0_0_20px_rgba(123,63,228,0.3)] ring-2 ring-[#7B3FE4]/30' 
-                    : 'bg-[#08090E]/60 border-white/[0.08] hover:bg-[#15192B] text-slate-300 hover:border-white/[0.15]'
+                    ? 'bg-indigo-50 border-indigo-400 text-indigo-950 shadow-sm ring-2 ring-indigo-200' 
+                    : 'bg-[#F6F8FC] border-slate-200/60 hover:bg-[#EEF2F8] text-[#334155] hover:border-slate-300'
                 }`}
               >
-                <div className="p-2.5 rounded-xl bg-[#15192B] border border-white/[0.08] text-[#C084FC] flex-shrink-0">
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 text-indigo-600 flex-shrink-0 shadow-xs">
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold truncate text-white">{preset.title}</div>
-                  <div className="text-[11px] text-slate-400 truncate mt-0.5 font-mono">
+                  <div className="text-xs font-bold truncate text-[#0F172A]">{preset.title}</div>
+                  <div className="text-[11px] text-[#64748B] font-mono truncate mt-0.5">
                     {preset.data.order_reference}
                   </div>
                 </div>
@@ -393,13 +393,13 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
       </div>
 
       {/* Channel Switcher Tabs */}
-      <div className="flex items-center gap-2 p-2 bg-[#0F121E]/90 backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-[#F1F5F9] rounded-full overflow-x-auto shadow-inner">
         <button
           onClick={() => setActiveChannelTab('web')}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeChannelTab === 'web'
-              ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-[#0F172A] text-white shadow-sm'
+              : 'text-[#475569] hover:bg-[#E2E8F0]'
           }`}
         >
           <Globe className="w-4 h-4" />
@@ -408,10 +408,10 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
         <button
           onClick={() => setActiveChannelTab('email')}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeChannelTab === 'email'
-              ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-[#0F172A] text-white shadow-sm'
+              : 'text-[#475569] hover:bg-[#E2E8F0]'
           }`}
         >
           <Mail className="w-4 h-4" />
@@ -420,10 +420,10 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
         <button
           onClick={() => setActiveChannelTab('chat')}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeChannelTab === 'chat'
-              ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-[#0F172A] text-white shadow-sm'
+              : 'text-[#475569] hover:bg-[#E2E8F0]'
           }`}
         >
           <MessageSquare className="w-4 h-4" />
@@ -432,10 +432,10 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
         <button
           onClick={() => setActiveChannelTab('upload')}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeChannelTab === 'upload'
-              ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-[#0F172A] text-white shadow-sm'
+              : 'text-[#475569] hover:bg-[#E2E8F0]'
           }`}
         >
           <UploadCloud className="w-4 h-4" />
@@ -445,19 +445,19 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
       {/* Global Error Banner */}
       {error && (
-        <div className="p-4 rounded-2xl bg-[#FF4B72]/15 border border-[#FF4B72]/30 text-rose-200 text-xs flex items-center gap-3 shadow-[0_0_15px_rgba(255,75,114,0.2)]">
-          <ShieldAlert className="w-5 h-5 flex-shrink-0 text-[#FF4B72]" />
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-3 shadow-xs">
+          <ShieldAlert className="w-5 h-5 flex-shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
       {/* CHANNEL 1: WEB FORM */}
       {activeChannelTab === 'web' && (
-        <form onSubmit={handleWebFormSubmit} className="bg-[#0F121E]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-6">
+        <form onSubmit={handleWebFormSubmit} className="bg-white p-6 sm:p-8 rounded-[28px] border border-slate-100 shadow-card space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Customer Full Name <span className="text-[#FF4B72]">*</span>
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+                Customer Full Name <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -465,18 +465,18 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
                 value={formData.customer_name}
                 onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
                 placeholder="e.g. Dr. Eleanor Vance"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                 Customer Loyalty Tier
               </label>
               <select
                 value={formData.customer_tier}
                 onChange={(e) => setFormData({ ...formData, customer_tier: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4] cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               >
                 <option value="Standard">Standard Tier</option>
                 <option value="VIP">VIP Tier (Priority SLA)</option>
@@ -484,7 +484,7 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                 Product or Service
               </label>
               <input
@@ -492,12 +492,12 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
                 value={formData.product_or_service}
                 onChange={(e) => setFormData({ ...formData, product_or_service: e.target.value })}
                 placeholder="e.g. Server Battery Pack Model B-90"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                 Order Reference
               </label>
               <input
@@ -505,24 +505,24 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
                 value={formData.order_reference}
                 onChange={(e) => setFormData({ ...formData, order_reference: e.target.value })}
                 placeholder="e.g. SRV-BAT-8841"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono placeholder-slate-400 focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                 Incident / Purchase Date
               </label>
               <input
                 type="date"
                 value={formData.transaction_date}
                 onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                 Prior Escalation Count
               </label>
               <input
@@ -530,14 +530,14 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
                 min="0"
                 value={formData.previous_complaints_count}
                 onChange={(e) => setFormData({ ...formData, previous_complaints_count: parseInt(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Complaint Subject / Title <span className="text-[#FF4B72]">*</span>
+            <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+              Complaint Subject / Title <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -545,13 +545,13 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
               value={formData.complaint_title}
               onChange={(e) => setFormData({ ...formData, complaint_title: e.target.value })}
               placeholder="Brief summary of the issue..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Full Complaint Narrative <span className="text-[#FF4B72]">*</span>
+            <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+              Full Complaint Narrative <span className="text-rose-500">*</span>
             </label>
             <textarea
               required
@@ -559,20 +559,20 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
               value={formData.complaint_description}
               onChange={(e) => setFormData({ ...formData, complaint_description: e.target.value })}
               placeholder="Describe the complaint in detail..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4] font-sans leading-relaxed"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500 font-sans leading-relaxed"
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/[0.08]">
-            <span className="text-xs text-slate-400 flex items-center gap-1.5 font-mono">
-              <Globe className="w-4 h-4 text-[#C084FC]" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
+            <span className="text-xs text-[#64748B] flex items-center gap-1.5 font-mono">
+              <Globe className="w-4 h-4 text-indigo-500" />
               Standard Web Form Portal intake channel
             </span>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               {submitting ? (
                 <>
@@ -592,73 +592,73 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
       {/* CHANNEL 2: EMAIL SIMULATOR */}
       {activeChannelTab === 'email' && (
-        <form onSubmit={handleEmailSubmit} className="bg-[#0F121E]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-5">
-          <div className="p-4 rounded-2xl bg-[#08090E]/60 border border-white/[0.08] text-xs text-slate-300 flex items-center gap-2.5">
-            <Mail className="w-4 h-4 text-[#C084FC]" />
+        <form onSubmit={handleEmailSubmit} className="bg-white p-6 sm:p-8 rounded-[28px] border border-slate-100 shadow-card space-y-5">
+          <div className="p-4 rounded-2xl bg-[#F6F8FC] border border-slate-200/60 text-xs text-[#334155] flex items-center gap-2.5">
+            <Mail className="w-4 h-4 text-indigo-500" />
             <span>Simulates an enterprise SMTP inbound email queue with raw headers and body parsing.</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">From Header (Sender Address)</label>
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">From Header (Sender Address)</label>
               <input
                 type="email"
                 required
                 value={emailFrom}
                 onChange={(e) => setEmailFrom(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] font-mono focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Product or Service Reference</label>
+              <label className="block text-xs font-semibold text-[#334155] mb-1.5">Product or Service Reference</label>
               <input
                 type="text"
                 value={formData.product_or_service}
                 onChange={(e) => setFormData({ ...formData, product_or_service: e.target.value })}
                 placeholder="e.g. Enterprise Server Cluster"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Subject Line</label>
+            <label className="block text-xs font-semibold text-[#334155] mb-1.5">Subject Line</label>
             <input
               type="text"
               required
               value={emailSubject}
               onChange={(e) => setEmailSubject(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Inbound Headers (DKIM / SPF / Message-ID)</label>
+            <label className="block text-xs font-semibold text-[#334155] mb-1.5">Inbound Headers (DKIM / SPF / Message-ID)</label>
             <textarea
               rows={2}
               value={emailHeaders}
               onChange={(e) => setEmailHeaders(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs font-mono text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+              className="w-full px-3 py-2 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs font-mono text-[#64748B] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Email Body Message</label>
+            <label className="block text-xs font-semibold text-[#334155] mb-1.5">Email Body Message</label>
             <textarea
               rows={5}
               required
               value={emailBody}
               onChange={(e) => setEmailBody(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4] font-sans leading-relaxed"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500 font-sans leading-relaxed"
             />
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-white/[0.08]">
-            <span className="text-xs text-slate-400 font-mono">Email Channel: RFC 5322 Inbound Simulation</span>
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <span className="text-xs text-[#64748B] font-mono">Email Channel: RFC 5322 Inbound Simulation</span>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-6 py-3 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {submitting ? pipelineStep : 'Ingest Inbound Email'}
             </button>
@@ -668,21 +668,21 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
       {/* CHANNEL 3: LIVE CHAT SIMULATOR */}
       {activeChannelTab === 'chat' && (
-        <div className="bg-[#0F121E]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-5">
-          <div className="p-4 rounded-2xl bg-[#08090E]/60 border border-white/[0.08] text-xs text-slate-300 flex items-center gap-2.5">
-            <MessageSquare className="w-4 h-4 text-[#C084FC]" />
+        <div className="bg-white p-6 sm:p-8 rounded-[28px] border border-slate-100 shadow-card space-y-5">
+          <div className="p-4 rounded-2xl bg-[#F6F8FC] border border-slate-200/60 text-xs text-[#334155] flex items-center gap-2.5">
+            <MessageSquare className="w-4 h-4 text-indigo-500" />
             <span>Simulates an omnichannel customer chat thread. Ingests full conversation transcript into the Dual-Pipeline.</span>
           </div>
 
           {/* Transcript Box */}
-          <div className="p-5 rounded-2xl bg-[#08090E] border border-white/[0.08] space-y-3 min-h-[220px] max-h-[350px] overflow-y-auto">
+          <div className="p-5 rounded-2xl bg-[#F6F8FC] border border-slate-200/80 space-y-3 min-h-[220px] max-h-[350px] overflow-y-auto">
             {chatMessages.map((msg, i) => (
               <div key={i} className={`flex flex-col ${msg.sender === 'Customer' ? 'items-end' : 'items-start'}`}>
-                <div className="text-[10px] font-mono text-slate-400 mb-1">{msg.sender} • {msg.time}</div>
+                <div className="text-[10px] font-mono text-[#94A3B8] mb-1">{msg.sender} • {msg.time}</div>
                 <div className={`p-3.5 rounded-2xl max-w-md text-xs leading-relaxed ${
                   msg.sender === 'Customer' 
-                    ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white rounded-tr-none shadow-[0_0_15px_rgba(123,63,228,0.3)]' 
-                    : 'bg-[#15192B] text-slate-200 border border-white/[0.08] rounded-tl-none shadow-xs'
+                    ? 'bg-indigo-600 text-white rounded-tr-none shadow-xs' 
+                    : 'bg-white text-[#334155] border border-slate-200 rounded-tl-none shadow-xs'
                 }`}>
                   {msg.text}
                 </div>
@@ -697,23 +697,23 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
               placeholder="Type new customer message in live thread..."
               value={newChatInput}
               onChange={(e) => setNewChatInput(e.target.value)}
-              className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+              className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
             />
             <button
               type="submit"
-              className="px-4 py-2.5 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-300 text-xs font-semibold border border-white/[0.08] cursor-pointer"
+              className="px-5 py-2.5 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569] text-xs font-semibold cursor-pointer"
             >
               Add Message
             </button>
           </form>
 
           {/* Submit Transcript to Dual Pipeline */}
-          <div className="flex items-center justify-between pt-4 border-t border-white/[0.08]">
-            <span className="text-xs text-slate-400 font-mono">Chat thread: {chatMessages.length} messages</span>
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <span className="text-xs text-[#64748B] font-mono">Chat thread: {chatMessages.length} messages</span>
             <button
               onClick={handleChatSubmit}
               disabled={submitting}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-6 py-3 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {submitting ? pipelineStep : 'Ingest Chat Transcript & Run Pipeline'}
             </button>
@@ -723,14 +723,14 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
 
       {/* CHANNEL 4: DOCUMENT UPLOAD */}
       {activeChannelTab === 'upload' && (
-        <form onSubmit={handleUploadSubmit} className="bg-[#0F121E]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-6">
-          <div className="p-4 rounded-2xl bg-[#08090E]/60 border border-white/[0.08] text-xs text-slate-300 flex items-center gap-2.5">
-            <UploadCloud className="w-4 h-4 text-[#C084FC]" />
+        <form onSubmit={handleUploadSubmit} className="bg-white p-6 sm:p-8 rounded-[28px] border border-slate-100 shadow-card space-y-6">
+          <div className="p-4 rounded-2xl bg-[#F6F8FC] border border-slate-200/60 text-xs text-[#334155] flex items-center gap-2.5">
+            <UploadCloud className="w-4 h-4 text-indigo-500" />
             <span>SRS Section 1.2 & 1.6 Complaint Upload: Ingest written letters & scanned PDFs via pdfplumber and python-docx.</span>
           </div>
 
           {/* Drag & Drop Zone */}
-          <div className="border-2 border-dashed border-white/[0.15] hover:border-[#7B3FE4] rounded-3xl p-8 text-center bg-[#08090E]/40 transition-colors">
+          <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-3xl p-8 text-center bg-[#F6F8FC] transition-colors">
             <input
               type="file"
               id="file-drop"
@@ -739,46 +739,46 @@ export function PublicComplaintSubmission({ onTicketSubmitted }) {
               onChange={(e) => handleFileDrop(e.target.files[0])}
             />
             <label htmlFor="file-drop" className="cursor-pointer block space-y-3">
-              <FileUp className="w-10 h-10 text-[#C084FC] mx-auto" />
+              <FileUp className="w-10 h-10 text-indigo-500 mx-auto" />
               <div>
-                <span className="text-sm font-bold text-white">Click or drag & drop complaint letter</span>
-                <p className="text-xs text-slate-400 mt-1">Supports PDF, DOCX, and TXT files up to 10MB</p>
+                <span className="text-sm font-bold text-[#0F172A]">Click or drag & drop complaint letter</span>
+                <p className="text-xs text-[#64748B] mt-1">Supports PDF, DOCX, and TXT files up to 10MB</p>
               </div>
             </label>
           </div>
 
           {uploadedFile && (
-            <div className="p-4 rounded-2xl bg-[#7B3FE4]/15 border border-[#7B3FE4]/30 flex items-center justify-between text-xs text-purple-200">
+            <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200/80 flex items-center justify-between text-xs text-indigo-900">
               <div className="flex items-center gap-2 font-mono">
-                <FileText className="w-4 h-4" />
+                <FileText className="w-4 h-4 text-indigo-600" />
                 <span>Selected: {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)</span>
               </div>
-              {fileExtracting && <span className="animate-pulse font-bold text-[#C084FC]">Extracting text...</span>}
+              {fileExtracting && <span className="animate-pulse font-bold text-indigo-600">Extracting text...</span>}
             </div>
           )}
 
           {/* Live Extraction Preview */}
           {filePreview && (
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#10B981]" />
+              <span className="text-xs font-semibold text-[#334155] flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
                 Live Extracted Complaint Text Preview:
               </span>
               <textarea
                 rows={5}
                 value={filePreview}
                 onChange={(e) => setFilePreview(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090E] border border-white/[0.1] text-xs font-sans text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F6F8FC] border border-slate-200 text-xs font-sans text-[#0F172A] focus:outline-hidden focus:bg-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-4 border-t border-white/[0.08]">
-            <span className="text-xs text-slate-400 font-mono">Direct file parsing via pdfplumber / python-docx</span>
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <span className="text-xs text-[#64748B] font-mono">Direct file parsing via pdfplumber / python-docx</span>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-6 py-3 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {submitting ? pipelineStep : 'Parse & Process Document Complaint'}
             </button>

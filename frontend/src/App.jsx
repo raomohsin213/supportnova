@@ -93,114 +93,117 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-canvas)] text-slate-100 flex relative selection:bg-[#7947EA]/35 selection:text-[#FF4D73] overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-[#637394] p-3 sm:p-5 lg:p-7 flex items-center justify-center font-sans antialiased text-[#0F172A] selection:bg-indigo-100 selection:text-indigo-700">
       {/* Global Toast Notifications (Sonner) */}
       <Toaster position="top-right" richColors closeButton expand={false} />
 
-      {/* Left Navigation Sidebar (Strict RBAC, Finova styling) */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        blockedCount={blockedCount}
-        activeRole={activeRole}
-        onRoleChange={handleRoleChange}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-      />
-
-      {/* Main Shell Container: strictly constrained with min-w-0 max-w-[calc(100vw-16rem)] to prevent flex blowout */}
-      <div className="ml-64 flex-1 flex flex-col min-h-screen min-w-0 max-w-[calc(100vw-16rem)] overflow-x-hidden">
-        {/* Top Header Bar */}
-        <TopHeader
-          onOpenGuide={() => setIsGuideOpen(true)}
-          onSelectScenario={handleSelectScenario}
+      {/* The Master Floating Application Board (Jobtrain Spec: rounded-[36px], shadow-board, overflow-hidden) */}
+      <div className="w-full max-w-[1580px] h-[95vh] bg-white rounded-[32px] sm:rounded-[36px] shadow-[0_30px_70px_-15px_rgba(15,23,42,0.28)] overflow-hidden flex flex-row relative border border-white/20">
+        
+        {/* Left Edge: Mini-Sidebar Icon Strip (w-20) */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          blockedCount={blockedCount}
           activeRole={activeRole}
+          onRoleChange={handleRoleChange}
           onOpenAuthModal={() => setIsAuthModalOpen(true)}
         />
 
-        {/* Glassmorphic Auth & Role Switcher Modal (Reference Image 2) */}
-        <AuthLoginModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          activeRole={activeRole}
-          onLogin={handleLoginFromModal}
-        />
+        {/* Right Area: TopHeader + Main Content Scrollable Canvas */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#F6F8FC] overflow-hidden h-full">
+          {/* Master Board Header */}
+          <TopHeader
+            onOpenGuide={() => setIsGuideOpen(true)}
+            onSelectScenario={handleSelectScenario}
+            activeRole={activeRole}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          />
 
-        {/* Evaluator / Judge Interactive Walkthrough Modal */}
-        <JudgeGuideModal 
-          isOpen={isGuideOpen}
-          onClose={() => setIsGuideOpen(false)}
-          onSelectScenario={handleSelectScenario}
-        />
+          {/* Glassmorphic Auth & Role Switcher Modal */}
+          <AuthLoginModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            activeRole={activeRole}
+            onLogin={handleLoginFromModal}
+          />
 
-        {/* Main Content Container: fully responsive with min-w-0 and w-full */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-[var(--bg-canvas)] min-w-0 w-full overflow-x-hidden">
-          {activeTab === 'workspace' && (
-            <SupportAgentWorkspace 
-              selectedTicketId={selectedTicketId}
-              onSelectTicket={(id) => setSelectedTicketId(id)}
-              onOpenGuide={() => setIsGuideOpen(true)}
-              activeRole={activeRole}
-            />
-          )}
+          {/* Evaluator / Judge Interactive Walkthrough Modal */}
+          <JudgeGuideModal 
+            isOpen={isGuideOpen}
+            onClose={() => setIsGuideOpen(false)}
+            onSelectScenario={handleSelectScenario}
+          />
 
-          {activeTab === 'queue' && (
-            <ManualReviewQueue 
-              onInspectTicket={handleInspectTicket}
-            />
-          )}
+          {/* Main Scrollable Canvas */}
+          <main className="flex-1 p-5 sm:p-7 lg:p-8 bg-[#F6F8FC] overflow-y-auto min-w-0 w-full">
+            {activeTab === 'workspace' && (
+              <SupportAgentWorkspace 
+                selectedTicketId={selectedTicketId}
+                onSelectTicket={(id) => setSelectedTicketId(id)}
+                onOpenGuide={() => setIsGuideOpen(true)}
+                activeRole={activeRole}
+              />
+            )}
 
-          {activeTab === 'submit' && (
-            <PublicComplaintSubmission 
-              onTicketSubmitted={handleTicketSubmitted}
-            />
-          )}
+            {activeTab === 'queue' && (
+              <ManualReviewQueue 
+                onInspectTicket={handleInspectTicket}
+              />
+            )}
 
-          {activeTab === 'customer' && (
-            <CustomerPortal 
-              onTicketSubmitted={handleTicketSubmitted}
-              onInspectTicket={handleInspectTicket}
-            />
-          )}
+            {activeTab === 'submit' && (
+              <PublicComplaintSubmission 
+                onTicketSubmitted={handleTicketSubmitted}
+              />
+            )}
 
-          {activeTab === 'benchmark' && (
-            <BenchmarkAuditCockpit 
-              onInspectTicket={handleInspectTicket}
-            />
-          )}
+            {activeTab === 'customer' && (
+              <CustomerPortal 
+                onTicketSubmitted={handleTicketSubmitted}
+                onInspectTicket={handleInspectTicket}
+              />
+            )}
 
-          {activeTab === 'analytics' && (
-            <ExecutiveDashboard 
-              onNavigateToBenchmark={() => setActiveTab('benchmark')}
-            />
-          )}
+            {activeTab === 'benchmark' && (
+              <BenchmarkAuditCockpit 
+                onInspectTicket={handleInspectTicket}
+              />
+            )}
 
-          {activeTab === 'policies' && (
-            <PolicyRegistryManager />
-          )}
+            {activeTab === 'analytics' && (
+              <ExecutiveDashboard 
+                onNavigateToBenchmark={() => setActiveTab('benchmark')}
+              />
+            )}
 
-          {activeTab === 'rules' && (
-            <RuleMatrixManager />
-          )}
-        </main>
+            {activeTab === 'policies' && (
+              <PolicyRegistryManager />
+            )}
 
-        {/* Finova Sleek Minimal Footer */}
-        <footer className="border-t border-white/[0.06] bg-[#0B0D18]/90 backdrop-blur-md py-4 px-6 sm:px-8 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3 w-full min-w-0 mt-auto">
-          <div className="flex items-center gap-2 truncate">
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse shrink-0"></span>
-            <span className="font-medium text-slate-300 truncate">SupportNova Autonomous Governance Engine</span>
-            <span className="text-white/20 hidden sm:inline">•</span>
-            <span className="font-mono text-[11px] text-slate-400 hidden sm:inline">Finova Fintech Edition</span>
-          </div>
-          <div className="flex items-center gap-3 sm:gap-4 font-mono text-[11px] shrink-0">
-            <span className="text-[#7947EA] font-semibold">Pipeline 1: GenAI Flash</span>
-            <span className="text-white/20">•</span>
-            <span className="text-[#10B981] font-semibold">Pipeline 2: Zero-AI Python</span>
-            <span className="text-white/20 hidden md:inline">•</span>
-            <span className="text-[#06B6D4] font-semibold hidden md:flex items-center gap-1">
-              🍃 MongoDB Atlas
-            </span>
-          </div>
-        </footer>
+            {activeTab === 'rules' && (
+              <RuleMatrixManager />
+            )}
+          </main>
+
+          {/* Master Board Minimal Footer */}
+          <footer className="border-t border-slate-100 bg-white py-3 px-6 sm:px-8 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span className="font-semibold text-slate-700">SupportNova Autonomous Governance</span>
+              <span className="text-slate-300">•</span>
+              <span className="font-mono text-[11px] text-slate-500">Soft-Modern SaaS Edition</span>
+            </div>
+            <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500">
+              <span className="text-indigo-600 font-semibold">Pipeline 1: GenAI Flash</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-emerald-600 font-semibold">Pipeline 2: Ground-Truth</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-sky-600 font-semibold">🍃 MongoDB Atlas</span>
+            </div>
+          </footer>
+        </div>
+
       </div>
     </div>
   );

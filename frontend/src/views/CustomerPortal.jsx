@@ -810,59 +810,59 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
   const currentOrders = customerPurchases[activeCustomer.email] || [];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-20 w-full min-w-0">
+    <div className="space-y-6 pb-20 w-full min-w-0">
       
       {/* -------------------------------------------------------- */}
       {/* 1. TOP CUSTOMER IDENTITY & QUICK-SWITCHER BAR             */}
       {/* -------------------------------------------------------- */}
-      <div className="bg-[#0F121E]/90 backdrop-blur-xl text-white p-6 rounded-3xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+      <div className="bg-white p-6 rounded-[28px] border border-slate-100 shadow-card flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
           <img 
             src={activeCustomer.avatar} 
             alt={activeCustomer.name} 
-            className="w-16 h-16 rounded-2xl border-2 border-[#7B3FE4]/60 object-cover shadow-[0_0_20px_rgba(123,63,228,0.4)]"
+            className="w-16 h-16 rounded-2xl border-2 border-indigo-100 object-cover shadow-xs flex-shrink-0"
           />
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-xl font-black tracking-tight text-white">{activeCustomer.name}</h2>
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+              <h2 className="text-xl font-bold tracking-tight text-[#0F172A]">{activeCustomer.name}</h2>
+              <span className={`px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                 activeCustomer.tier === 'VIP' 
-                  ? 'bg-gradient-to-r from-[#FF4B72]/20 to-[#FF7F59]/20 text-[#FF4B72] border border-[#FF4B72]/40 shadow-[0_0_10px_rgba(255,75,114,0.3)]' 
-                  : 'bg-[#15192B] text-slate-300 border border-white/[0.08]'
+                  ? 'bg-rose-50 text-rose-700 border border-rose-200' 
+                  : 'bg-slate-100 text-slate-700 border border-slate-200'
               }`}>
                 {activeCustomer.tier} Member
               </span>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-1 font-mono">
-              <span className="flex items-center gap-1.5 text-slate-300">
-                <Mail className="w-3.5 h-3.5 text-[#C084FC]" />
+            <div className="flex flex-wrap items-center gap-3 text-xs text-[#64748B] mt-1.5 font-medium">
+              <span className="flex items-center gap-1.5 text-[#334155]">
+                <Mail className="w-3.5 h-3.5 text-indigo-600" />
                 {activeCustomer.email}
               </span>
-              <span className="text-white/20">•</span>
-              <span className="flex items-center gap-1.5 text-slate-300">
-                <Key className="w-3.5 h-3.5 text-[#F59E0B]" />
-                Password: <strong className="text-white">{activeCustomer.password}</strong>
+              <span className="text-slate-300">•</span>
+              <span className="flex items-center gap-1.5 text-[#334155]">
+                <Key className="w-3.5 h-3.5 text-amber-500" />
+                Password: <strong className="text-[#0F172A] font-semibold">{activeCustomer.password}</strong>
               </span>
-              <span className="text-white/20">•</span>
-              <span className="text-slate-400 font-sans">{activeCustomer.headline}</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-[#64748B]">{activeCustomer.headline}</span>
             </div>
           </div>
         </div>
 
         {/* 1-Click Quick Customer Persona Switcher */}
-        <div className="flex items-center gap-2.5 self-start lg:self-auto bg-[#08090E] p-2.5 rounded-2xl border border-white/[0.1]">
-          <Users className="w-4 h-4 text-[#C084FC] flex-shrink-0 ml-1" />
-          <span className="text-xs font-semibold text-slate-300 whitespace-nowrap">Switch Customer:</span>
+        <div className="flex items-center gap-2.5 self-start lg:self-auto bg-[#F6F8FC] p-2 rounded-full border border-slate-200/60 shadow-xs">
+          <Users className="w-4 h-4 text-indigo-600 flex-shrink-0 ml-2" />
+          <span className="text-xs font-semibold text-[#475569] whitespace-nowrap">Switch Customer:</span>
           <select
             value={activeCustomer.email}
             onChange={(e) => {
               const found = PRE_SEEDED_CUSTOMERS.find(c => c.email === e.target.value);
               if (found) handleSelectCustomer(found);
             }}
-            className="text-xs font-semibold bg-[#15192B] text-white rounded-xl px-3 py-2 border border-white/[0.1] focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4] cursor-pointer"
+            className="text-xs font-semibold bg-white text-[#0F172A] rounded-full px-3.5 py-1.5 border border-slate-200/80 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-xs"
           >
             {PRE_SEEDED_CUSTOMERS.map(c => (
-              <option key={c.id} value={c.email} className="bg-[#0F121E] text-white">
+              <option key={c.id} value={c.email} className="bg-white text-[#0F172A]">
                 {c.name} ({c.tier}) — {c.email}
               </option>
             ))}
@@ -873,32 +873,32 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
       {/* -------------------------------------------------------- */}
       {/* 2. THREE CLEAN ACTION TABS (Store, Orders, Tickets, DB)  */}
       {/* -------------------------------------------------------- */}
-      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 flex-wrap gap-3">
+      <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 flex-wrap gap-3">
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setActiveSubTab('orders')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               activeSubTab === 'orders'
-                ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-                : 'bg-[#0F121E] text-slate-300 hover:bg-[#15192B] border border-white/[0.08]'
+                ? 'bg-[#0F172A] text-white shadow-sm'
+                : 'bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]'
             }`}
           >
-            <Package className="w-4 h-4 text-[#C084FC]" />
+            <Package className="w-4 h-4 text-indigo-500" />
             <span>My Purchased Orders ({currentOrders.length})</span>
           </button>
 
           <button
             onClick={() => setActiveSubTab('tickets')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer relative ${
               activeSubTab === 'tickets'
-                ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-                : 'bg-[#0F121E] text-slate-300 hover:bg-[#15192B] border border-white/[0.08]'
+                ? 'bg-[#0F172A] text-white shadow-sm'
+                : 'bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]'
             }`}
           >
-            <MessageSquare className="w-4 h-4 text-[#C084FC]" />
+            <MessageSquare className="w-4 h-4 text-indigo-500" />
             <span>My Support Tickets & Live Replies</span>
             {myTickets.length > 0 && (
-              <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FF4B72] text-white shadow-[0_0_10px_rgba(255,75,114,0.5)]">
+              <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500 text-white shadow-xs">
                 {myTickets.length}
               </span>
             )}
@@ -906,13 +906,13 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
           <button
             onClick={() => setActiveSubTab('store')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               activeSubTab === 'store'
-                ? 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10'
-                : 'bg-[#0F121E] text-slate-300 hover:bg-[#15192B] border border-white/[0.08]'
+                ? 'bg-[#0F172A] text-white shadow-sm'
+                : 'bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]'
             }`}
           >
-            <ShoppingBag className="w-4 h-4 text-[#C084FC]" />
+            <ShoppingBag className="w-4 h-4 text-indigo-500" />
             <span>NovaStore Catalog ({STORE_CATALOG.length} Products)</span>
           </button>
 
@@ -921,15 +921,15 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
               setActiveSubTab('history');
               loadMongoHistory();
             }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               activeSubTab === 'history'
-                ? 'bg-gradient-to-r from-[#059669] to-[#10B981] text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-white/10'
-                : 'bg-[#0F121E] text-slate-300 hover:bg-[#15192B] border border-white/[0.08]'
+                ? 'bg-[#0F172A] text-white shadow-sm'
+                : 'bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0]'
             }`}
           >
-            <Database className="w-4 h-4 text-[#10B981]" />
+            <Database className="w-4 h-4 text-emerald-600" />
             <span>MongoDB Atlas Vault & History</span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30">
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
               Atlas DB
             </span>
           </button>
@@ -937,9 +937,9 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
         <button
           onClick={loadMyTickets}
-          className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/[0.08] bg-[#15192B] hover:bg-[#1C223A] cursor-pointer shadow-xs transition-colors"
+          className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200/80 bg-white hover:bg-slate-50 cursor-pointer shadow-xs transition-colors"
         >
-          <RefreshCw className="w-3.5 h-3.5 text-[#C084FC]" />
+          <RefreshCw className="w-3.5 h-3.5 text-indigo-600" />
           <span>Refresh Updates</span>
         </button>
       </div>
@@ -951,14 +951,14 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-white">
+              <h3 className="text-base font-bold text-[#0F172A]">
                 Verified Purchases for {activeCustomer.name}
               </h3>
-              <p className="text-xs text-slate-400">
-                Found a defective product? Click <strong className="text-[#FF4B72]">"Report Issue / File Complaint"</strong> on any item to submit a complaint with photo evidence.
+              <p className="text-xs text-[#64748B]">
+                Found a defective product? Click <strong className="text-rose-600">"Report Issue / File Complaint"</strong> on any item to submit a complaint with photo evidence.
               </p>
             </div>
-            <span className="text-xs font-mono text-[#C084FC] font-bold">
+            <span className="text-xs font-mono text-indigo-600 font-bold">
               {currentOrders.length} Order(s) Verified
             </span>
           </div>
@@ -967,48 +967,48 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
             {currentOrders.map((order, idx) => (
               <div 
                 key={idx}
-                className="bg-[#0F121E]/90 backdrop-blur-xl rounded-3xl border border-white/[0.08] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col justify-between hover:border-white/[0.15] transition-all space-y-4"
+                className="bg-white rounded-[28px] border border-slate-100 p-6 shadow-card flex flex-col justify-between hover:shadow-lg transition-all space-y-4"
               >
                 <div className="flex items-start gap-4">
                   <img 
                     src={order.productImage} 
                     alt={order.productName} 
-                    className="w-20 h-20 rounded-2xl object-cover border border-white/[0.1] shadow-xs flex-shrink-0"
+                    className="w-20 h-20 rounded-2xl object-cover border border-slate-100 shadow-xs flex-shrink-0"
                   />
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold text-[#C084FC]">
+                      <span className="font-mono text-xs font-bold text-indigo-600">
                         {order.orderId}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         {order.status}
                       </span>
                     </div>
-                    <h4 className="text-sm font-bold text-white line-clamp-2">
+                    <h4 className="text-sm font-bold text-[#0F172A] line-clamp-2">
                       {order.productName}
                     </h4>
-                    <div className="text-xs font-extrabold text-[#10B981]">
+                    <div className="text-xs font-bold text-emerald-600">
                       {order.price}
                     </div>
-                    <div className="text-[11px] font-mono text-slate-400">
+                    <div className="text-[11px] font-mono text-[#64748B]">
                       Serial: {order.serialNumber} • Purchased: {order.date}
                     </div>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#08090E]/70 border border-white/[0.08] text-xs text-slate-300">
-                  <span className="font-semibold text-white">Delivery Status: </span>
+                <div className="p-3.5 rounded-2xl bg-[#F6F8FC] border border-slate-200/50 text-xs text-[#334155]">
+                  <span className="font-semibold text-[#0F172A]">Delivery Status: </span>
                   {order.deliveryNote}
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <div className="text-[11px] text-[#F59E0B] font-semibold flex items-center gap-1">
+                  <div className="text-[11px] text-amber-600 font-semibold flex items-center gap-1">
                     <ShieldAlert className="w-3.5 h-3.5" />
                     <span>Eligible for Warranty Claim</span>
                   </div>
                   <button
                     onClick={() => handleOpenFilingModal(order)}
-                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#FF7F59] hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_20px_rgba(255,75,114,0.35)] border border-white/10 cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                   >
                     <AlertTriangle className="w-3.5 h-3.5" />
                     <span>Report Issue / File Complaint</span>
@@ -1027,33 +1027,33 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-white">
+              <h3 className="text-base font-bold text-[#0F172A]">
                 Live Support Tickets for {activeCustomer.name}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#64748B]">
                 Track how SupportNova's dual pipelines and support agents resolve your claims in real time.
               </p>
             </div>
-            <span className="text-xs font-mono text-[#C084FC] font-bold">
+            <span className="text-xs font-mono text-indigo-600 font-bold">
               {myTickets.length} Registered Ticket(s)
             </span>
           </div>
 
           {ticketsLoading ? (
-            <div className="p-16 text-center text-xs text-slate-400 font-mono">
-              <div className="w-8 h-8 border-2 border-[#7B3FE4] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <div className="p-16 text-center text-xs text-[#64748B] font-mono">
+              <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
               Loading your live resolution tickets...
             </div>
           ) : myTickets.length === 0 ? (
-            <div className="p-16 bg-[#0F121E]/90 backdrop-blur-xl rounded-3xl border border-white/[0.08] text-center space-y-4 shadow-xl">
-              <CheckCircle2 className="w-12 h-12 text-[#10B981] mx-auto" />
-              <h4 className="text-base font-extrabold text-white">No Open Complaints</h4>
-              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+            <div className="p-16 bg-white rounded-[28px] border border-slate-100 text-center space-y-4 shadow-card">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+              <h4 className="text-base font-bold text-[#0F172A]">No Open Complaints</h4>
+              <p className="text-xs text-[#64748B] max-w-md mx-auto leading-relaxed">
                 You currently have no active complaints. Select any item from "My Purchased Orders" above and click "Report Problem" to test the tool!
               </p>
               <button
                 onClick={() => setActiveSubTab('orders')}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white text-xs font-bold cursor-pointer shadow-[0_0_20px_rgba(123,63,228,0.4)]"
+                className="px-5 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-semibold cursor-pointer shadow-sm transition-all"
               >
                 View My Orders
               </button>
@@ -1063,35 +1063,35 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
               {myTickets.map((t) => (
                 <div 
                   key={t.complaint_id}
-                  className="bg-[#0F121E]/90 backdrop-blur-xl rounded-3xl border border-white/[0.08] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4"
+                  className="bg-white rounded-[28px] border border-slate-100 p-6 shadow-card space-y-4"
                 >
                   {/* Ticket Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.08]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                     <div>
                       <div className="flex items-center gap-2.5">
-                        <span className="font-mono text-sm font-bold text-[#C084FC]">
+                        <span className="font-mono text-sm font-bold text-indigo-600">
                           {t.complaint_id}
                         </span>
                         <StatusBadge status={t.status} />
                         {t.is_automated_dispatch_blocked ? (
-                          <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                          <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
                             ⏳ Under Human Specialist Review
                           </span>
                         ) : (
-                          <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                          <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             ✨ AI Verified & Dispatched
                           </span>
                         )}
                       </div>
-                      <h4 className="text-base font-extrabold text-white mt-1">
+                      <h4 className="text-base font-bold text-[#0F172A] mt-1">
                         {t.complaint_title}
                       </h4>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 mt-1 font-mono">
-                        <span>Product: <strong className="text-white">{t.product_or_service || 'N/A'}</strong></span>
-                        <span className="text-white/20">•</span>
-                        <span>Dept: <strong className="text-white">{t.assigned_department}</strong></span>
-                        <span className="text-white/20">•</span>
-                        <span>SLA: <strong className="text-[#C084FC]">{t.sla_target_hours || 24}h</strong></span>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-[#64748B] mt-1 font-medium">
+                        <span>Product: <strong className="text-[#0F172A]">{t.product_or_service || 'N/A'}</strong></span>
+                        <span className="text-slate-300">•</span>
+                        <span>Dept: <strong className="text-[#0F172A]">{t.assigned_department}</strong></span>
+                        <span className="text-slate-300">•</span>
+                        <span>SLA: <strong className="text-indigo-600">{t.sla_target_hours || 24}h</strong></span>
                       </div>
                     </div>
                   </div>
@@ -1099,27 +1099,27 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                   {/* Customer Narrative & Evidence Images */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-2 space-y-2">
-                      <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Your Complaint Description:</span>
-                      <p className="text-xs text-slate-200 leading-relaxed bg-[#08090E]/80 p-4 rounded-2xl border border-white/[0.08]">
+                      <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider">Your Complaint Description:</span>
+                      <p className="text-xs text-[#334155] leading-relaxed bg-[#F6F8FC] p-4 rounded-2xl border border-slate-200/50">
                         {t.complaint_description}
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Attached Defect Evidence:</span>
+                      <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider">Attached Defect Evidence:</span>
                       {t.evidence_image_url ? (
-                        <div className="rounded-2xl overflow-hidden border border-white/[0.1] aspect-video relative group">
+                        <div className="rounded-2xl overflow-hidden border border-slate-200 aspect-video relative group shadow-xs">
                           <img 
                             src={t.evidence_image_url} 
                             alt="Defect Evidence" 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
-                          <span className="absolute bottom-1.5 right-1.5 bg-[#08090E]/90 text-[#FF4B72] border border-[#FF4B72]/30 text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-xs">
+                          <span className="absolute bottom-1.5 right-1.5 bg-[#0F172A]/90 text-white text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-xs">
                             Verified Evidence
                           </span>
                         </div>
                       ) : (
-                        <div className="p-5 rounded-2xl border border-dashed border-white/[0.1] text-center text-xs text-slate-500 bg-[#08090E]/40">
+                        <div className="p-5 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400 bg-[#F6F8FC]">
                           No evidence attached
                         </div>
                       )}
@@ -1127,43 +1127,44 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                   </div>
 
                   {/* Official Response from AI / Support Team */}
-                  <div className="p-5 rounded-2xl bg-gradient-to-r from-[#7B3FE4]/15 via-[#0F121E] to-[#4F46E5]/15 border border-[#7B3FE4]/30 space-y-3 shadow-[0_0_20px_rgba(123,63,228,0.15)]">
+                  <div className="p-5 rounded-2xl bg-[#F8FAFD] border border-slate-200/80 space-y-3 shadow-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                        <MessageSquare className="w-3.5 h-3.5 text-[#C084FC]" />
+                      <span className="text-xs font-bold text-[#0F172A] flex items-center gap-1.5">
+                        <MessageSquare className="w-3.5 h-3.5 text-indigo-600" />
                         Official Resolution Message for Customer:
                       </span>
-                      <span className="text-[10px] font-mono uppercase bg-[#7B3FE4]/20 text-[#C084FC] px-2.5 py-0.5 rounded-md border border-[#7B3FE4]/40 font-bold">
+                      <span className="text-[10px] font-mono uppercase bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-200 font-bold">
                         {t.status === 'Resolved & Closed' || t.is_closed ? 'Closed & Resolved' : (t.status === 'Reopened' ? 'Reopened' : (t.human_reviewer_action === 'Approved' ? 'Agent Approved' : (t.human_reviewer_action === 'Admin Approved' ? 'Admin Authorized' : 'Live Status')))}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-200 leading-relaxed font-sans whitespace-pre-line italic bg-[#08090E]/70 p-3.5 rounded-xl border border-white/[0.06]">
+                    <p className="text-xs text-[#334155] leading-relaxed font-sans whitespace-pre-line italic bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
                       "{t.customer_response || 'Your complaint has been accepted into the queue and is being evaluated against policy rules.'}"
                     </p>
 
                     {/* Full Interactive Conversation Thread (if replies exist) */}
                     {t.conversation_history && t.conversation_history.length > 1 && (
-                      <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-2">
-                        <span className="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                          <MessageSquare className="w-3 h-3 text-[#C084FC]" />
+                      <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2">
+                        <span className="text-[11px] font-bold text-[#0F172A] uppercase tracking-wider flex items-center gap-1.5">
+                          <MessageSquare className="w-3 h-3 text-indigo-600" />
                           <span>Conversation & Resolution History ({t.conversation_history.length} messages)</span>
                         </span>
+
                         <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
                           {t.conversation_history.map((msg, mIdx) => (
                             <div 
                               key={mIdx} 
-                              className={`p-3 rounded-xl text-xs ${
+                              className={`p-3.5 rounded-xl text-xs ${
                                 msg.sender === 'customer' 
-                                  ? 'bg-[#08090E]/80 border border-white/[0.08] text-slate-200' 
+                                  ? 'bg-white border border-slate-200/80 text-[#334155] shadow-xs' 
                                   : msg.action === 'customer_accepted_close' || msg.action === 'ticket_closed'
-                                  ? 'bg-[#10B981]/15 border border-[#10B981]/30 text-emerald-200'
-                                  : 'bg-gradient-to-br from-[#7B3FE4]/15 to-[#4F46E5]/10 border border-[#7B3FE4]/30 text-white'
+                                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-800 shadow-xs'
+                                  : 'bg-indigo-50/70 border border-indigo-100 text-[#0F172A] shadow-xs'
                               }`}
                             >
-                              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+                              <div className="flex items-center justify-between text-[10px] font-mono text-[#64748B] mb-1">
                                 <span className="font-bold flex items-center gap-1.5">
                                   {msg.sender === 'customer' ? '👤 ' : (msg.action === 'customer_accepted_close' ? '✅ ' : '🛡️ ')}
-                                  <span className={msg.sender === 'customer' ? 'text-slate-200' : (msg.action === 'customer_accepted_close' ? 'text-emerald-300' : 'text-[#C084FC]')}>
+                                  <span className={msg.sender === 'customer' ? 'text-[#334155]' : (msg.action === 'customer_accepted_close' ? 'text-emerald-700' : 'text-indigo-600 font-bold')}>
                                     {msg.sender_name || (msg.sender === 'customer' ? 'You' : 'Support Specialist')}
                                   </span>
                                 </span>
@@ -1171,15 +1172,15 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                               </div>
                               <p className="whitespace-pre-line text-xs font-sans leading-relaxed">{msg.message}</p>
                               {msg.image_url && (
-                                <div className="mt-2.5 pt-2 border-t border-white/[0.08]">
-                                  <span className="text-[10px] font-mono text-[#FF4B72] uppercase font-bold block mb-1">
+                                <div className="mt-2.5 pt-2 border-t border-slate-200/80">
+                                  <span className="text-[10px] font-mono text-rose-600 uppercase font-bold block mb-1">
                                     📷 Attached Defect Photo:
                                   </span>
                                   <img 
                                     src={msg.image_url} 
                                     alt="Attached Evidence" 
                                     onClick={() => window.open(msg.image_url, '_blank')}
-                                    className="max-h-48 rounded-xl object-cover border-2 border-[#FF4B72]/70 shadow-[0_0_15px_rgba(255,75,114,0.3)] cursor-pointer hover:scale-[1.02] transition-transform" 
+                                    className="max-h-48 rounded-xl object-cover border border-slate-200 shadow-xs cursor-pointer hover:scale-[1.02] transition-transform" 
                                     title="Click to view full photo"
                                   />
                                 </div>
@@ -1191,23 +1192,23 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                     )}
 
                     {/* Customer Action Bar: Accept & Close vs Reply */}
-                    <div className="pt-2 border-t border-white/[0.08]">
+                    <div className="pt-2 border-t border-slate-200/80">
                       {t.status === 'Resolved & Closed' || t.is_closed ? (
-                        <div className="flex items-center gap-2 p-3 bg-[#10B981]/15 border border-[#10B981]/30 rounded-xl text-emerald-200 text-xs font-semibold">
-                          <CheckCircle2 className="w-4 h-4 text-[#10B981] flex-shrink-0" />
+                        <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                           <span>This ticket has been officially resolved and closed with customer agreement.</span>
                         </div>
                       ) : (
                         <div className="space-y-3">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[11px] text-slate-300 font-medium">
+                            <span className="text-[11px] text-[#475569] font-medium">
                               Satisfied with our response, or need further assistance?
                             </span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => handleCustomerCloseTicket(t.complaint_id)}
                                 disabled={actionInProgress}
-                                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] cursor-pointer disabled:opacity-50"
+                                className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 <span>Accept Resolution & Close Ticket</span>
@@ -1226,7 +1227,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                     setReplyFileName('');
                                   }
                                 }}
-                                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(123,63,228,0.4)] cursor-pointer"
+                                className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                               >
                                 <MessageSquare className="w-3.5 h-3.5" />
                                 <span>{replyingTicketId === t.complaint_id ? 'Cancel Reply' : 'Reply to Support'}</span>
@@ -1236,9 +1237,9 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
                           {/* Expandable Reply Composer */}
                           {replyingTicketId === t.complaint_id && (
-                            <div className="p-5 rounded-2xl bg-[#0F121E] border border-white/[0.1] space-y-3 shadow-2xl animate-in fade-in duration-200">
+                            <div className="p-5 rounded-2xl bg-[#F6F8FC] border border-slate-200 space-y-3 shadow-card animate-in fade-in duration-200">
                               <div>
-                                <label className="text-xs font-bold text-white block">
+                                <label className="text-xs font-bold text-[#0F172A] block">
                                   Write your reply to Support (This will reopen the ticket for specialist review):
                                 </label>
                                 <textarea
@@ -1246,22 +1247,22 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                   value={replyText}
                                   onChange={(e) => setReplyText(e.target.value)}
                                   placeholder="State what adjustments you require or provide additional details..."
-                                  className="w-full mt-1.5 p-3 rounded-xl border border-white/[0.1] bg-[#08090E] text-xs text-white focus:outline-hidden focus:ring-2 focus:ring-[#7B3FE4]"
+                                  className="w-full mt-1.5 p-3 rounded-xl border border-slate-200 bg-white text-xs text-[#0F172A] focus:outline-hidden focus:ring-2 focus:ring-indigo-500 shadow-xs"
                                 />
                               </div>
 
                               {/* Evidence Photo Attachment Section for Reply */}
-                              <div className="p-4 bg-[#08090E]/80 rounded-2xl border border-white/[0.08] space-y-2.5">
+                              <div className="p-4 bg-white rounded-xl border border-slate-200/80 space-y-2.5 shadow-xs">
                                 <div className="flex items-center justify-between">
-                                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                                    <Camera className="w-3.5 h-3.5 text-[#C084FC]" />
-                                    <span>Attach Defect Photo <span className="font-normal text-slate-400">(Required if specialist requested photo, or optional)</span></span>
+                                  <label className="text-xs font-bold text-[#334155] flex items-center gap-1.5">
+                                    <Camera className="w-3.5 h-3.5 text-indigo-600" />
+                                    <span>Attach Defect Photo <span className="font-normal text-[#64748B]">(Required if specialist requested photo, or optional)</span></span>
                                   </label>
                                   {replyImageUrl && (
                                     <button
                                       type="button"
                                       onClick={() => { setReplyImageUrl(''); setReplyFileName(''); }}
-                                      className="text-[11px] text-[#FF4B72] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                                      className="text-[11px] text-rose-600 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                                     >
                                       <X className="w-3 h-3" />
                                       <span>Remove Photo</span>
@@ -1270,14 +1271,14 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                 </div>
 
                                 {/* Attachment Mode Switcher Tabs */}
-                                <div className="flex items-center gap-1 p-1 bg-[#15192B] rounded-xl border border-white/[0.08] text-xs">
+                                <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-full text-xs">
                                   <button
                                     type="button"
                                     onClick={() => setReplyImageMode('upload')}
-                                    className={`flex-1 py-1.5 px-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                                    className={`flex-1 py-1.5 px-3 rounded-full font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                                       replyImageMode === 'upload' 
-                                        ? 'bg-[#7B3FE4]/20 text-[#C084FC] border border-[#7B3FE4]/30 shadow-xs' 
-                                        : 'text-slate-400 hover:text-white'
+                                        ? 'bg-white text-[#0F172A] shadow-xs' 
+                                        : 'text-slate-500 hover:text-slate-800'
                                     }`}
                                   >
                                     <Upload className="w-3.5 h-3.5" />
@@ -1286,10 +1287,10 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                   <button
                                     type="button"
                                     onClick={() => setReplyImageMode('url')}
-                                    className={`flex-1 py-1.5 px-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                                    className={`flex-1 py-1.5 px-3 rounded-full font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                                       replyImageMode === 'url' 
-                                        ? 'bg-[#7B3FE4]/20 text-[#C084FC] border border-[#7B3FE4]/30 shadow-xs' 
-                                        : 'text-slate-400 hover:text-white'
+                                        ? 'bg-white text-[#0F172A] shadow-xs' 
+                                        : 'text-slate-500 hover:text-slate-800'
                                     }`}
                                   >
                                     <ExternalLink className="w-3.5 h-3.5" />
@@ -1299,7 +1300,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
                                 {/* Upload Dropzone */}
                                 {replyImageMode === 'upload' ? (
-                                  <div className="border border-dashed border-white/[0.15] hover:border-[#7B3FE4] rounded-xl p-4 text-center cursor-pointer transition-colors bg-[#08090E] relative">
+                                  <div className="border border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-4 text-center cursor-pointer transition-colors bg-[#F6F8FC] relative">
                                     <input
                                       type="file"
                                       accept="image/*"
@@ -1311,13 +1312,13 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                         <img 
                                           src={replyImageUrl} 
                                           alt="Reply Evidence" 
-                                          className="w-14 h-14 rounded-xl object-cover border border-white/[0.1] shadow-xs"
+                                          className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-xs"
                                         />
                                         <div className="text-left">
-                                          <span className="text-xs font-bold text-white block truncate max-w-[200px]">
+                                          <span className="text-xs font-bold text-[#0F172A] block truncate max-w-[200px]">
                                             {replyFileName || 'Photo Attached'}
                                           </span>
-                                          <span className="text-[10px] text-[#10B981] font-semibold block">
+                                          <span className="text-[10px] text-emerald-600 font-semibold block">
                                             ✓ Ready to send to specialist
                                           </span>
                                         </div>
@@ -1325,10 +1326,10 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                     ) : (
                                       <div className="py-2 space-y-1">
                                         <Camera className="w-6 h-6 text-slate-400 mx-auto" />
-                                        <div className="text-xs text-slate-300 font-medium">
+                                        <div className="text-xs text-[#334155] font-semibold">
                                           Click to choose defect photo or drag & drop
                                         </div>
-                                        <div className="text-[10px] text-slate-500">PNG, JPG, WebP supported</div>
+                                        <div className="text-[10px] text-[#64748B]">PNG, JPG, WebP supported</div>
                                       </div>
                                     )}
                                   </div>
@@ -1341,13 +1342,13 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                         value={replyImageUrl}
                                         onChange={(e) => setReplyImageUrl(e.target.value)}
                                         placeholder="https://... (Paste defect photo URL)"
-                                        className="flex-1 px-3.5 py-2 rounded-xl border border-white/[0.1] bg-[#08090E] text-xs font-mono text-white"
+                                        className="flex-1 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono text-[#0F172A]"
                                       />
                                       {replyImageUrl && (
                                         <img 
                                           src={replyImageUrl} 
                                           alt="Preview" 
-                                          className="w-9 h-9 rounded-xl object-cover border border-white/[0.1] flex-shrink-0" 
+                                          className="w-9 h-9 rounded-xl object-cover border border-slate-200 flex-shrink-0" 
                                         />
                                       )}
                                     </div>
@@ -1356,7 +1357,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
                                 {/* Quick Sample Defect Photos */}
                                 <div className="pt-1">
-                                  <span className="text-[10px] text-slate-400 font-medium block mb-1">Quick Sample Photos (Click to attach instantly):</span>
+                                  <span className="text-[10px] text-[#64748B] font-medium block mb-1">Quick Sample Photos (Click to attach instantly):</span>
                                   <div className="flex flex-wrap gap-1.5">
                                     {[
                                       { label: '📷 Broken OLED Screen', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80' },
@@ -1371,7 +1372,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                           setReplyFileName(sample.label);
                                           toast.success(`Attached photo: ${sample.label}`);
                                         }}
-                                        className="px-2.5 py-1 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-slate-300 text-[10px] font-medium border border-white/[0.08] transition-colors cursor-pointer"
+                                        className="px-3 py-1 rounded-full bg-white hover:bg-slate-100 text-[#475569] text-[10px] font-medium border border-slate-200 transition-colors cursor-pointer shadow-xs"
                                       >
                                         {sample.label}
                                       </button>
@@ -1386,10 +1387,10 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                   onClick={() => { 
                                     setReplyingTicketId(null); 
                                     setReplyText(''); 
-                                    setReplyImageUrl('');
+                                    setReplyImageUrl(''); 
                                     setReplyFileName('');
                                   }}
-                                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white font-medium cursor-pointer"
+                                  className="px-4 py-2 rounded-full text-xs text-[#64748B] hover:text-[#0F172A] font-medium cursor-pointer"
                                 >
                                   Cancel
                                 </button>
@@ -1397,7 +1398,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                                   type="button"
                                   onClick={() => handleSendCustomerReply(t.complaint_id)}
                                   disabled={actionInProgress || !replyText.trim()}
-                                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(123,63,228,0.4)] disabled:opacity-50 cursor-pointer"
+                                  className="px-5 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
                                 >
                                   <Send className="w-3.5 h-3.5" />
                                   <span>{actionInProgress ? 'Sending...' : 'Send Reply & Reopen Ticket'}</span>
@@ -1423,14 +1424,14 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-white">
+              <h3 className="text-base font-bold text-[#0F172A]">
                 NovaStore Consumer Electronics & Computing
               </h3>
-              <p className="text-xs text-slate-400">
-                Browse popular tech products. Click <strong className="text-[#C084FC]">"Buy Demo Order"</strong> to add an item directly to your purchases so you can test reporting an issue!
+              <p className="text-xs text-[#64748B]">
+                Browse popular tech products. Click <strong className="text-indigo-600">"Buy Demo Order"</strong> to add an item directly to your purchases so you can test reporting an issue!
               </p>
             </div>
-            <span className="text-xs font-mono text-slate-400">
+            <span className="text-xs font-mono text-[#64748B]">
               Authorized Tech Retailer
             </span>
           </div>
@@ -1439,7 +1440,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
             {STORE_CATALOG.map((prod) => (
               <div 
                 key={prod.id}
-                className="bg-[#0F121E]/90 backdrop-blur-xl rounded-3xl border border-white/[0.08] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:border-white/[0.15] transition-all flex flex-col justify-between"
+                className="bg-white rounded-[28px] border border-slate-100 overflow-hidden shadow-card hover:shadow-lg transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="aspect-video w-full overflow-hidden relative">
@@ -1448,22 +1449,22 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                       alt={prod.name} 
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
-                    <span className="absolute top-2.5 left-2.5 bg-[#08090E]/80 backdrop-blur-md text-slate-200 border border-white/[0.1] font-mono text-[10px] px-2.5 py-0.5 rounded-lg">
+                    <span className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md text-[#0F172A] border border-slate-200/80 font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
                       {prod.category}
                     </span>
-                    <span className="absolute top-2.5 right-2.5 bg-[#10B981] text-white font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-lg shadow-xs">
+                    <span className="absolute top-2.5 right-2.5 bg-emerald-600 text-white font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
                       ⭐ {prod.rating}
                     </span>
                   </div>
 
                   <div className="p-5 space-y-2">
-                    <h4 className="text-sm font-bold text-white line-clamp-1">
+                    <h4 className="text-sm font-bold text-[#0F172A] line-clamp-1">
                       {prod.name}
                     </h4>
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[#64748B] line-clamp-2 leading-relaxed">
                       {prod.specs}
                     </p>
-                    <div className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF4B72] to-[#FF7F59]">
+                    <div className="text-lg font-bold text-rose-600">
                       {prod.price}
                     </div>
                   </div>
@@ -1472,7 +1473,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 <div className="p-5 pt-0">
                   <button
                     onClick={() => handleBuyProduct(prod)}
-                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10 cursor-pointer"
+                    className="w-full py-3 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:opacity-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>Buy Demo Order (Add to My Purchases)</span>
@@ -1490,27 +1491,27 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
       {activeSubTab === 'history' && (
         <div className="space-y-6">
           {/* Top MongoDB Cluster Banner */}
-          <div className="p-6 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-emerald-500/30 text-white shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+          <div className="p-6 rounded-[28px] bg-white border border-emerald-200 text-[#0F172A] shadow-card">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#10B981]"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                   </span>
-                  <span className="font-mono text-xs font-bold text-[#10B981] uppercase tracking-wider">
+                  <span className="font-mono text-xs font-bold text-emerald-600 uppercase tracking-wider">
                     MongoDB Atlas NoSQL Engine Active
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 font-bold">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
                     Primary Production DB
                   </span>
                 </div>
-                <h3 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                  <Database className="w-5 h-5 text-[#10B981]" />
+                <h3 className="text-xl font-bold tracking-tight text-[#0F172A] flex items-center gap-2">
+                  <Database className="w-5 h-5 text-emerald-600" />
                   MongoDB Atlas Customer Vault & Audit Ledger
                 </h3>
-                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                  Real-time query telemetry against MongoDB Atlas Cluster (<strong className="text-emerald-300 font-mono">Cluster0 / replicaSet: atlas-q1pse9-shard-0</strong>).
+                <p className="text-xs text-[#64748B] max-w-2xl leading-relaxed">
+                  Real-time query telemetry against MongoDB Atlas Cluster (<strong className="text-emerald-700 font-mono">Cluster0 / replicaSet: atlas-q1pse9-shard-0</strong>).
                   All customer purchases, complaint tickets, and activity logs are synchronized and persisted in NoSQL collections.
                 </p>
               </div>
@@ -1520,17 +1521,17 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 <button
                   onClick={loadMongoHistory}
                   disabled={mongoLoading}
-                  className="px-4 py-2.5 rounded-xl bg-[#15192B] hover:bg-[#1C223A] text-white text-xs font-semibold border border-white/[0.1] flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  className="px-4 py-2 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] text-xs font-semibold border border-slate-200/80 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
                   title="Query latest records from MongoDB Atlas"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 text-[#10B981] ${mongoLoading ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${mongoLoading ? 'animate-spin' : ''}`} />
                   <span>{mongoLoading ? 'Querying Atlas...' : 'Refresh Telemetry'}</span>
                 </button>
 
                 <button
                   onClick={handleSyncAllToMongo}
                   disabled={mongoSyncing}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#059669] to-[#10B981] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm disabled:opacity-50"
                   title="Sync all pre-seeded accounts to MongoDB Atlas collections"
                 >
                   {mongoSyncing ? (
@@ -1544,74 +1545,74 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
             </div>
 
             {/* Quick MongoDB Connection Metadata */}
-            <div className="mt-5 pt-4 border-t border-white/[0.08] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-              <div className="bg-[#08090E]/80 p-3 rounded-2xl border border-white/[0.06]">
-                <span className="text-[10px] text-slate-400 block uppercase">Cluster Name</span>
-                <span className="text-white font-bold">Cluster0 (Atlas Sharded)</span>
+            <div className="mt-5 pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+              <div className="bg-[#F6F8FC] p-3 rounded-2xl border border-slate-200/50">
+                <span className="text-[10px] text-[#94A3B8] block uppercase">Cluster Name</span>
+                <span className="text-[#0F172A] font-bold">Cluster0 (Atlas Sharded)</span>
               </div>
-              <div className="bg-[#08090E]/80 p-3 rounded-2xl border border-white/[0.06]">
-                <span className="text-[10px] text-slate-400 block uppercase">Database</span>
-                <span className="text-[#10B981] font-bold">support_nova</span>
+              <div className="bg-[#F6F8FC] p-3 rounded-2xl border border-slate-200/50">
+                <span className="text-[10px] text-[#94A3B8] block uppercase">Database</span>
+                <span className="text-emerald-700 font-bold">support_nova</span>
               </div>
-              <div className="bg-[#08090E]/80 p-3 rounded-2xl border border-white/[0.06]">
-                <span className="text-[10px] text-slate-400 block uppercase">Collections Active</span>
-                <span className="text-[#C084FC] font-bold">purchases • tickets • audit</span>
+              <div className="bg-[#F6F8FC] p-3 rounded-2xl border border-slate-200/50">
+                <span className="text-[10px] text-[#94A3B8] block uppercase">Collections Active</span>
+                <span className="text-indigo-600 font-bold">purchases • tickets • audit</span>
               </div>
-              <div className="bg-[#08090E]/80 p-3 rounded-2xl border border-white/[0.06]">
-                <span className="text-[10px] text-slate-400 block uppercase">Target Customer</span>
-                <span className="text-[#F59E0B] font-bold truncate block">{activeCustomer.email}</span>
+              <div className="bg-[#F6F8FC] p-3 rounded-2xl border border-slate-200/50">
+                <span className="text-[10px] text-[#94A3B8] block uppercase">Target Customer</span>
+                <span className="text-amber-700 font-bold truncate block">{activeCustomer.email}</span>
               </div>
             </div>
           </div>
 
           {/* 3 Telemetry Counter Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <div className="p-5 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex items-center gap-4">
-              <div className="p-3.5 rounded-2xl bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+            <div className="p-5 rounded-[28px] bg-white border border-slate-100 shadow-card flex items-center gap-4">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-xs">
                 <Package className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[11px] font-mono uppercase font-bold text-slate-400">
+                <span className="text-[11px] font-mono uppercase font-bold text-[#64748B]">
                   Atlas Purchases Saved
                 </span>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#0F172A]">
                   {mongoHistory?.total_purchases ?? (mongoHistory?.purchases?.length || currentOrders.length)}
                 </div>
-                <span className="text-[10px] text-[#10B981] font-mono">
+                <span className="text-[10px] text-emerald-600 font-mono">
                   Collection: customer_purchases
                 </span>
               </div>
             </div>
 
-            <div className="p-5 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex items-center gap-4">
-              <div className="p-3.5 rounded-2xl bg-[#7B3FE4]/15 text-[#C084FC] border border-[#7B3FE4]/30 shadow-[0_0_15px_rgba(123,63,228,0.3)]">
+            <div className="p-5 rounded-[28px] bg-white border border-slate-100 shadow-card flex items-center gap-4">
+              <div className="p-3.5 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-xs">
                 <MessageSquare className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[11px] font-mono uppercase font-bold text-slate-400">
+                <span className="text-[11px] font-mono uppercase font-bold text-[#64748B]">
                   Atlas Complaint Tickets
                 </span>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#0F172A]">
                   {mongoHistory?.total_complaints ?? (mongoHistory?.complaints?.length || myTickets.length)}
                 </div>
-                <span className="text-[10px] text-[#C084FC] font-mono">
+                <span className="text-[10px] text-indigo-600 font-mono">
                   Collection: complaint_tickets
                 </span>
               </div>
             </div>
 
-            <div className="p-5 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex items-center gap-4">
-              <div className="p-3.5 rounded-2xl bg-[#FF4B72]/15 text-[#FF4B72] border border-[#FF4B72]/30 shadow-[0_0_15px_rgba(255,75,114,0.3)]">
+            <div className="p-5 rounded-[28px] bg-white border border-slate-100 shadow-card flex items-center gap-4">
+              <div className="p-3.5 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 shadow-xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[11px] font-mono uppercase font-bold text-slate-400">
+                <span className="text-[11px] font-mono uppercase font-bold text-[#64748B]">
                   Atlas Activity Events
                 </span>
-                <div className="text-2xl font-black text-white">
+                <div className="text-2xl font-black text-[#0F172A]">
                   {mongoHistory?.activity_log?.length || 0}
                 </div>
-                <span className="text-[10px] text-[#FF4B72] font-mono">
+                <span className="text-[10px] text-rose-600 font-mono">
                   Collection: customer_activity_log
                 </span>
               </div>
@@ -1619,22 +1620,22 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
           </div>
 
           {/* Section 1: Customer Purchases Saved in MongoDB */}
-          <div className="p-6 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+          <div className="p-6 rounded-[28px] bg-white border border-slate-100 shadow-card space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-2xl bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
                   <Package className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">
-                    Verified Customer Purchases in MongoDB Atlas (<code className="text-xs font-mono text-[#10B981]">customer_purchases</code>)
+                  <h4 className="text-sm font-bold text-[#0F172A]">
+                    Verified Customer Purchases in MongoDB Atlas (<code className="text-xs font-mono text-emerald-600">customer_purchases</code>)
                   </h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#64748B]">
                     Stores complete purchase ledger including order IDs, device serial numbers, pricing, and fulfillment state.
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono text-[#10B981] font-bold">
+              <span className="text-xs font-mono text-emerald-600 font-bold">
                 {mongoHistory?.purchases?.length || currentOrders.length} Document(s)
               </span>
             </div>
@@ -1643,7 +1644,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
             {((mongoHistory?.purchases && mongoHistory.purchases.length > 0) || currentOrders.length > 0) ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#08090E]/60 text-slate-400 font-mono uppercase text-[10px]">
+                  <thead className="bg-[#F6F8FC] text-slate-500 font-mono uppercase text-[10px]">
                     <tr>
                       <th className="py-3 px-3.5 rounded-l-xl">Order ID</th>
                       <th className="py-3 px-3.5">Product Name</th>
@@ -1653,28 +1654,28 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                       <th className="py-3 px-3.5 rounded-r-xl">MongoDB Persistence</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/[0.05] font-sans">
+                  <tbody className="divide-y divide-slate-100 font-sans">
                     {(mongoHistory?.purchases && mongoHistory.purchases.length > 0 ? mongoHistory.purchases : currentOrders).map((p, idx) => (
-                      <tr key={idx} className="hover:bg-[#15192B]/50 transition-colors">
-                        <td className="py-3 px-3.5 font-mono font-bold text-[#C084FC]">
+                      <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                        <td className="py-3 px-3.5 font-mono font-bold text-indigo-600">
                           {p.order_id || p.orderId}
                         </td>
-                        <td className="py-3 px-3.5 font-semibold text-white">
+                        <td className="py-3 px-3.5 font-semibold text-[#0F172A]">
                           {p.product_name || p.productName}
                         </td>
-                        <td className="py-3 px-3.5 font-mono font-bold text-[#10B981]">
+                        <td className="py-3 px-3.5 font-mono font-bold text-emerald-600">
                           {p.price}
                         </td>
-                        <td className="py-3 px-3.5 font-mono text-slate-400">
+                        <td className="py-3 px-3.5 font-mono text-[#64748B]">
                           {p.serial_number || p.serialNumber || 'N/A'}
                         </td>
                         <td className="py-3 px-3.5">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             {p.status || 'Delivered'}
                           </span>
                         </td>
-                        <td className="py-3 px-3.5 font-mono text-[11px] text-[#10B981] flex items-center gap-1.5 font-semibold">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+                        <td className="py-3 px-3.5 font-mono text-[11px] text-emerald-600 flex items-center gap-1.5 font-semibold">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                           <span>Atlas Verified</span>
                         </td>
                       </tr>
@@ -1683,12 +1684,12 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 </table>
               </div>
             ) : (
-              <div className="p-8 text-center text-xs text-slate-400 border border-dashed border-white/[0.1] rounded-2xl space-y-2 bg-[#08090E]/40">
-                <Database className="w-8 h-8 text-slate-600 mx-auto" />
+              <div className="p-8 text-center text-xs text-[#64748B] border border-dashed border-slate-200 rounded-2xl space-y-2 bg-[#F6F8FC]">
+                <Database className="w-8 h-8 text-slate-400 mx-auto" />
                 <p>No purchases saved in MongoDB Atlas for this account yet.</p>
                 <button
                   onClick={handleSyncAllToMongo}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#059669] to-[#10B981] text-white font-bold text-xs cursor-pointer shadow-md"
+                  className="px-4 py-2 rounded-full bg-emerald-600 text-white font-bold text-xs cursor-pointer shadow-sm hover:bg-emerald-700"
                 >
                   Click to Sync Purchases to MongoDB
                 </button>
@@ -1697,22 +1698,22 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
           </div>
 
           {/* Section 2: Complaints & Tickets in MongoDB Atlas */}
-          <div className="p-6 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+          <div className="p-6 rounded-[28px] bg-white border border-slate-100 shadow-card space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-2xl bg-[#7B3FE4]/15 text-[#C084FC] border border-[#7B3FE4]/30">
+                <div className="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100">
                   <MessageSquare className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">
-                    Complaint Tickets in MongoDB Atlas (<code className="text-xs font-mono text-[#C084FC]">complaint_tickets</code>)
+                  <h4 className="text-sm font-bold text-[#0F172A]">
+                    Complaint Tickets in MongoDB Atlas (<code className="text-xs font-mono text-indigo-600">complaint_tickets</code>)
                   </h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#64748B]">
                     Full AI inspection telemetry, dual-pipeline diff verdicts, and conversation thread stored in NoSQL documents.
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono text-[#C084FC] font-bold">
+              <span className="text-xs font-mono text-indigo-600 font-bold">
                 {mongoHistory?.complaints?.length || myTickets.length} Ticket(s)
               </span>
             </div>
@@ -1723,31 +1724,31 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 {(mongoHistory?.complaints && mongoHistory.complaints.length > 0 ? mongoHistory.complaints : myTickets).map((t, idx) => (
                   <div
                     key={idx}
-                    className="p-5 rounded-2xl border border-white/[0.08] bg-[#08090E]/60 space-y-3 hover:border-white/[0.15] transition-colors"
+                    className="p-5 rounded-2xl border border-slate-100 bg-[#F6F8FC] space-y-3 hover:border-slate-200 transition-colors shadow-xs"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-[#C084FC]">
+                      <span className="font-mono text-xs font-bold text-indigo-600">
                         {t.complaint_id}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#7B3FE4]/15 text-[#C084FC] border border-[#7B3FE4]/30">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                         {t.status || 'Active'}
                       </span>
                     </div>
 
-                    <h5 className="text-xs font-bold text-white line-clamp-1">
+                    <h5 className="text-xs font-bold text-[#0F172A] line-clamp-1">
                       {t.complaint_title}
                     </h5>
 
-                    <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-[#475569] line-clamp-2 leading-relaxed">
                       {t.complaint_description || t.customer_response || 'Case logged in MongoDB.'}
                     </p>
 
-                    <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.08] text-[10px] font-mono text-slate-400">
-                      <span>Dept: <strong className="text-white">{t.assigned_department || 'Support'}</strong></span>
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-200/60 text-[10px] font-mono text-[#64748B]">
+                      <span>Dept: <strong className="text-[#0F172A]">{t.assigned_department || 'Support'}</strong></span>
                       {onInspectTicket && (
                         <button
                           onClick={() => onInspectTicket(t.complaint_id)}
-                          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold flex items-center gap-1 cursor-pointer transition-all shadow-xs"
+                          className="px-3.5 py-1.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white font-bold flex items-center gap-1 cursor-pointer transition-all shadow-xs"
                         >
                           <span>Inspect in Dual-Pipeline</span>
                           <ArrowRight className="w-3 h-3" />
@@ -1758,29 +1759,29 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center text-xs text-slate-400 border border-dashed border-white/[0.1] rounded-2xl bg-[#08090E]/40">
+              <div className="p-8 text-center text-xs text-[#64748B] border border-dashed border-slate-200 rounded-2xl bg-[#F6F8FC]">
                 No complaint tickets filed yet by {activeCustomer.name}.
               </div>
             )}
           </div>
 
           {/* Section 3: Live Customer Audit & Activity Trail in MongoDB */}
-          <div className="p-6 rounded-3xl bg-[#0F121E]/90 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+          <div className="p-6 rounded-[28px] bg-white border border-slate-100 shadow-card space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-2xl bg-[#FF4B72]/15 text-[#FF4B72] border border-[#FF4B72]/30">
+                <div className="p-2.5 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">
-                    Live Customer Audit & Activity Trail (<code className="text-xs font-mono text-[#FF4B72]">customer_activity_log</code>)
+                  <h4 className="text-sm font-bold text-[#0F172A]">
+                    Live Customer Audit & Activity Trail (<code className="text-xs font-mono text-rose-600">customer_activity_log</code>)
                   </h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#64748B]">
                     Captures all user events, logins, complaint submissions, replies, and resolution agreements.
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono text-[#FF4B72] font-bold">
+              <span className="text-xs font-mono text-rose-600 font-bold">
                 {mongoHistory?.activity_log?.length || 0} Event(s) Recorded
               </span>
             </div>
@@ -1790,31 +1791,31 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 {mongoHistory.activity_log.map((act, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 rounded-2xl bg-[#08090E]/60 border border-white/[0.08] text-xs flex items-start justify-between gap-3"
+                    className="p-3.5 rounded-2xl bg-[#F6F8FC] border border-slate-200/60 text-xs flex items-start justify-between gap-3 shadow-xs"
                   >
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2 font-mono">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[#7B3FE4]/20 text-[#C084FC] border border-[#7B3FE4]/30">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
                           {act.event_type}
                         </span>
                         {act.complaint_id && (
-                          <span className="text-[11px] font-bold text-[#FF4B72]">
+                          <span className="text-[11px] font-bold text-rose-600">
                             {act.complaint_id}
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-300 mt-1 font-sans">
+                      <p className="text-[#334155] mt-1 font-sans">
                         {act.details || 'Customer action recorded.'}
                       </p>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-500 whitespace-nowrap">
+                    <span className="text-[10px] font-mono text-[#94A3B8] whitespace-nowrap">
                       {act.recorded_at ? new Date(act.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Recent'}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-6 text-center text-xs text-slate-400 border border-dashed border-white/[0.1] rounded-2xl bg-[#08090E]/40">
+              <div className="p-6 text-center text-xs text-[#64748B] border border-dashed border-slate-200 rounded-2xl bg-[#F6F8FC]">
                 Activity log is being recorded to MongoDB Atlas as you interact with the portal.
               </div>
             )}
@@ -1826,20 +1827,20 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
       {/* 3. REPORT PROBLEM / FILE COMPLAINT MODAL (WITH EVIDENCE)   */}
       {/* -------------------------------------------------------- */}
       {filingModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-[#08090E]/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#0F121E] w-full max-w-2xl rounded-3xl border border-white/[0.1] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden my-8">
-            <div className="p-6 border-b border-white/[0.08] flex items-center justify-between">
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-2xl rounded-[32px] border border-slate-200 shadow-board overflow-hidden my-8">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div>
-                <span className="font-mono text-xs font-bold text-[#FF4B72] uppercase tracking-wider">
+                <span className="font-mono text-xs font-bold text-rose-600 uppercase tracking-wider">
                   Report a Defect or Issue
                 </span>
-                <h3 className="text-lg font-extrabold text-white mt-0.5">
+                <h3 className="text-lg font-bold text-[#0F172A] mt-0.5">
                   File Complaint: {selectedOrder.productName}
                 </h3>
               </div>
               <button 
                 onClick={() => setFilingModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#15192B] cursor-pointer"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1847,15 +1848,15 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
             <form onSubmit={handleFilingSubmit} className="p-6 space-y-4">
               {/* Product Info Summary */}
-              <div className="p-4 rounded-2xl bg-[#08090E]/80 border border-white/[0.08] flex items-center gap-3.5">
+              <div className="p-4 rounded-2xl bg-[#F6F8FC] border border-slate-200/50 flex items-center gap-3.5">
                 <img 
                   src={selectedOrder.productImage} 
                   alt={selectedOrder.productName} 
-                  className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-white/[0.1]"
+                  className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-slate-200 shadow-xs"
                 />
                 <div className="text-xs">
-                  <div className="font-bold text-white">{selectedOrder.productName}</div>
-                  <div className="text-slate-400 font-mono text-[11px] mt-0.5">
+                  <div className="font-bold text-[#0F172A]">{selectedOrder.productName}</div>
+                  <div className="text-[#64748B] font-mono text-[11px] mt-0.5">
                     Order #{selectedOrder.orderId} • Customer: {activeCustomer.name} ({activeCustomer.email})
                   </div>
                 </div>
@@ -1863,13 +1864,13 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
               {/* Problem Category */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-[#334155] mb-1.5">
                   Issue Category
                 </label>
                 <select
                   value={complaintCategory}
                   onChange={(e) => setComplaintCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/[0.1] bg-[#08090E] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4] focus:outline-hidden cursor-pointer"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F6F8FC] text-xs text-[#0F172A] focus:ring-2 focus:ring-indigo-500 focus:outline-hidden cursor-pointer"
                 >
                   <option value="Hardware Defect & Warranty">Hardware Defect & Warranty Claim</option>
                   <option value="Damaged in Shipping">Damaged in Shipping / Broken in Transit</option>
@@ -1882,7 +1883,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
               {/* Title */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-[#334155] mb-1.5">
                   Complaint Summary Title
                 </label>
                 <input
@@ -1890,14 +1891,14 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                   value={complaintTitle}
                   onChange={(e) => setComplaintTitle(e.target.value)}
                   placeholder="e.g. Right ear cup buzzing sound & hinge cracked"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/[0.1] bg-[#08090E] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4] focus:outline-hidden"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F6F8FC] text-xs text-[#0F172A] focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
                   required
                 />
               </div>
 
               {/* Narrative */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                <label className="block text-xs font-bold text-[#334155] mb-1.5">
                   Detailed Complaint Narrative
                 </label>
                 <textarea
@@ -1905,7 +1906,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                   value={complaintDesc}
                   onChange={(e) => setComplaintDesc(e.target.value)}
                   placeholder="Explain exactly what happened, when the defect occurred, and your requested resolution..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/[0.1] bg-[#08090E] text-xs text-white focus:ring-2 focus:ring-[#7B3FE4] focus:outline-hidden leading-relaxed"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F6F8FC] text-xs text-[#0F172A] focus:ring-2 focus:ring-indigo-500 focus:outline-hidden leading-relaxed"
                   required
                 />
               </div>
@@ -1913,15 +1914,15 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
               {/* Defect Evidence Image Selection (Strictly Optional) */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                    <Camera className="w-3.5 h-3.5 text-[#C084FC]" />
-                    <span>Attach Defect Evidence Photo <span className="font-normal text-slate-400">(Optional)</span></span>
+                  <label className="text-xs font-bold text-[#334155] flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Attach Defect Evidence Photo <span className="font-normal text-[#64748B]">(Optional)</span></span>
                   </label>
                   {evidenceImageUrl && (
                     <button
                       type="button"
                       onClick={handleClearEvidenceImage}
-                      className="text-[11px] text-[#FF4B72] hover:underline flex items-center gap-1 cursor-pointer font-medium"
+                      className="text-[11px] text-rose-600 hover:underline flex items-center gap-1 cursor-pointer font-medium"
                     >
                       <X className="w-3 h-3" />
                       <span>Remove Photo</span>
@@ -1930,14 +1931,14 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                 </div>
 
                 {/* Mode Selector Tabs: Upload File vs Paste URL */}
-                <div className="flex items-center gap-1 p-1 bg-[#15192B] rounded-xl border border-white/[0.08]">
+                <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-full">
                   <button
                     type="button"
                     onClick={() => setImageUploadMode('upload')}
-                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       imageUploadMode === 'upload'
-                        ? 'bg-[#7B3FE4]/20 text-[#C084FC] border border-[#7B3FE4]/30 shadow-xs'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-white text-[#0F172A] shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800'
                     }`}
                   >
                     <Upload className="w-3.5 h-3.5" />
@@ -1946,10 +1947,10 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                   <button
                     type="button"
                     onClick={() => setImageUploadMode('url')}
-                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       imageUploadMode === 'url'
-                        ? 'bg-[#7B3FE4]/20 text-[#C084FC] border border-[#7B3FE4]/30 shadow-xs'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-white text-[#0F172A] shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800'
                     }`}
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -1959,7 +1960,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 
                 {/* Upload from Device Dropzone */}
                 {imageUploadMode === 'upload' ? (
-                  <div className="border border-dashed border-white/[0.15] hover:border-[#7B3FE4] rounded-2xl p-4 text-center cursor-pointer transition-colors bg-[#08090E] relative">
+                  <div className="border border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-[#F6F8FC] relative">
                     <input
                       type="file"
                       accept="image/*"
@@ -1971,25 +1972,25 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                         <img 
                           src={evidenceImageUrl} 
                           alt="Uploaded Evidence Preview" 
-                          className="w-14 h-14 rounded-xl object-cover border border-white/[0.1] shadow-xs flex-shrink-0"
+                          className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-xs flex-shrink-0"
                         />
                         <div className="text-left">
-                          <div className="text-xs font-bold text-white truncate max-w-xs">
+                          <div className="text-xs font-bold text-[#0F172A] truncate max-w-xs">
                             {fileName || 'Evidence Photo Attached'}
                           </div>
-                          <div className="text-[10px] text-[#10B981] font-semibold">
+                          <div className="text-[10px] text-emerald-600 font-semibold">
                             ✓ Ready to attach with complaint
                           </div>
-                          <div className="text-[10px] text-slate-400">Click or drop another file to replace</div>
+                          <div className="text-[10px] text-[#64748B]">Click or drop another file to replace</div>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-1 py-2">
                         <Camera className="w-6 h-6 text-slate-400 mx-auto" />
-                        <div className="text-xs font-semibold text-slate-300">
+                        <div className="text-xs font-semibold text-[#334155]">
                           Click to select a photo from your computer or drag & drop
                         </div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-[#64748B]">
                           Supports PNG, JPG, WebP, GIF • Image is completely optional
                         </div>
                       </div>
@@ -2004,18 +2005,18 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
                         value={evidenceImageUrl}
                         onChange={(e) => setEvidenceImageUrl(e.target.value)}
                         placeholder="https://... (Paste Google Search or online defect photo link)"
-                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-white/[0.1] bg-[#08090E] text-xs font-mono text-white focus:ring-2 focus:ring-[#7B3FE4]"
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#F6F8FC] text-xs font-mono text-[#0F172A] focus:ring-2 focus:ring-indigo-500"
                       />
                       {evidenceImageUrl && (
                         <img 
                           src={evidenceImageUrl} 
                           alt="URL Preview" 
-                          className="w-9 h-9 rounded-xl object-cover border border-white/[0.1] flex-shrink-0" 
+                          className="w-9 h-9 rounded-xl object-cover border border-slate-200 flex-shrink-0" 
                           onError={(e) => { e.target.style.display = 'none'; }}
                         />
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-[10px] text-[#64748B]">
                       Copy the image address from Google or any website and paste it above, or leave blank if no photo.
                     </p>
                   </div>
@@ -2023,18 +2024,18 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setFilingModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-[#15192B] border border-white/[0.08] cursor-pointer"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#475569] hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={filingSubmitting}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF4B72] to-[#FF7F59] hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_20px_rgba(255,75,114,0.4)] cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{filingSubmitting ? 'Analyzing with Dual Pipelines...' : 'Submit Official Complaint'}</span>
@@ -2050,3 +2051,4 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
 }
 
 export default CustomerPortal;
+

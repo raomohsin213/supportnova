@@ -3,52 +3,79 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Finova Midnight Void Surfaces */
-  --bg-canvas: #080911;
-  --bg-sidebar: #0B0D18;
-  --bg-card: #111424;
-  --bg-card-subtle: #161A2E;
-  --bg-card-hover: #1C213A;
-  
-  /* Precision Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-card: rgba(255, 255, 255, 0.09);
-  --border-glow: rgba(121, 71, 234, 0.35);
+  /* 1. Canvas & Structural Planes (Jobtrain Soft-Modern SaaS) */
+  --bg-stage: #637394;             /* Outer atmospheric denim/slate backdrop */
+  --bg-board: #FFFFFF;             /* Master floating white application board */
+  --bg-surface-subtle: #F6F8FC;    /* Soft cloud-tint inner widget panels */
+  --bg-surface-hover: #EEF2F8;     /* Hover state on sub-panels */
 
-  /* Finova Vibrant Accents */
-  --accent-coral: #FF4D73;
-  --accent-peach: #FF7B54;
-  --accent-purple: #7947EA;
+  /* Backwards-compatibility aliases */
+  --bg-canvas: #F6F8FC;
+  --bg-sidebar: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-subtle: #F6F8FC;
+  --bg-card-hover: #EEF2F8;
+  --border-subtle: #E2E8F0;
+  --border-card: #E2E8F0;
+
+  /* 2. Signature Tri-Color Hero Gradients */
+  --grad-electric-blue: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%);
+  --grad-royal-violet:  linear-gradient(135deg, #7C3AED 0%, #6366F1 100%);
+  --grad-sunset-coral:  linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
+  
+  /* 3. Interactive Brand Accent */
+  --accent-brand: #4F46E5;         /* Vibrant indigo for primary buttons and focus rings */
+  --accent-brand-hover: #4338CA;
+  --accent-coral: #F43F5E;
+  --accent-peach: #FB923C;
+  --accent-purple: #7C3AED;
   --accent-indigo: #4F46E5;
   --accent-emerald: #10B981;
   --accent-amber: #F59E0B;
-  
-  /* Font Family */
-  --font-main: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 
-  /* Finova Signature Gradients */
-  --grad-sunset: linear-gradient(135deg, #FF4D73 0%, #FF7B54 100%);
-  --grad-violet: linear-gradient(135deg, #7947EA 0%, #4F46E5 100%);
-  --grad-emerald: linear-gradient(135deg, #059669 0%, #10B981 100%);
-  --grad-cyber-card: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.00) 100%);
+  /* 4. Filter & Control Pill States */
+  --pill-active-bg: #0F172A;       /* Deep obsidian charcoal for active tabs */
+  --pill-active-text: #FFFFFF;
+  --pill-inactive-bg: #F1F5F9;     /* Soft slate mist for inactive buttons/chips */
+  --pill-inactive-text: #475569;
+  --pill-inactive-hover: #E2E8F0;
 
-  color-scheme: dark;
+  /* 5. Typography Contrast Levels */
+  --text-primary: #0F172A;         /* Primary headers, metrics, and key numbers */
+  --text-body: #334155;            /* Paragraphs, descriptions, complaint text */
+  --text-muted: #64748B;           /* Subtitles and secondary captions */
+  --text-subtle: #94A3B8;          /* Micro-labels, metadata, timestamps */
+
+  /* 6. Soft Status Feedback Accents */
+  --status-verified-bg: #ECFDF5;   --status-verified-text: #047857;   --status-verified-border: #A7F3D0;
+  --status-quarantine-bg: #FFF1F2; --status-quarantine-text: #BE123C; --status-quarantine-border: #FECDD3;
+  --status-warning-bg: #FFFBEB;    --status-warning-text: #B45309;    --status-warning-border: #FDE68A;
+  --status-reopened-bg: #EFF6FF;   --status-reopened-text: #1D4ED8;   --status-reopened-border: #BFDBFE;
+
+  /* 7. Structural Elevation */
+  --shadow-board: 0 30px 70px -15px rgba(15, 23, 42, 0.28);
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-hero-card: 0 14px 28px -6px rgba(37, 99, 235, 0.22);
+
+  color-scheme: light;
 }
 
 @theme {
-  --color-canvas: #080911;
-  --color-sidebar: #0B0D18;
-  --color-card: #111424;
-  --color-card-subtle: #161A2E;
-  --color-card-hover: #1C213A;
+  --color-stage: #637394;
+  --color-board: #FFFFFF;
+  --color-surface-subtle: #F6F8FC;
+  --color-surface-hover: #EEF2F8;
   
-  --color-border-subtle: rgba(255, 255, 255, 0.06);
-  --color-border-card: rgba(255, 255, 255, 0.09);
-  --color-border-glow: rgba(121, 71, 234, 0.35);
+  --color-text-primary: #0F172A;
+  --color-text-body: #334155;
+  --color-text-muted: #64748B;
+  --color-text-subtle: #94A3B8;
 
-  --color-coral: #FF4D73;
-  --color-peach: #FF7B54;
-  --color-purple: #7947EA;
+  --color-brand: #4F46E5;
+  --color-brand-hover: #4338CA;
+  --color-coral: #F43F5E;
+  --color-peach: #FB923C;
+  --color-purple: #7C3AED;
   --color-indigo: #4F46E5;
   --color-emerald: #10B981;
   --color-amber: #F59E0B;
@@ -56,18 +83,17 @@
 
 @layer base {
   html {
-    background-color: var(--bg-canvas);
-    color: #F8FAFC;
-    color-scheme: dark;
+    background-color: var(--bg-stage);
+    color: var(--text-primary);
+    color-scheme: light;
   }
 
   body {
-    background-color: var(--bg-canvas);
-    color: #E2E8F0;
+    background-color: var(--bg-stage);
+    color: var(--text-body);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     letter-spacing: -0.012em;
     min-height: 100vh;
-    overflow-x: hidden;
   }
 
   code, pre, kbd, samp {
@@ -75,141 +101,77 @@
   }
 }
 
-/* Finova Cyber-Fintech Design System Utilities */
-.finova-canvas {
-  background-color: var(--bg-canvas);
+/* Soft-Modern SaaS Design Utilities */
+.bg-stage {
+  background-color: var(--bg-stage);
 }
 
-.finova-sidebar {
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border-subtle);
+.bg-board {
+  background-color: var(--bg-board);
 }
 
-.finova-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-card);
-  border-radius: 1.5rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+.bg-surface-subtle {
+  background-color: var(--bg-surface-subtle);
 }
 
-.finova-pill-active {
-  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-indigo) 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 15px rgba(121, 71, 234, 0.35);
+.bg-surface-hover {
+  background-color: var(--bg-surface-hover);
 }
 
-.finova-btn-coral {
-  background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-peach) 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(255, 77, 115, 0.35);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.grad-electric-blue {
+  background: var(--grad-electric-blue);
 }
 
-.finova-btn-coral:hover {
-  box-shadow: 0 6px 20px rgba(255, 77, 115, 0.5);
-  transform: translateY(-1px);
+.grad-royal-violet {
+  background: var(--grad-royal-violet);
 }
 
-.finova-card-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+.grad-sunset-coral {
+  background: var(--grad-sunset-coral);
 }
 
-.finova-card-hover:hover {
-  border-color: var(--border-glow);
-  box-shadow: 0 12px 35px -10px rgba(121, 71, 234, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  transform: translateY(-1px);
+.shadow-board {
+  box-shadow: var(--shadow-board);
 }
 
-.finova-gradient-sunset {
-  background: var(--grad-sunset);
+.shadow-card {
+  box-shadow: var(--shadow-card);
 }
 
-.finova-gradient-violet {
-  background: var(--grad-violet);
+.shadow-hero-card {
+  box-shadow: var(--shadow-hero-card);
 }
 
-.finova-gradient-emerald {
-  background: var(--grad-emerald);
+.pill-active {
+  background-color: var(--pill-active-bg) !important;
+  color: var(--pill-active-text) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
 }
 
-.finova-gradient-text-sunset {
-  background: var(--grad-sunset);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.pill-inactive {
+  background-color: var(--pill-inactive-bg);
+  color: var(--pill-inactive-text);
+  transition: all 0.15s ease-in-out;
 }
 
-.finova-gradient-text-violet {
-  background: var(--grad-violet);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.pill-inactive:hover {
+  background-color: var(--pill-inactive-hover);
+  color: var(--text-primary);
 }
 
-.finova-gradient-text-emerald {
-  background: var(--grad-emerald);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.finova-glow-purple {
-  box-shadow: 0 0 25px rgba(123, 63, 228, 0.35);
-}
-
-.finova-glow-cyan {
-  box-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
-}
-
-.finova-glow-coral {
-  box-shadow: 0 0 25px rgba(255, 75, 114, 0.35);
-}
-
-.finova-glow-emerald {
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
-}
-
-.finova-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
-  border: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
-}
-
-/* Hairline borders */
-.border-finova-subtle {
-  border-color: var(--border-subtle);
-}
-
-.border-finova-card {
-  border-color: var(--border-card);
-}
-
-.border-finova-focus {
-  border-color: var(--border-focus);
-}
-
-/* Custom Scrollbars */
+/* Custom Soft Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-canvas);
+  background: #F1F5F9;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-surface-hover);
-  border-radius: 6px;
-  border: 1px solid var(--border-subtle);
+  background: #CBD5E1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-purple);
+  background: #94A3B8;
 }
