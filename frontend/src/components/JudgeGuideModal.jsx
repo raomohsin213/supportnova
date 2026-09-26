@@ -63,51 +63,51 @@ export function JudgeGuideModal({ isOpen, onClose, onSelectScenario }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#08090E]/85 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#0F121E] border border-white/[0.1] rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80">
+        <div className="flex items-center justify-between p-6 border-b border-white/[0.08] bg-[#15192B]/80">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400">
-              <Sparkles className="w-6 h-6" />
+            <div className="p-2.5 rounded-2xl bg-[#7B3FE4]/15 border border-[#7B3FE4]/35 text-[#C084FC] shadow-[0_0_15px_rgba(123,63,228,0.25)]">
+              <Sparkles className="w-6 h-6 text-[#FF7F59]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
+                <h2 className="text-xl font-extrabold text-white">
                   Evaluator & Judge Interactive Guide
                 </h2>
-                <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                  TechWiz 7
+                <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded-full bg-[#FF4B72]/15 text-[#FF4B72] border border-[#FF4B72]/30 shadow-xs">
+                  Finova OS
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5 font-medium">
                 Understand the core architecture and test all evaluator traps in seconds
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-6 text-slate-700 dark:text-slate-300">
+        <div className="p-6 overflow-y-auto space-y-6 text-slate-300">
           
           {/* Core Philosophy Banner */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50/80 via-slate-50 to-sky-50/80 dark:from-indigo-950/40 dark:via-slate-950/50 dark:to-sky-950/30 border border-indigo-200/80 dark:border-indigo-800/60">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+          <div className="p-4.5 rounded-2xl bg-gradient-to-r from-[#7B3FE4]/15 via-[#15192B] to-[#FF4B72]/15 border border-[#7B3FE4]/30 shadow-[0_0_25px_rgba(123,63,228,0.15)]">
+            <div className="flex items-start gap-3.5">
+              <ShieldCheck className="w-5 h-5 text-[#FF4B72] flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">
                   The Golden Rule: The AI Writes, Python Checks
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  SupportNova does <strong>not</strong> trust Generative AI to act autonomously with company money, safety escalations, or legal promises. 
-                  <strong> Pipeline 1 (GenAI)</strong> acts as the fast, creative drafter, while <strong>Pipeline 2 (Pure Python)</strong> acts as the strict, zero-AI supervisor that enforces corporate ground truth.
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  SupportNova does <strong className="text-white">not</strong> trust Generative AI to act autonomously with company money, safety escalations, or legal promises. 
+                  <strong className="text-[#C084FC]"> Pipeline 1 (GenAI)</strong> acts as the fast, creative drafter, while <strong className="text-[#34D399]"> Pipeline 2 (Pure Python)</strong> acts as the strict, zero-AI supervisor that enforces corporate ground truth.
                 </p>
               </div>
             </div>
@@ -115,30 +115,30 @@ export function JudgeGuideModal({ isOpen, onClose, onSelectScenario }) {
 
           {/* 3-Step Visual Architecture */}
           <div>
-            <h4 className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-3">
               How a Complaint Moves Through SupportNova
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 font-bold mb-1">Step 1: Ingestion</div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">Intake & Policy Retrieval</div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <div className="p-4 rounded-2xl bg-[#15192B]/70 border border-white/[0.07] backdrop-blur-md">
+                <div className="text-xs font-mono text-[#06B6D4] font-bold mb-1">Step 1: Ingestion</div>
+                <div className="text-sm font-bold text-white">Intake & Policy Retrieval</div>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                   Customer submits via Web, Email, Chat, or Scanned Doc. PII is masked, and the Vector Store pulls the top-3 active policy chunks.
                 </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="text-xs font-mono text-indigo-600 dark:text-indigo-400 font-bold mb-1">Step 2: Dual Pipelines</div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">AI Draft vs. Python Check</div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <div className="p-4 rounded-2xl bg-[#15192B]/70 border border-white/[0.07] backdrop-blur-md">
+                <div className="text-xs font-mono text-[#7B3FE4] font-bold mb-1">Step 2: Dual Pipelines</div>
+                <div className="text-sm font-bold text-white">AI Draft vs. Python Check</div>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                   Gemini drafts structured JSON response. Pure Python independently verifies categories, SLAs, hazard keywords, and refund rules.
                 </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold mb-1">Step 3: Governance</div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">Gated Dispatch or Review</div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <div className="p-4 rounded-2xl bg-[#15192B]/70 border border-white/[0.07] backdrop-blur-md">
+                <div className="text-xs font-mono text-[#10B981] font-bold mb-1">Step 3: Governance</div>
+                <div className="text-sm font-bold text-white">Gated Dispatch or Review</div>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                   If clean: auto-cleared for dispatch. If discrepancy or risk found: auto-dispatch is locked and sent to human Review Queue.
                 </p>
               </div>
@@ -148,10 +148,10 @@ export function JudgeGuideModal({ isOpen, onClose, onSelectScenario }) {
           {/* 1-Click Competition Scenarios */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
                 1-Click Evaluator Traps (Click any to test right now)
               </h4>
-              <span className="text-[11px] text-slate-400">All pre-seeded in SQLite</span>
+              <span className="text-[11px] font-mono text-slate-400">All pre-seeded in SQLite</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -162,22 +162,22 @@ export function JudgeGuideModal({ isOpen, onClose, onSelectScenario }) {
                     onSelectScenario(sc.id);
                     onClose();
                   }}
-                  className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50/40 dark:hover:bg-slate-850 transition-all cursor-pointer group flex flex-col justify-between"
+                  className="p-4 rounded-2xl bg-[#15192B]/80 border border-white/[0.08] hover:border-[#7B3FE4]/50 hover:shadow-[0_0_25px_rgba(123,63,228,0.2)] hover:bg-[#1C223A] transition-all cursor-pointer group flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-xs font-bold text-white group-hover:text-[#FF4B72] transition-colors">
                         {sc.title}
                       </span>
-                      <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-full bg-white/[0.05] text-slate-300 border border-white/[0.08]">
                         {sc.badge}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <p className="text-xs text-slate-400 leading-relaxed">
                       {sc.desc}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-3">
+                  <div className="flex items-center gap-1.5 text-xs text-[#C084FC] group-hover:text-[#FF4B72] font-semibold mt-3 transition-colors">
                     <span>Inspect Scenario</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -187,26 +187,26 @@ export function JudgeGuideModal({ isOpen, onClose, onSelectScenario }) {
           </div>
 
           {/* Evaluation Cheat Sheet */}
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
-            <h5 className="font-bold text-slate-800 dark:text-slate-200">Where to Look on the Screens:</h5>
-            <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
-              <li><strong className="text-indigo-600 dark:text-indigo-400">Diff Inspector:</strong> Look for the <strong>Red/Green status pills</strong> in the center. Red means Python caught an AI error.</li>
-              <li><strong className="text-indigo-600 dark:text-indigo-400">Policy Drawer:</strong> Click <em className="text-slate-800 dark:text-slate-200">"Inspect in Drawer"</em> to view the exact database chunk citation.</li>
-              <li><strong className="text-indigo-600 dark:text-indigo-400">Customer Portal:</strong> Switch to Customer role in header to verify that internal AI diffs and scores are strictly hidden from customers.</li>
-              <li><strong className="text-indigo-600 dark:text-indigo-400">Executive Dashboard:</strong> Click <em className="text-slate-800 dark:text-slate-200">"Export CSV"</em> or <em className="text-slate-800 dark:text-slate-200">"Export Excel"</em> to test real-time data downloads.</li>
+          <div className="p-4.5 rounded-2xl bg-[#08090E]/70 border border-white/[0.06] text-xs space-y-2">
+            <h5 className="font-extrabold text-white font-mono uppercase tracking-wider text-[11px]">Where to Look on the Screens:</h5>
+            <ul className="list-disc list-inside space-y-1.5 text-slate-400 leading-relaxed">
+              <li><strong className="text-[#FF4B72]">Diff Inspector:</strong> Look for the <strong>Red/Green status pills</strong> in the center. Red means Python caught an AI error.</li>
+              <li><strong className="text-[#7B3FE4]">Policy Drawer:</strong> Click <em className="text-slate-200">"Inspect in Drawer"</em> to view the exact database chunk citation.</li>
+              <li><strong className="text-[#06B6D4]">Customer Portal:</strong> Switch to Customer role in header to verify that internal AI diffs and scores are strictly hidden from customers.</li>
+              <li><strong className="text-[#10B981]">Executive Dashboard:</strong> Click <em className="text-slate-200">"Export CSV"</em> or <em className="text-slate-200">"Export Excel"</em> to test real-time data downloads.</li>
             </ul>
           </div>
 
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between">
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="p-4 border-t border-white/[0.08] bg-[#15192B]/80 flex items-center justify-between">
+          <span className="text-xs text-slate-400 font-mono text-[11px]">
             SupportNova Autonomous AI Governance Engine
           </span>
           <button 
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs"
+            className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] hover:opacity-95 text-white font-bold text-xs transition-colors cursor-pointer shadow-[0_0_20px_rgba(123,63,228,0.4)] border border-white/10"
           >
             Got it, Let's Explore!
           </button>

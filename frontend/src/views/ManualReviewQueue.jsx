@@ -2,20 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, 
   ShieldAlert, 
-  Filter, 
   Search, 
   ArrowRight, 
   Clock, 
   Flame, 
-  FileX, 
-  AlertOctagon,
-  RefreshCw,
-  Lock,
-  Package,
-  Camera,
-  ArrowUpRight,
-  Inbox,
-  CheckCircle2
+  RefreshCw, 
+  Lock, 
+  Package, 
+  Camera, 
+  ArrowUpRight, 
+  Inbox, 
+  CheckCircle2 
 } from 'lucide-react';
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge';
 import { fetchTickets } from '../services/api';
@@ -23,7 +20,7 @@ import { fetchTickets } from '../services/api';
 export function ManualReviewQueue({ onInspectTicket }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterType, setFilterType] = useState('inbox'); // 'inbox', 'blocked', 'escalated', 'p1', 'all'
+  const [filterType, setFilterType] = useState('all'); // 'all', 'blocked', 'p1', 'cleared', 'inbox', 'escalated'
   const [search, setSearch] = useState('');
 
   const loadQueue = async () => {
@@ -42,7 +39,7 @@ export function ManualReviewQueue({ onInspectTicket }) {
     loadQueue();
   }, []);
 
-  // Filter logic: if user enters search text, search across ALL tickets immediately
+  // Filter logic: search takes precedence across fields
   const filteredTickets = tickets.filter((t) => {
     if (search && search.trim()) {
       const s = search.toLowerCase().trim();
@@ -54,237 +51,238 @@ export function ManualReviewQueue({ onInspectTicket }) {
              (t.order_reference && t.order_reference.toLowerCase().includes(s));
     }
 
-    if (filterType === 'inbox') {
-      return t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined' || t.status === 'Reopened';
-    }
     if (filterType === 'blocked') {
       return t.status === 'Quarantined' || t.status === 'Manual Review Required' || (t.is_automated_dispatch_blocked && t.status !== 'Escalated to Admin');
-    }
-    if (filterType === 'escalated') {
-      return t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6';
     }
     if (filterType === 'p1') {
       return t.final_priority === 'P1';
     }
+    if (filterType === 'cleared') {
+      return t.status === 'Verified' || !t.is_automated_dispatch_blocked;
+    }
+    if (filterType === 'inbox') {
+      return t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined' || t.status === 'Reopened';
+    }
+    if (filterType === 'escalated') {
+      return t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6';
+    }
     return true; // 'all'
   });
 
-  const inboxCount = tickets.filter(t => t.is_automated_dispatch_blocked || t.status === 'Needs Review' || t.status === 'Manual Review Required' || t.status === 'Quarantined' || t.status === 'Reopened').length;
+  const allCount = tickets.length;
   const blockedCount = tickets.filter(t => t.status === 'Quarantined' || t.status === 'Manual Review Required' || (t.is_automated_dispatch_blocked && t.status !== 'Escalated to Admin')).length;
-  const escalatedCount = tickets.filter(t => t.status === 'Escalated to Admin' || t.escalation_level === 'Tier 6').length;
   const p1Count = tickets.filter(t => t.final_priority === 'P1').length;
+  const clearedCount = tickets.filter(t => t.status === 'Verified' || !t.is_automated_dispatch_blocked).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800 text-xs font-mono font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#7947EA]/15 text-[#C084FC] border border-[#7947EA]/30 text-xs font-mono font-bold uppercase tracking-wider mb-2 shadow-xs">
             <ShieldAlert className="w-3.5 h-3.5" />
             Specialist Review & Triage Cockpit
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Manual Review & Escalation Queue
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            Clearances & Manual Review Queue
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-            Customer complaints with attached defect photos awaiting specialist verification or executive admin escalation.
+          <p className="text-xs text-slate-400 mt-1">
+            Customer complaints awaiting specialist verification, policy clearance, or executive escalation.
           </p>
         </div>
 
         <button
           onClick={loadQueue}
-          className="self-start md:self-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer shadow-xs"
+          className="self-start md:self-auto px-4 py-2.5 rounded-xl bg-[#161A2E] hover:bg-[#1C213A] text-slate-200 text-xs font-semibold flex items-center gap-2 border border-white/[0.08] transition-colors cursor-pointer shadow-xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Queue</span>
         </button>
       </div>
 
-      {/* Filter Tabs & Search Bar */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
-          <button
-            onClick={() => setFilterType('inbox')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              filterType === 'inbox'
-                ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            <Inbox className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-            <span>Needs Review ({inboxCount})</span>
-          </button>
+      {/* Main Finova Recent Transactions Style Card */}
+      <div className="rounded-3xl p-6 bg-[#111424] border border-white/[0.09] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] space-y-5">
+        {/* Top Filter Tabs & Search Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
+          {/* Smooth Pill Filter Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                filterType === 'all'
+                  ? 'finova-pill-active'
+                  : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
+              }`}
+            >
+              All Tickets ({allCount})
+            </button>
 
-          <button
-            onClick={() => setFilterType('blocked')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              filterType === 'blocked'
-                ? 'bg-rose-50 text-rose-700 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            <Lock className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-            <span>Quarantined ({blockedCount})</span>
-          </button>
+            <button
+              onClick={() => setFilterType('blocked')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                filterType === 'blocked'
+                  ? 'bg-gradient-to-r from-[#FF4D73] to-[#FF7B54] text-white shadow-[0_4px_15px_rgba(255,77,115,0.35)]'
+                  : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5 text-[#FF4D73]" />
+              <span>Quarantined ({blockedCount})</span>
+            </button>
 
-          <button
-            onClick={() => setFilterType('escalated')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              filterType === 'escalated'
-                ? 'bg-purple-50 text-purple-700 border border-purple-300 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            <ArrowUpRight className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span>Escalated to Admin ({escalatedCount})</span>
-          </button>
+            <button
+              onClick={() => setFilterType('p1')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                filterType === 'p1'
+                  ? 'bg-gradient-to-r from-[#FF7B54] to-[#F59E0B] text-white shadow-[0_4px_15px_rgba(255,123,84,0.35)]'
+                  : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5 text-[#FF7B54]" />
+              <span>P1 Critical ({p1Count})</span>
+            </button>
 
-          <button
-            onClick={() => setFilterType('p1')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              filterType === 'p1'
-                ? 'bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            <Flame className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            <span>P1 Critical ({p1Count})</span>
-          </button>
+            <button
+              onClick={() => setFilterType('cleared')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                filterType === 'cleared'
+                  ? 'bg-gradient-to-r from-[#059669] to-[#10B981] text-white shadow-[0_4px_15px_rgba(16,185,129,0.35)]'
+                  : 'text-slate-400 hover:text-white bg-[#161A2E] border border-white/5'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+              <span>Cleared ({clearedCount})</span>
+            </button>
+          </div>
 
-          <button
-            onClick={() => setFilterType('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-              filterType === 'all'
-                ? 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            All Tickets ({tickets.length})
-          </button>
+          {/* Embedded Search Bar */}
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search by ID, customer, order..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#161A2E] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#7947EA] font-sans"
+            />
+          </div>
         </div>
 
-        {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search all tickets (e.g. TICK-..., Sarah)..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-      </div>
-
-      {/* Queue Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+        {/* The Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-mono uppercase text-[10px] bg-slate-50 dark:bg-slate-800/40">
-                <th className="py-3 px-4">Ticket ID</th>
-                <th className="py-3 px-4">Customer & Tier</th>
-                <th className="py-3 px-4">Item & Evidence</th>
-                <th className="py-3 px-4">Complaint Title</th>
-                <th className="py-3 px-4">Priority & SLA</th>
+              <tr className="text-xs font-semibold text-slate-400 tracking-wider pb-4 border-b border-white/[0.06] uppercase">
+                <th className="py-3 px-4">Item & Case</th>
+                <th className="py-3 px-4">Customer</th>
+                <th className="py-3 px-4">Priority</th>
                 <th className="py-3 px-4">Department</th>
-                <th className="py-3 px-4">Validation Status</th>
+                <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-white/[0.04]">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <td colSpan={6} className="py-16 text-center text-slate-400">
+                    <div className="w-7 h-7 border-2 border-[#7947EA] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     <span className="font-mono text-xs">Scanning exception queue...</span>
                   </td>
                 </tr>
               ) : filteredTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500 dark:text-slate-400">
-                    <ShieldAlert className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No tickets matching filter.</p>
-                    <p className="text-xs text-slate-500 mt-1">All tickets in this category have been verified or resolved.</p>
+                  <td colSpan={6} className="py-16 text-center text-slate-400">
+                    <ShieldAlert className="w-8 h-8 text-slate-500 mx-auto mb-2" />
+                    <p className="text-sm font-semibold text-white">No tickets matching current filter.</p>
+                    <p className="text-xs text-slate-400 mt-1">All tickets in this category have been verified or resolved.</p>
                   </td>
                 </tr>
               ) : (
-                filteredTickets.map((t) => (
-                  <tr key={t.complaint_id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
-                      {t.complaint_id}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="font-semibold text-slate-900 dark:text-white">{t.customer_name}</div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[150px]">
-                        {t.customer_email || `${t.customer_tier || 'Standard'} Tier`}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        {t.product_image_url ? (
-                          <img 
-                            src={t.product_image_url} 
-                            alt={t.product_name || 'Product'} 
-                            className="w-8 h-8 rounded-lg object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
-                            <Package className="w-4 h-4 text-slate-400" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
-                            {t.product_name || 'NovaStore Item'}
-                          </div>
-                          {t.evidence_image_url ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 dark:text-rose-400">
-                              <Camera className="w-3 h-3" />
-                              Evidence
-                            </span>
+                filteredTickets.map((t) => {
+                  const priorityDot = 
+                    t.final_priority === 'P1' ? 'bg-[#FF4D73] shadow-[0_0_8px_rgba(255,77,115,0.6)] text-[#FF4D73]' :
+                    t.final_priority === 'P2' ? 'bg-[#FF7B54] text-[#FF7B54]' :
+                    t.final_priority === 'P3' ? 'bg-[#4F46E5] text-[#818CF8]' :
+                    'bg-slate-400 text-slate-400';
+
+                  return (
+                    <tr 
+                      key={t.complaint_id} 
+                      className="hover:bg-[#161A2E]/80 transition-colors group"
+                    >
+                      {/* Item Icon (Squircle container) & Case Title */}
+                      <td className="py-4.5 px-4">
+                        <div className="flex items-center gap-3.5">
+                          {t.product_image_url ? (
+                            <img 
+                              src={t.product_image_url} 
+                              alt={t.product_name || 'Product'} 
+                              className="w-10 h-10 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                            />
                           ) : (
-                            <span className="text-[10px] text-slate-400">No Photo</span>
+                            <div className="w-10 h-10 rounded-xl bg-[#7947EA]/10 border border-[#7947EA]/20 text-[#C084FC] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                              <Package className="w-5 h-5" />
+                            </div>
                           )}
+                          <div className="min-w-0 max-w-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold text-white">
+                                {t.complaint_id}
+                              </span>
+                              {t.evidence_image_url && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold font-mono text-[#FF4D73]">
+                                  <Camera className="w-3 h-3" />
+                                  Photo
+                                </span>
+                              )}
+                            </div>
+                            <div className="font-medium text-slate-200 text-xs truncate mt-0.5" title={t.complaint_title}>
+                              {t.complaint_title}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 max-w-xs text-slate-700 dark:text-slate-300 font-sans">
-                      <div className="font-semibold text-slate-900 dark:text-white truncate">
-                        {t.complaint_title}
-                      </div>
-                      {t.status === 'Escalated to Admin' && t.human_reviewer_notes && (
-                        <div className="mt-1 flex items-center gap-1 text-[11px] font-mono text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800 line-clamp-1" title={t.human_reviewer_notes}>
-                          <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
-                          <span className="truncate">Admin Note: {t.human_reviewer_notes}</span>
+                      </td>
+
+                      {/* Customer & Order */}
+                      <td className="py-4.5 px-4 whitespace-nowrap">
+                        <div className="font-bold text-white">{t.customer_name}</div>
+                        <div className="text-[11px] text-slate-400 font-mono">
+                          Order #{t.order_reference || t.order_id || 'N/A'}
                         </div>
-                      )}
-                      {t.status === 'Verified' && t.official_resolution_message && (
-                        <div className="mt-1 flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-sans line-clamp-1 italic" title={t.official_resolution_message}>
-                          <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
-                          <span className="truncate">Sent: {t.official_resolution_message}</span>
+                      </td>
+
+                      {/* Priority Dot & Badge */}
+                      <td className="py-4.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${priorityDot.split(' ')[0]}`}></span>
+                          <span className="font-mono font-bold text-xs text-white">
+                            {t.final_priority || 'P3'}
+                          </span>
                         </div>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <PriorityBadge priority={t.final_priority || 'P3'} />
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">
-                      {t.assigned_department}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <StatusBadge status={t.status} />
-                    </td>
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => onInspectTicket(t.complaint_id)}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs hover:border-indigo-300"
-                      >
-                        <span>Inspect & Take Action</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+
+                      {/* Department */}
+                      <td className="py-4.5 px-4 whitespace-nowrap font-mono text-slate-300 text-[11px]">
+                        {t.assigned_department}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4.5 px-4 whitespace-nowrap">
+                        <StatusBadge status={t.status} />
+                      </td>
+
+                      {/* Action */}
+                      <td className="py-4.5 px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => onInspectTicket(t.complaint_id)}
+                          className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#161A2E] hover:bg-[#1C213A] text-slate-200 hover:text-white border border-white/10 transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-xs group-hover:border-[#7947EA]/40"
+                        >
+                          <span>Inspect</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-[#7947EA]" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

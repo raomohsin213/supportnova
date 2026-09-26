@@ -14,16 +14,16 @@ export function Button({
   disabled,
   ...props
 }) {
-  const baseStyles = 'inline-flex items-center justify-center rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
+  const baseStyles = 'inline-flex items-center justify-center rounded-xl text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7B3FE4] disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
 
   const variants = {
-    default: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm active:bg-indigo-800',
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm active:bg-blue-800',
-    secondary: 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700',
-    outline: 'border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-xs',
-    ghost: 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100',
-    destructive: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm active:bg-rose-800',
-    success: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm active:bg-emerald-800'
+    default: 'bg-gradient-to-r from-[#7B3FE4] to-[#4F46E5] text-white hover:from-[#8B5CF6] hover:to-[#6366F1] shadow-[0_0_20px_rgba(123,63,228,0.35)] border border-white/10 active:scale-[0.98]',
+    primary: 'bg-gradient-to-r from-[#FF4B72] to-[#FF7F59] text-white hover:opacity-95 shadow-[0_0_20px_rgba(255,75,114,0.35)] border border-white/10 active:scale-[0.98]',
+    secondary: 'bg-[#15192B] text-slate-200 hover:bg-[#1C223A] border border-white/[0.08] hover:border-white/20 active:scale-[0.98]',
+    outline: 'border border-white/[0.12] bg-[#0F121E]/70 text-slate-200 hover:bg-[#15192B] hover:border-[#7B3FE4]/40 shadow-xs active:scale-[0.98]',
+    ghost: 'text-slate-400 hover:text-white hover:bg-white/[0.06] active:scale-[0.98]',
+    destructive: 'bg-gradient-to-r from-[#FF4B72] to-[#E11D48] text-white hover:opacity-95 shadow-[0_0_20px_rgba(255,75,114,0.4)] border border-white/10 active:scale-[0.98]',
+    success: 'bg-gradient-to-r from-[#059669] to-[#10B981] text-white hover:opacity-95 shadow-[0_0_20px_rgba(16,185,129,0.35)] border border-white/10 active:scale-[0.98]'
   };
 
   const sizes = {

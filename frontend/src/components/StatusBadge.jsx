@@ -2,46 +2,46 @@ import React from 'react';
 import { CheckCircle2, AlertTriangle, AlertOctagon, ShieldAlert, Clock, HelpCircle, FileX } from 'lucide-react';
 
 export function StatusBadge({ status, className = '' }) {
-  let badgeStyle = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+  let badgeStyle = "bg-white/[0.05] text-slate-300 border-white/[0.08]";
   let Icon = HelpCircle;
 
   switch (status) {
     case 'Verified':
-      badgeStyle = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800";
+      badgeStyle = "bg-[#10B981]/15 text-[#34D399] border-[#10B981]/35 shadow-[0_0_15px_rgba(16,185,129,0.2)]";
       Icon = CheckCircle2;
       break;
     case 'Verified with Warning':
-      badgeStyle = "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800";
+      badgeStyle = "bg-[#06B6D4]/15 text-[#22D3EE] border-[#06B6D4]/35 shadow-[0_0_15px_rgba(6,182,212,0.2)]";
       Icon = AlertTriangle;
       break;
     case 'Partially Verified':
-      badgeStyle = "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800";
+      badgeStyle = "bg-[#7B3FE4]/15 text-[#C084FC] border-[#7B3FE4]/35 shadow-[0_0_15px_rgba(123,63,228,0.2)]";
       Icon = Clock;
       break;
     case 'Source Support Missing':
-      badgeStyle = "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800";
+      badgeStyle = "bg-[#7B3FE4]/15 text-[#C084FC] border-[#7B3FE4]/35";
       Icon = FileX;
       break;
     case 'Requirement Missing':
-      badgeStyle = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800";
+      badgeStyle = "bg-[#F59E0B]/15 text-[#FBBF24] border-[#F59E0B]/35 shadow-[0_0_15px_rgba(245,158,11,0.2)]";
       Icon = AlertTriangle;
       break;
     case 'Outdated Source':
-      badgeStyle = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800";
+      badgeStyle = "bg-[#FF4B72]/15 text-[#FF7F59] border-[#FF4B72]/35 shadow-[0_0_15px_rgba(255,75,114,0.2)]";
       Icon = AlertOctagon;
       break;
     case 'Manual Review Required':
     case 'Contradiction Detected':
-      badgeStyle = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800";
+      badgeStyle = "bg-[#FF4B72]/20 text-[#FF4B72] border-[#FF4B72]/45 shadow-[0_0_15px_rgba(255,75,114,0.3)]";
       Icon = ShieldAlert;
       break;
     default:
-      badgeStyle = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+      badgeStyle = "bg-white/[0.05] text-slate-300 border-white/[0.08]";
       Icon = HelpCircle;
   }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeStyle} ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold font-mono border backdrop-blur-md ${badgeStyle} ${className}`}>
       <Icon className="w-3.5 h-3.5 flex-shrink-0" />
       <span>{status}</span>
     </span>
@@ -50,15 +50,16 @@ export function StatusBadge({ status, className = '' }) {
 
 export function DiffPill({ variant = 'green', children, className = '' }) {
   const styles = {
-    green: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800",
-    red: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800",
-    amber: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
-    blue: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800",
-    slate: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+    green: "bg-[#10B981]/15 text-[#34D399] border-[#10B981]/30",
+    red: "bg-[#FF4B72]/15 text-[#FF7F59] border-[#FF4B72]/30",
+    amber: "bg-[#F59E0B]/15 text-[#FBBF24] border-[#F59E0B]/30",
+    blue: "bg-[#06B6D4]/15 text-[#22D3EE] border-[#06B6D4]/30",
+    purple: "bg-[#7B3FE4]/15 text-[#C084FC] border-[#7B3FE4]/30",
+    slate: "bg-white/[0.05] text-slate-300 border-white/[0.08]"
   };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium border ${styles[variant] || styles.slate} ${className}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium border backdrop-blur-md ${styles[variant] || styles.slate} ${className}`}>
       {children}
     </span>
   );
@@ -66,15 +67,14 @@ export function DiffPill({ variant = 'green', children, className = '' }) {
 
 export function PriorityBadge({ priority, className = '' }) {
   const map = {
-    P1: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800",
-    P2: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
-    P3: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800",
-    P4: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+    P1: "bg-[#FF4B72]/20 text-[#FF4B72] border-[#FF4B72]/40 shadow-[0_0_12px_rgba(255,75,114,0.35)]",
+    P2: "bg-[#F59E0B]/20 text-[#FBBF24] border-[#F59E0B]/40 shadow-[0_0_12px_rgba(245,158,11,0.35)]",
+    P3: "bg-[#06B6D4]/20 text-[#22D3EE] border-[#06B6D4]/40 shadow-[0_0_12px_rgba(6,182,212,0.35)]",
+    P4: "bg-white/[0.05] text-slate-400 border-white/[0.1]"
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded font-mono font-bold text-xs border ${map[priority] || map.P3} ${className}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md font-mono font-bold text-xs border backdrop-blur-md ${map[priority] || map.P3} ${className}`}>
       {priority}
     </span>
   );
 }
-
