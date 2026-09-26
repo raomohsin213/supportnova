@@ -296,7 +296,7 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
   const comparisons = diff.field_comparisons || [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 w-full min-w-0">
       {/* Top Header & Ticket Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#111424] p-5 rounded-3xl border border-white/[0.09] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-3.5">

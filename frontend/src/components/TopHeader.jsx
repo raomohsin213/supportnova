@@ -11,8 +11,7 @@ import {
   Ban, 
   CheckCircle2,
   Bell,
-  KeyRound,
-  RotateCw
+  KeyRound
 } from 'lucide-react';
 import { SYSTEM_PERSONAS } from './AuthLoginModal';
 
@@ -79,16 +78,16 @@ export function TopHeader({
   ];
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-[#080911]/85 backdrop-blur-xl border-b border-white/[0.06] px-6 sm:px-8 flex items-center justify-between gap-4">
-      {/* Search Bar with ⌘K tag (Finova Style) */}
-      <div className="relative flex-1 max-w-md">
+    <header className="sticky top-0 z-30 h-16 bg-[#080911]/85 backdrop-blur-xl border-b border-white/[0.06] px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 w-full min-w-0">
+      {/* Search Bar with ⌘K tag (fluid sizing) */}
+      <div className="relative flex-1 min-w-[140px] max-w-xs sm:max-w-sm lg:max-w-md">
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search tickets, orders, customer emails..."
-          className="w-full pl-10 pr-12 py-2 rounded-xl bg-[#111424] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#7947EA] transition-all font-sans"
+          placeholder="Search tickets, orders, emails..."
+          className="w-full pl-10 pr-10 sm:pr-12 py-2 rounded-xl bg-[#111424] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#7947EA] transition-all font-sans"
         />
         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:block">
           <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-medium rounded bg-white/[0.08] text-slate-400 border border-white/[0.08] shadow-xs">
@@ -98,15 +97,17 @@ export function TopHeader({
       </div>
 
       {/* Right Action Controls: Presets Dropdown, Notification Bell, User Pill & Judge Guide */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 shrink-0">
         {/* Active Evaluation Presets Dropdown */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <button
             onClick={() => setPresetsOpen(!presetsOpen)}
-            className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#111424] hover:bg-[#161A2E] text-slate-200 border border-white/[0.08] hover:border-white/[0.15] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-2.5 sm:px-3 py-2 rounded-xl text-xs font-semibold bg-[#111424] hover:bg-[#161A2E] text-slate-200 border border-white/[0.08] hover:border-white/[0.15] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            title="1-Click Evaluation Traps"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#FF7B54]" />
-            <span className="hidden md:inline">Adversarial Presets</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#FF7B54] shrink-0" />
+            <span className="hidden xl:inline">Adversarial Presets</span>
+            <span className="hidden sm:inline xl:hidden">Presets</span>
             <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${presetsOpen ? 'rotate-180' : ''}`} />
           </button>
 
@@ -160,34 +161,34 @@ export function TopHeader({
         {/* Judge Guide Button */}
         <button
           onClick={onOpenGuide}
-          className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#7947EA]/20 to-[#4F46E5]/20 hover:from-[#7947EA]/30 hover:to-[#4F46E5]/30 text-white border border-[#7947EA]/40 shadow-[0_0_15px_rgba(121,71,234,0.3)] transition-all flex items-center gap-1.5 cursor-pointer"
+          className="px-2.5 sm:px-3 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#7947EA]/20 to-[#4F46E5]/20 hover:from-[#7947EA]/30 hover:to-[#4F46E5]/30 text-white border border-[#7947EA]/40 shadow-[0_0_15px_rgba(121,71,234,0.3)] transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
         >
-          <BookOpen className="w-3.5 h-3.5 text-[#C084FC]" />
+          <BookOpen className="w-3.5 h-3.5 text-[#C084FC] shrink-0" />
           <span className="hidden sm:inline">Judge Guide</span>
         </button>
 
-        {/* Notification Bell (Image 4 Finova Style) */}
-        <div className="relative">
+        {/* Notification Bell */}
+        <div className="relative shrink-0">
           <button 
             type="button"
-            className="w-9 h-9 rounded-xl bg-[#111424] hover:bg-[#161A2E] text-slate-300 hover:text-white border border-white/[0.08] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-[#111424] hover:bg-[#161A2E] text-slate-300 hover:text-white border border-white/[0.08] flex items-center justify-center transition-colors cursor-pointer"
             title="System Notifications"
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
           </button>
-          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF4D73] text-white text-[9px] font-mono font-bold flex items-center justify-center ring-2 ring-[#080911] shadow-[0_0_8px_rgba(255,77,115,0.7)]">
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#FF4D73] text-white text-[8px] font-mono font-bold flex items-center justify-center ring-2 ring-[#080911] shadow-[0_0_8px_rgba(255,77,115,0.7)]">
             2
           </span>
         </div>
 
-        {/* User Profile Pill Button (Image 4 Finova Style) - Opens AuthLoginModal */}
+        {/* User Profile Pill Button (Image 4 Finova Style) */}
         <button
           type="button"
           onClick={onOpenAuthModal}
-          className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-[#111424] hover:bg-[#161A2E] border border-white/[0.08] hover:border-[#7947EA]/50 transition-all cursor-pointer group"
+          className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-[#111424] hover:bg-[#161A2E] border border-white/[0.08] hover:border-[#7947EA]/50 transition-all cursor-pointer group shrink-0"
           title="Click to Switch Persona or Log In"
         >
-          <div className="relative">
+          <div className="relative shrink-0">
             <img
               src={currentProfile.avatar}
               alt={currentProfile.name}
@@ -197,15 +198,15 @@ export function TopHeader({
               activeRole === 'customer' ? 'bg-[#10B981]' : activeRole === 'support_agent' ? 'bg-[#7947EA]' : 'bg-[#FF4D73]'
             }`} />
           </div>
-          <div className="text-left hidden sm:block">
-            <div className="text-xs font-bold text-white group-hover:text-[#C084FC] transition-colors leading-tight">
+          <div className="text-left hidden lg:block max-w-[110px]">
+            <div className="text-xs font-bold text-white group-hover:text-[#C084FC] transition-colors leading-tight truncate">
               {currentProfile.name}
             </div>
-            <div className="text-[9px] text-slate-400 font-mono leading-tight">
+            <div className="text-[9px] text-slate-400 font-mono leading-tight truncate">
               {activeRole === 'customer' ? 'NovaStore VIP' : activeRole === 'support_agent' ? 'Specialist' : 'Administrator'}
             </div>
           </div>
-          <KeyRound className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF4D73] transition-colors hidden sm:block ml-1" />
+          <KeyRound className="w-3 h-3 text-slate-400 group-hover:text-[#FF4D73] transition-colors hidden sm:block shrink-0" />
         </button>
       </div>
     </header>

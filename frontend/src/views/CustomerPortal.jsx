@@ -810,7 +810,7 @@ export function CustomerPortal({ onTicketSubmitted, onInspectTicket }) {
   const currentOrders = customerPurchases[activeCustomer.email] || [];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6 pt-4">
+    <div className="max-w-7xl mx-auto space-y-6 pb-20 w-full min-w-0">
       
       {/* -------------------------------------------------------- */}
       {/* 1. TOP CUSTOMER IDENTITY & QUICK-SWITCHER BAR             */}

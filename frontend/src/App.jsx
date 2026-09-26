@@ -73,7 +73,7 @@ export default function App() {
       toast.info('Switched to Customer persona (NovaStore & Orders)');
     } else if (role === 'support_agent') {
       setActiveTab('queue');
-      toast.info('Switched to Support Specialist persona (Clearances & Queue)');
+      toast.info('Switched to Support Specialist persona (Review Queue)');
     } else if (role === 'system_admin') {
       setActiveTab('workspace');
       toast.info('Switched to Executive System Admin persona (Full Authority)');
@@ -93,7 +93,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-canvas)] text-slate-100 flex relative selection:bg-[#7947EA]/35 selection:text-[#FF4D73]">
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-slate-100 flex relative selection:bg-[#7947EA]/35 selection:text-[#FF4D73] overflow-x-hidden w-full max-w-full">
       {/* Global Toast Notifications (Sonner) */}
       <Toaster position="top-right" richColors closeButton expand={false} />
 
@@ -107,8 +107,8 @@ export default function App() {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
-      {/* Main Shell Container (Offset by sidebar width: ml-64) */}
-      <div className="ml-64 flex-1 flex flex-col min-h-screen">
+      {/* Main Shell Container: strictly constrained with min-w-0 max-w-[calc(100vw-16rem)] to prevent flex blowout */}
+      <div className="ml-64 flex-1 flex flex-col min-h-screen min-w-0 max-w-[calc(100vw-16rem)] overflow-x-hidden">
         {/* Top Header Bar */}
         <TopHeader
           onOpenGuide={() => setIsGuideOpen(true)}
@@ -132,8 +132,8 @@ export default function App() {
           onSelectScenario={handleSelectScenario}
         />
 
-        {/* Main Content Container: ml-64 p-8 min-h-screen bg-[var(--bg-canvas)] */}
-        <main className="flex-1 p-6 sm:p-8 bg-[var(--bg-canvas)]">
+        {/* Main Content Container: fully responsive with min-w-0 and w-full */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-[var(--bg-canvas)] min-w-0 w-full overflow-x-hidden">
           {activeTab === 'workspace' && (
             <SupportAgentWorkspace 
               selectedTicketId={selectedTicketId}
@@ -184,20 +184,20 @@ export default function App() {
         </main>
 
         {/* Finova Sleek Minimal Footer */}
-        <footer className="border-t border-white/[0.06] bg-[#0B0D18]/90 backdrop-blur-md py-4 px-8 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3 w-full mt-auto">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
-            <span className="font-medium text-slate-300">SupportNova Autonomous Governance Engine</span>
-            <span className="text-white/20">•</span>
-            <span className="font-mono text-[11px] text-slate-400">Finova Fintech Edition</span>
+        <footer className="border-t border-white/[0.06] bg-[#0B0D18]/90 backdrop-blur-md py-4 px-6 sm:px-8 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3 w-full min-w-0 mt-auto">
+          <div className="flex items-center gap-2 truncate">
+            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse shrink-0"></span>
+            <span className="font-medium text-slate-300 truncate">SupportNova Autonomous Governance Engine</span>
+            <span className="text-white/20 hidden sm:inline">•</span>
+            <span className="font-mono text-[11px] text-slate-400 hidden sm:inline">Finova Fintech Edition</span>
           </div>
-          <div className="flex items-center gap-4 font-mono text-[11px]">
+          <div className="flex items-center gap-3 sm:gap-4 font-mono text-[11px] shrink-0">
             <span className="text-[#7947EA] font-semibold">Pipeline 1: GenAI Flash</span>
             <span className="text-white/20">•</span>
             <span className="text-[#10B981] font-semibold">Pipeline 2: Zero-AI Python</span>
-            <span className="text-white/20">•</span>
-            <span className="text-[#06B6D4] font-semibold flex items-center gap-1">
-              🍃 MongoDB Atlas + ChromaDB
+            <span className="text-white/20 hidden md:inline">•</span>
+            <span className="text-[#06B6D4] font-semibold hidden md:flex items-center gap-1">
+              🍃 MongoDB Atlas
             </span>
           </div>
         </footer>
