@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
-import { JudgeGuideModal } from './components/JudgeGuideModal';
 import { AuthLoginModal, SYSTEM_PERSONAS } from './components/AuthLoginModal';
 import { PublicComplaintSubmission } from './views/PublicComplaintSubmission';
 import { SupportAgentWorkspace } from './views/SupportAgentWorkspace';
@@ -20,7 +19,6 @@ export default function App() {
   const [blockedCount, setBlockedCount] = useState(0);
   const [activeRole, setActiveRole] = useState('support_agent');
   const [currentUser, setCurrentUser] = useState(SYSTEM_PERSONAS.support_agent);
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const refreshBadgeCount = async () => {
@@ -114,7 +112,6 @@ export default function App() {
         <div className="flex-1 flex flex-col min-w-0 bg-[#F6F8FC] overflow-hidden h-full">
           {/* Master Board Header */}
           <TopHeader
-            onOpenGuide={() => setIsGuideOpen(true)}
             onSelectScenario={handleSelectScenario}
             activeRole={activeRole}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
@@ -128,20 +125,12 @@ export default function App() {
             onLogin={handleLoginFromModal}
           />
 
-          {/* Evaluator / Judge Interactive Walkthrough Modal */}
-          <JudgeGuideModal 
-            isOpen={isGuideOpen}
-            onClose={() => setIsGuideOpen(false)}
-            onSelectScenario={handleSelectScenario}
-          />
-
           {/* Main Scrollable Canvas */}
           <main className="flex-1 p-5 sm:p-7 lg:p-8 bg-[#F6F8FC] overflow-y-auto min-w-0 w-full">
             {activeTab === 'workspace' && (
               <SupportAgentWorkspace 
                 selectedTicketId={selectedTicketId}
                 onSelectTicket={(id) => setSelectedTicketId(id)}
-                onOpenGuide={() => setIsGuideOpen(true)}
                 activeRole={activeRole}
               />
             )}
@@ -185,23 +174,6 @@ export default function App() {
               <RuleMatrixManager />
             )}
           </main>
-
-          {/* Master Board Minimal Footer */}
-          <footer className="border-t border-slate-100 bg-white py-3 px-6 sm:px-8 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="font-semibold text-slate-700">SupportNova Autonomous Governance</span>
-              <span className="text-slate-300">•</span>
-              <span className="font-mono text-[11px] text-slate-500">Soft-Modern SaaS Edition</span>
-            </div>
-            <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500">
-              <span className="text-indigo-600 font-semibold">Pipeline 1: GenAI Flash</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-emerald-600 font-semibold">Pipeline 2: Ground-Truth</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-sky-600 font-semibold">🍃 MongoDB Atlas</span>
-            </div>
-          </footer>
         </div>
 
       </div>

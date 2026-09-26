@@ -34,14 +34,12 @@ export function Sidebar({
     support_agent: [
       { id: 'queue', label: 'Review Queue', icon: AlertCircle, badge: blockedCount },
       { id: 'workspace', label: 'Diff Inspector', icon: Sliders },
-      { id: 'customer', label: 'NovaStore Portal', icon: ShoppingBag },
     ],
     system_admin: [
       { id: 'workspace', label: 'Diff Inspector', icon: Sliders },
       { id: 'queue', label: 'Review Queue', icon: AlertCircle, badge: blockedCount },
       { id: 'benchmark', label: '100-Case Cockpit', icon: Cpu, badge: 'SRS 8' },
       { id: 'analytics', label: 'Analytics Dashboard', icon: BarChart3 },
-      { id: 'customer', label: 'NovaStore Portal', icon: ShoppingBag },
       { id: 'policies', label: 'Policy Registry', icon: FileText },
       { id: 'rules', label: 'Rule Matrix', icon: Database },
     ],

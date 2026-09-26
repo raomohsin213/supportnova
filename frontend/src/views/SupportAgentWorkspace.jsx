@@ -33,7 +33,8 @@ import {
   Repeat,
   Layers,
   Package,
-  Camera
+  Camera,
+  Headphones
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { StatusBadge, DiffPill, PriorityBadge } from '../components/StatusBadge';
@@ -309,9 +310,17 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                 Dual-Pipeline Diff Inspector
               </span>
               <span className="text-slate-300">•</span>
-              <span className="text-xs text-[#64748B] font-mono">
-                {activeRole === 'system_admin' ? '🛡️ Executive Authority' : '🎧 Specialist Governance'}
-              </span>
+              {activeRole === 'system_admin' ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Executive Authority</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                  <Headphones className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Specialist Governance</span>
+                </span>
+              )}
             </div>
             <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight mt-0.5">
               {activeRole === 'system_admin' ? 'Executive Governance & Clearance Cockpit' : 'Verification Workspace'}
@@ -336,22 +345,6 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
               </option>
             ))}
           </select>
-
-          <button
-            onClick={() => {
-              if (tickets.length > 0) {
-                const latestId = tickets[0].complaint_id;
-                setCurrentId(latestId);
-                if (onSelectTicket) onSelectTicket(latestId);
-                toast.info('Switched to Latest Ticket', { description: `Active: ${latestId} (${tickets[0].customer_name})` });
-              }
-            }}
-            className="px-4 py-2 rounded-full bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] border border-slate-200/80 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
-            title="Switch directly to newest submitted complaint"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#FB923C]" />
-            <span className="hidden sm:inline">Latest Ticket</span>
-          </button>
 
           <button
             onClick={async () => {
@@ -385,9 +378,6 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-xs font-bold text-indigo-700 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100">
                     {ticketData.complaint_id}
-                  </span>
-                  <span className="text-xs text-[#64748B] font-mono">
-                    Tier: <strong className="text-[#0F172A]">{ticketData.customer_tier || 'Standard'}</strong>
                   </span>
                 </div>
                 {/* Big, crisp issue title */}
@@ -1490,7 +1480,7 @@ export function SupportAgentWorkspace({ selectedTicketId, onSelectTicket, onOpen
                     Review & Send Resolution to Customer
                   </h3>
                   <p className="text-xs text-[#64748B] font-mono">
-                    Ticket #{ticketData.complaint_id} • {ticketData.customer_name} ({ticketData.customer_tier} Tier)
+                    Ticket #{ticketData.complaint_id} • {ticketData.customer_name}
                   </p>
                 </div>
               </div>
