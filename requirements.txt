@@ -1,0 +1,3 @@
+# SupportNova Root Requirements
+# Automatically references backend/requirements.txt or installs all required packages
+-r backend/requirements.txt
