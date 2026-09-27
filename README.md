@@ -316,19 +316,19 @@ pytest backend/tests/ -v
 
 In strict adherence to the Aptech TechWiz 7 Software Requirements Specification:
 
-* **[AI_USAGE.md](file:///AI_USAGE.md)**: AI tool usage declaration certifying human architectural governance (Section 1.8 Item 19 & Section 1.10 Item 18).
-* **[BLOG.md](file:///BLOG.md)** ([Read on Medium](https://medium.com/@raomohsin213/engineering-supportnova-dual-pipeline-ai-governance-techwiz7)): 2,500-word comprehensive technical blog and architectural whitepaper (Section 1.10 Item 17).
-* **[docs/PROJECT_REPORT.md](file:///docs/PROJECT_REPORT.md)** & **[docs/PROJECT_REPORT.pdf](file:///docs/PROJECT_REPORT.pdf)**: Complete master report including DFD (Level 0 & 1), Use Case, Activity, and Sequence diagrams (Section 1.10 Item 1).
-* **[TEAM_CONTRIBUTIONS.md](file:///TEAM_CONTRIBUTIONS.md)**: Team contribution record, 5-day development log, and module verifications (Section 1.10 Item 18/19).
-* **[reports/complaint_dataset_500.csv](file:///reports/complaint_dataset_500.csv)**: 500-record comprehensive customer complaint dataset export.
-* **[reports/rule_matrix_100.csv](file:///reports/rule_matrix_100.csv)**: 100-rule structured business rule matrix export.
-* **[reports/benchmark_100_comparison_report.csv](file:///reports/benchmark_100_comparison_report.csv)** & **[.json](file:///reports/comparison_report_100_cases.json)**: 100-case GenAI vs. Python Ground-Truth evaluation report (Section 1.10 Item 8).
-* **[reports/security_adversarial_report.md](file:///reports/security_adversarial_report.md)**: Security and adversarial vulnerability testing report (Section 1.10 Item 10).
-* **[reports/complaint_intelligence_report.md](file:///reports/complaint_intelligence_report.md)**: Complaint intelligence analytics, sentiment distributions, and anomaly findings (Section 1.10 Item 9).
-* **[data/complaints_500.json](file:///data/complaints_500.json)**: 500+ unique customer complaints dataset across 10 categories and 4 channels.
-* **[data/rule_matrix_100.json](file:///data/rule_matrix_100.json)**: 100+ structured rules with 30+ mandatory escalation triggers.
-* **[data/policies/](file:///data/policies/)**: 21 company policy and SOP documents (`CMP-POL-01` through `FAQ-REF-20`).
-* **[generate_test_pdfs.py](file:///generate_test_pdfs.py)**: Generator script producing both competition-grade ReportLab test PDFs (`samsung_s24_ultra_complaint.pdf` and `policy_document_POL_MOB_2026.pdf`).
+* **[AI_USAGE.md](AI_USAGE.md)**: AI tool usage declaration certifying human architectural governance (Section 1.8 Item 19 & Section 1.10 Item 18).
+* **[BLOG.md](BLOG.md)** ([Read on Medium](https://medium.com/@raomohsin213/engineering-supportnova-dual-pipeline-ai-governance-and-deterministic-ground-truth-validation-for-42d0ed84dfbe)): 2,500-word comprehensive technical blog and architectural whitepaper (Section 1.10 Item 17).
+* **[docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md)** & **[docs/PROJECT_REPORT.pdf](docs/PROJECT_REPORT.pdf)**: Complete master report including DFD (Level 0 & 1), Use Case, Activity, and Sequence diagrams (Section 1.10 Item 1).
+* **[TEAM_CONTRIBUTIONS.md](TEAM_CONTRIBUTIONS.md)**: Team contribution record, 5-day development log, and module verifications (Section 1.10 Item 18/19).
+* **[reports/complaint_dataset_500.csv](reports/complaint_dataset_500.csv)**: 500-record comprehensive customer complaint dataset export.
+* **[reports/rule_matrix_100.csv](reports/rule_matrix_100.csv)**: 100-rule structured business rule matrix export.
+* **[reports/benchmark_100_comparison_report.csv](reports/benchmark_100_comparison_report.csv)** & **[.json](reports/comparison_report_100_cases.json)**: 100-case GenAI vs. Python Ground-Truth evaluation report (Section 1.10 Item 8).
+* **[reports/security_adversarial_report.md](reports/security_adversarial_report.md)**: Security and adversarial vulnerability testing report (Section 1.10 Item 10).
+* **[reports/complaint_intelligence_report.md](reports/complaint_intelligence_report.md)**: Complaint intelligence analytics, sentiment distributions, and anomaly findings (Section 1.10 Item 9).
+* **[data/complaints_500.json](data/complaints_500.json)**: 500+ unique customer complaints dataset across 10 categories and 4 channels.
+* **[data/rule_matrix_100.json](data/rule_matrix_100.json)**: 100+ structured rules with 30+ mandatory escalation triggers.
+* **[data/policies/](data/policies/)**: 21 company policy and SOP documents (`CMP-POL-01` through `FAQ-REF-20`).
+* **[generate_test_pdfs.py](generate_test_pdfs.py)**: Generator script producing both competition-grade ReportLab test PDFs (`samsung_s24_ultra_complaint.pdf` and `policy_document_POL_MOB_2026.pdf`).
 
 ---
 

@@ -60,53 +60,53 @@ Standard customer operations suffer from two fatal extremes:
 ## 2. The Core Innovation: Dual-Pipeline Autonomous AI Governance
 
 ```
-                    ┌──────────────────────────────────────────────┐
-                    │      Incoming Customer Complaint Text        │
-                    │   (Web Form / Email / Chat / Scanned Doc)    │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-                    ┌──────────────────────────────────────────────┐
-                    │     Sanitization & PII Masking Engine        │
-                    │  (Credit Cards, SSNs, Emails, Phone Scrubbed)│
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-                    ┌──────────────────────────────────────────────┐
-                    │     ChromaDB Vector Semantic Retrieval       │
-                    │   (Extracts Top-3 Active Policy Chunks)      │
-                    └──────────────┬────────────────┬──────────────┘
-                                   │                │
-            ┌──────────────────────┴──────┐  ┌──────┴──────────────────────┐
-            │   PIPELINE 1: GenAI Hub     │  │  PIPELINE 2: Ground Truth   │
-            │      (Gemini 2.0 Flash)     │  │    (100% Pure Python)       │
-            │                             │  │                             │
-            │  • Probabilistic triage     │  │  • Decouples tone from risk │
-            │  • Sentiment & urgency      │  │  • Scans hazard keywords    │
-            │  • Customer response draft  │  │  • Checks SQLite policies   │
-            │  • Follow-up & questions    │  │  • Blocks forbidden refunds │
-            │  • Entity extraction        │  │  • Enforces SOP checklist   │
-            └──────────────┬──────────────┘  └──────┬──────────────────────┘
-                           │                        │
-                           └───────────┬────────────┘
-                                       ▼
-                    ┌──────────────────────────────────────────────┐
-                    │     Diff & Conflict Synthesis Engine         │
-                    │   (Calculates Coverage, Traceability, SLA)   │
-                    └──────────────────┬───────────────────────────┘
-                                       │
-                      ┌────────────────┴────────────────┐
-                      ▼                                 ▼
+                    +----------------------------------------------+
+                    |      Incoming Customer Complaint Text        |
+                    |   (Web Form / Email / Chat / Scanned Doc)    |
+                    +----------------------+-----------------------+
+                                           |
+                                           v
+                    +----------------------------------------------+
+                    |     Sanitization & PII Masking Engine        |
+                    |  (Credit Cards, SSNs, Emails, Phone Scrubbed)|
+                    +----------------------+-----------------------+
+                                           |
+                                           v
+                    +----------------------------------------------+
+                    |     ChromaDB Vector Semantic Retrieval       |
+                    |   (Extracts Top-3 Active Policy Chunks)      |
+                    +--------------+----------------+--------------+
+                                   |                |
+            +----------------------+------+  +------+----------------------+
+            |   PIPELINE 1: GenAI Hub     |  |  PIPELINE 2: Ground Truth   |
+            |      (Gemini 2.0 Flash)     |  |    (100% Pure Python)       |
+            |                             |  |                             |
+            |  * Probabilistic triage     |  |  * Decouples tone from risk |
+            |  * Sentiment & urgency      |  |  * Scans hazard keywords    |
+            |  * Customer response draft  |  |  * Checks SQLite policies   |
+            |  * Follow-up & questions    |  |  * Blocks forbidden refunds |
+            |  * Entity extraction        |  |  * Enforces SOP checklist   |
+            +--------------+--------------+  +------+----------------------+
+                           |                        |
+                           +-----------+------------+
+                                       v
+                    +----------------------------------------------+
+                    |     Diff & Conflict Synthesis Engine         |
+                    |   (Calculates Coverage, Traceability, SLA)   |
+                    +------------------+---------------------------+
+                                       |
+                      +----------------+----------------+
+                      v                                 v
          [Discrepancy / Risk Detected]        [100% Perfect Match]
-                      │                                 │
-                      ▼                                 ▼
-         ┌─────────────────────────┐       ┌─────────────────────────┐
-         │ Automated Dispatch      │       │ Automated Dispatch      │
-         │ QUARANTINED (Locked)    │       │ CLEARED (Instant Send)  │
-         │                         │       │                         │
-         │ Routed to Human Support │       │ Response immediately    │
-         │ Supervisor Workspace    │       │ dispatched to customer  │
-         └─────────────────────────┘       └─────────────────────────┘
+                      |                                 |
+                      v                                 v
+         +-------------------------+       +-------------------------+
+         | Automated Dispatch      |       | Automated Dispatch      |
+         | QUARANTINED (Locked)    |       | CLEARED (Instant Send)  |
+         |                         |       |                         |
+         | Routed to Human Support |       | Response immediately    |
+         | Supervisor Workspace    |       | dispatched to customer  |
+         +-------------------------+       +-------------------------+
 ```
 
 The golden operational law of SupportNova:
@@ -151,24 +151,24 @@ SupportNova is built as a cloud-ready, asynchronous microservices architecture:
 The Level 0 Data Flow Diagram illustrates SupportNova as an autonomous governance engine interacting with external personas and external data boundaries:
 
 ```
-                       ┌─────────────────────────┐
-                       │        CUSTOMER         │
-                       └────────────┬────────────┘
-                                    │ 1. Complaint Submission (Web/Email/Chat/Doc)
-                                    │ 2. Status Inquiry & Resolution View
-                                    ▼
-       ┌───────────────────────────────────────────────────────────────┐
-       │                                                               │
-       │     0.0 SupportNova Autonomous AI Governance Engine           │
-       │                                                               │
-       └───────┬────────────────────────┬──────────────────────┬───────┘
-               │                        │                      │
-               │ 3. Policy Citations    │ 4. Diff Inspection   │ 5. Policy Ingestion
-               │    & Discrepancies     │    & Actions         │    & Rule Matrix CRUD
-               ▼                        ▼                      ▼
-┌─────────────────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│   REVIEWER / QA SUPERVISOR  │ │  SUPPORT AGENT   │ │   SYSTEM ADMIN   │
-└─────────────────────────────┘ └──────────────────┘ └──────────────────┘
+                       +-------------------------+
+                       |        CUSTOMER         |
+                       +------------+------------+
+                                    | 1. Complaint Submission (Web/Email/Chat/Doc)
+                                    | 2. Status Inquiry & Resolution View
+                                    v
+       +---------------------------------------------------------------+
+       |                                                               |
+       |     0.0 SupportNova Autonomous AI Governance Engine           |
+       |                                                               |
+       +-------+------------------------+----------------------+-------+
+               |                        |                      |
+               | 3. Policy Citations    | 4. Diff Inspection   | 5. Policy Ingestion
+               |    & Discrepancies     |    & Actions         |    & Rule Matrix CRUD
+               v                        v                      v
++-----------------------------+ +------------------+ +------------------+
+|   REVIEWER / QA SUPERVISOR  | |  SUPPORT AGENT   | |   SYSTEM ADMIN   |
++-----------------------------+ +------------------+ +------------------+
 ```
 
 #### DFD Level 1: Subsystem Process Decomposition
@@ -176,43 +176,43 @@ The Level 1 DFD decomposes the internal dual-pipeline processes, data stores, an
 
 ```
 [Customer Ingestion]
-       │
-       ▼
- ┌──────────────────────────────────┐
- │ 1.0 Intake Sanitization & PII    │ ───► [D1: PII Sanitized Cache]
- └─────────────────┬────────────────┘
-                   │ Clean Masked Complaint
-                   ▼
- ┌──────────────────────────────────┐
- │ 2.0 Semantic Policy Retrieval    │ ◄─── [D2: Vector Store / Policies]
- └─────────┬──────────────────────┬─┘
-           │ Top-3 Policy Chunks  │ Top-3 Policy Chunks
-           ▼                      ▼
- ┌──────────────────┐   ┌───────────────────────────┐
- │ 3.0 Pipeline 1:  │   │ 4.0 Pipeline 2:           │
- │ GenAI Inference  │   │ Ground-Truth Engine       │ ◄─── [D3: Rule Matrix]
- │ (Gemini 2.0 Flash│   │ (Pure Zero-AI Python)     │
- └─────────┬────────┘   └─────────────┬─────────────┘
-           │ Probabilistic Draft      │ Deterministic Verdict
-           └──────────────┬───────────┘
-                          ▼
-            ┌───────────────────────────┐
-            │ 5.0 Diff Engine Synthesis │
-            │ (Scores: Cov, Trc, Rout)  │
-            └─────────────┬─────────────┘
-                          ▼
-            ┌───────────────────────────┐
-            │ 6.0 Quarantine & Gate     │
-            └──────┬─────────────┬──────┘
-                   │             │
+       |
+       v
+ +----------------------------------+
+ | 1.0 Intake Sanitization & PII    | ---> [D1: PII Sanitized Cache]
+ +-----------------+----------------+
+                   | Clean Masked Complaint
+                   v
+ +----------------------------------+
+ | 2.0 Semantic Policy Retrieval    | <--- [D2: Vector Store / Policies]
+ +---------+----------------------+-+
+           | Top-3 Policy Chunks  | Top-3 Policy Chunks
+           v                      v
+ +------------------+   +---------------------------+
+ | 3.0 Pipeline 1:  |   | 4.0 Pipeline 2:           |
+ | GenAI Inference  |   | Ground-Truth Engine       | <--- [D3: Rule Matrix]
+ | (Gemini 2.0 Flash|   | (Pure Zero-AI Python)     |
+ +---------+--------+   +-------------+-------------+
+           | Probabilistic Draft      | Deterministic Verdict
+           +--------------+-----------+
+                          v
+            +---------------------------+
+            | 5.0 Diff Engine Synthesis |
+            | (Scores: Cov, Trc, Rout)  |
+            +-------------+-------------+
+                          v
+            +---------------------------+
+            | 6.0 Quarantine & Gate     |
+            +------+-------------+------+
+                   |             |
       [Discrepancy / Risk]     [100% Match]
-                   │             │
-                   ▼             ▼
-       ┌──────────────────┐  ┌──────────────────┐
-       │ 7.0 Quarantined  │  │ 8.0 Automated    │
-       │ Review Queue     │  │ Instant Dispatch │
-       │ (Human-in-Loop)  │  │ (To Customer)    │
-       └──────────────────┘  └──────────────────┘
+                   |             |
+                   v             v
+       +------------------+  +------------------+
+       | 7.0 Quarantined  |  | 8.0 Automated    |
+       | Review Queue     |  | Instant Dispatch |
+       | (Human-in-Loop)  |  | (To Customer)    |
+       +------------------+  +------------------+
 ```
 
 ---
@@ -227,36 +227,36 @@ The Use Case Diagram defines user interaction boundaries across all 4 internal o
                   ====================================================
 
       ACTORS                                    USE CASES
-  ┌───────────────┐
-  │   CUSTOMER    │ ──────► [Submit Multi-Channel Complaint]
-  │               │ ──────► [Upload Scanned Letter / Invoice (PDF/DOCX)]
-  │               │ ──────► [Track Ticket Status & Historical Timeline]
-  │               │ ──────► [Send Follow-up Message / Reopen Ticket]
-  │               │ ──────► [Confirm Satisfaction & Close Complaint]
-  └───────────────┘
+  +---------------+
+  |   CUSTOMER    | ------> [Submit Multi-Channel Complaint]
+  |               | ------> [Upload Scanned Letter / Invoice (PDF/DOCX)]
+  |               | ------> [Track Ticket Status & Historical Timeline]
+  |               | ------> [Send Follow-up Message / Reopen Ticket]
+  |               | ------> [Confirm Satisfaction & Close Complaint]
+  +---------------+
 
-  ┌───────────────┐
-  │ SUPPORT AGENT │ ──────► [Inspect Side-by-Side Dual-Pipeline Diff Cards]
-  │               │ ──────► [Verify Clickable Policy Chunks in Slide Drawer]
-  │               │ ──────► [Approve & Dispatch AI-Drafted Response]
-  │               │ ──────► [Override Classification with Justification]
-  │               │ ──────► [Escalate Complex Ticket to Tier 2 Support]
-  └───────────────┘
+  +---------------+
+  | SUPPORT AGENT | ------> [Inspect Side-by-Side Dual-Pipeline Diff Cards]
+  |               | ------> [Verify Clickable Policy Chunks in Slide Drawer]
+  |               | ------> [Approve & Dispatch AI-Drafted Response]
+  |               | ------> [Override Classification with Justification]
+  |               | ------> [Escalate Complex Ticket to Tier 2 Support]
+  +---------------+
 
-  ┌───────────────┐
-  │ REVIEWER / QA │ ──────► [Monitor Quarantined High-Risk Queue]
-  │               │ ──────► [Inspect Prompt Injection Attacks]
-  │               │ ──────► [Audit Sentiment/Urgency Decoupling Traps]
-  │               │ ──────► [Authorize Restricted Financial Reversals]
-  │               │ ──────► [Export 100-Case Evaluation Reports (CSV/JSON)]
-  └───────────────┘
+  +---------------+
+  | REVIEWER / QA | ------> [Monitor Quarantined High-Risk Queue]
+  |               | ------> [Inspect Prompt Injection Attacks]
+  |               | ------> [Audit Sentiment/Urgency Decoupling Traps]
+  |               | ------> [Authorize Restricted Financial Reversals]
+  |               | ------> [Export 100-Case Evaluation Reports (CSV/JSON)]
+  +---------------+
 
-  ┌───────────────┐
-  │ SYSTEM ADMIN  │ ──────► [Ingest & Chunk New Corporate SOP Documents]
-  │               │ ──────► [Create / Update / Delete Rule Matrix Entries]
-  │               │ ──────► [Configure SLA Thresholds & Escalation Triggers]
-  │               │ ──────► [View Executive Analytics & Resolution Donut]
-  └───────────────┘
+  +---------------+
+  | SYSTEM ADMIN  | ------> [Ingest & Chunk New Corporate SOP Documents]
+  |               | ------> [Create / Update / Delete Rule Matrix Entries]
+  |               | ------> [Configure SLA Thresholds & Escalation Triggers]
+  |               | ------> [View Executive Analytics & Resolution Donut]
+  +---------------+
 ```
 
 ---
@@ -267,47 +267,47 @@ The Activity Diagram tracks the end-to-end lifecycle of a complaint from intake 
 
 ```
   (Start)
-     │
-     ▼
+     |
+     v
  [Customer Submits Complaint via Web / Email / Chat / Doc Upload]
-     │
-     ▼
+     |
+     v
  [PII Sanitization Engine Masks Credit Cards, SSNs, Phones, Emails]
-     │
-     ▼
+     |
+     v
  [Semantic Retrieval Queries Vector Store for Top-3 Active Policies]
-     │
-     ├─────────────────────────────────────────┐
-     ▼                                         ▼
+     |
+     +-----------------------------------------+
+     v                                         v
  [Pipeline 1: GenAI Inference]            [Pipeline 2: Zero-AI Python Rules]
- • Structured JSON Generation             • Keyword Scan (Smoke, Fire, Injury)
- • Sentiment & Urgency Triage             • Tone-Urgency Decoupling (Calm P0 / Screaming P4)
- • Empathetic Resolution Draft            • SOP Rule Precedence & Prohibited Actions
-     │                                         │
-     └────────────────────┬────────────────────┘
-                          ▼
+ * Structured JSON Generation             * Keyword Scan (Smoke, Fire, Injury)
+ * Sentiment & Urgency Triage             * Tone-Urgency Decoupling (Calm P0 / Screaming P4)
+ * Empathetic Resolution Draft            * SOP Rule Precedence & Prohibited Actions
+     |                                         |
+     +--------------------+--------------------+
+                          v
              [Diff Engine Synthesizes Outputs]
-             • Field-by-Field Divergence Matrix
-             • Coverage, Traceability, Routing Scores
-                          │
-                          ▼
+             * Field-by-Field Divergence Matrix
+             * Coverage, Traceability, Routing Scores
+                          |
+                          v
             < Discrepancy Found OR Injection Flagged OR Prohibited Action? >
                      /                                         \
                  [ YES ]                                     [ NO ]
-                    │                                           │
-                    ▼                                           ▼
+                    |                                           |
+                    v                                           v
        [Automated Dispatch Blocked]                 [Automated Dispatch Cleared]
-       • Status: Manual Review Required             • Status: Verified (100% Match)
-       • Route to Quarantined Queue                 • Send Resolution to Customer
-                    │                                           │
-                    ▼                                           ▼
+       * Status: Manual Review Required             * Status: Verified (100% Match)
+       * Route to Quarantined Queue                 * Send Resolution to Customer
+                    |                                           |
+                    v                                           v
        [Supervisor Audits & Overrides]              [Write Event to Audit Trail]
-                    │                                           │
-                    ▼                                           │
-       [Approved Resolution Sent]                               │
-                    │                                           │
-                    └─────────────────────┬─────────────────────┘
-                                          ▼
+                    |                                           |
+                    v                                           |
+       [Approved Resolution Sent]                               |
+                    |                                           |
+                    +---------------------+---------------------+
+                                          v
                                        (Finish)
 ```
 
@@ -319,27 +319,27 @@ The Sequence Diagram details the asynchronous timing, message flow, and inter-se
 
 ```
 Customer     IntakeAPI    VectorStore    Pipeline1(AI)   Pipeline2(Python)   DiffEngine    ReviewQueue   AuditLog
-   │             │             │               │                 │               │              │            │
-   │─Submit()───►│             │               │                 │               │              │            │
-   │             │─Query(Top3)►│               │                 │               │              │            │
-   │             │◄─PolicyData─│               │                 │               │              │            │
-   │             │                                                               │              │            │
-   │             │──Async Analyze(Complaint, Policies)──────────►│               │              │            │
-   │             │──Deterministic Validate(Complaint, Policies)─┼───────────────►│              │            │
-   │             │                                               │               │              │            │
-   │             │◄──Structured GenAI JSON───────────────────────│               │              │            │
-   │             │◄──Ground-Truth Verdict & Clamped Priority─────┼───────────────│              │            │
-   │             │                                                               │              │            │
-   │             │──Synthesize Divergences(P1_Result, P2_Result)────────────────►│              │            │
-   │             │◄──Confidence Scores & Quarantine Flag─────────────────────────│              │            │
-   │             │                                                                              │            │
-   │             │ [IF Discrepancy / Prompt Injection / Prohibited Action]                      │            │
-   │             │──Quarantine & Route to Supervisor───────────────────────────────────────────►│            │
-   │             │                                                                              │            │
-   │             │──Record Evaluation Record & Audit Trail──────────────────────────────────────────────────►│
-   │             │                                                                              │            │
-   │◄─TicketID───│                                                                              │            │
-   │  & Status   │                                                                              │            │
+   |             |             |               |                 |               |              |            |
+   |-Submit()--->|             |               |                 |               |              |            |
+   |             |-Query(Top3)>|               |                 |               |              |            |
+   |             |<-PolicyData-|               |                 |               |              |            |
+   |             |                                                               |              |            |
+   |             |--Async Analyze(Complaint, Policies)---------->|               |              |            |
+   |             |--Deterministic Validate(Complaint, Policies)-+--------------->|              |            |
+   |             |                                               |               |              |            |
+   |             |<--Structured GenAI JSON-----------------------|               |              |            |
+   |             |<--Ground-Truth Verdict & Clamped Priority-----+---------------|              |            |
+   |             |                                                               |              |            |
+   |             |--Synthesize Divergences(P1_Result, P2_Result)---------------->|              |            |
+   |             |<--Confidence Scores & Quarantine Flag-------------------------|              |            |
+   |             |                                                                              |            |
+   |             | [IF Discrepancy / Prompt Injection / Prohibited Action]                      |            |
+   |             |--Quarantine & Route to Supervisor------------------------------------------->|            |
+   |             |                                                                              |            |
+   |             |--Record Evaluation Record & Audit Trail-------------------------------------------------->|
+   |             |                                                                              |            |
+   |<-TicketID---|                                                                              |            |
+   |  & Status   |                                                                              |            |
 ```
 
 ---
@@ -556,7 +556,7 @@ All endpoints run under `/api/`:
 
 ### 6.1 Framework-Grade UI Component Primitives
 
-Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/components/ui/) using `clsx` and `tailwind-merge`:
+Implemented in `frontend/src/components/ui/` using `clsx` and `tailwind-merge`:
 - **`Button.jsx`**: Enterprise button component with variants:
   - `default`: High-contrast solid dark/light.
   - `primary`: Rich Indigo (`bg-indigo-600 hover:bg-indigo-700 text-white`).
@@ -574,13 +574,13 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 ### 6.2 Dual-Theme Engine (Light & Dark Mode)
 
 - **`ThemeContext.jsx`**: React context provider managing theme state with `localStorage` persistence.
-- **Tailwind CSS v4 Configuration**: Configured `@custom-variant dark (&:where(.dark, .dark *));` in [`index.css`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/index.css), enabling instantaneous, flawless dark/light transitions without page reloads.
+- **Tailwind CSS v4 Configuration**: Configured `@custom-variant dark (&:where(.dark, .dark *));` in `index.css`, enabling instantaneous, flawless dark/light transitions without page reloads.
 - **Enterprise Light Mode**: Clean slate background (`#F8FAFC`), crisp white cards (`#FFFFFF`), subtle slate borders (`border-slate-200`), and deep charcoal headings (`#0F172A`).
 - **Obsidian Dark Mode**: Deep obsidian background (`#0B0F17`), slate-900 cards (`#0F172A`), slate-800 borders, and crisp off-white text (`#F8FAFC`).
 
 ---
 
-### 6.3 View 1: Customer Account & NovaStore Order Portal ([`CustomerPortal.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/CustomerPortal.jsx))
+### 6.3 View 1: Customer Account & NovaStore Order Portal (CustomerPortal.jsx)
 
 - Displays customer order history with real hardware specifications.
 - **1-Click Issue Filing Modal**: Selects from pre-seeded common defects or custom text.
@@ -597,7 +597,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.4 View 2: The Diff Inspector ([`SupportAgentWorkspace.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/SupportAgentWorkspace.jsx))
+### 6.4 View 2: The Diff Inspector (SupportAgentWorkspace.jsx)
 
 - **Evaluator Test Lab Bar**: 1-click switcher to test all 6 competition traps.
 - **Professor's Evaluation Insight Box**: Explains what the customer claimed, what Gemini did, and what Python caught.
@@ -613,7 +613,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.5 View 3: Manual Review & Escalation Queue ([`ManualReviewQueue.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/ManualReviewQueue.jsx))
+### 6.5 View 3: Manual Review & Escalation Queue (ManualReviewQueue.jsx)
 
 - Displays tickets quarantined by Pipeline 2.
 - Filter pills: `Dispatch Blocked`, `P1 Critical`, `Citation Issues`, `All Tickets`.
@@ -624,7 +624,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.6 View 4: Executive Analytics & Operational Telemetry ([`ExecutiveDashboard.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/ExecutiveDashboard.jsx))
+### 6.6 View 4: Executive Analytics & Operational Telemetry (ExecutiveDashboard.jsx)
 
 - **KPI Cards**: Total Intake Volume, Dispatch Blocked Rate (%), Hallucination Rate (%), SLA Compliance Score (%).
 - **Sentiment Donut Chart**: Rendered with Recharts using emerald, slate, amber, and rose.
@@ -637,7 +637,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.7 View 5: Multi-Channel Intake Simulator ([`PublicComplaintSubmission.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/PublicComplaintSubmission.jsx))
+### 6.7 View 5: Multi-Channel Intake Simulator (PublicComplaintSubmission.jsx)
 
 - **Web Form**: Complete intake with loyalty tier, order reference, incident date, and prior complaint count.
 - **Email Simulator**: Simulates inbound enterprise email with RFC 5322 headers, DKIM/SPF verification, and email body parser.
@@ -647,7 +647,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.8 View 6: Corporate Policy Document Manager ([`PolicyRegistryManager.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/PolicyRegistryManager.jsx))
+### 6.8 View 6: Corporate Policy Document Manager (PolicyRegistryManager.jsx)
 
 - Lists active and superseded policy documents (`DEL-POL-04`, `REF-POL-02`, `WAR-POL-05`, `SAF-POL-01`, `SEC-POL-08`, `REF-POL-01`).
 - Status toggle button: Instantly toggles policies between `Active` and `Superseded` to test outdated citation traps live.
@@ -658,7 +658,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.9 View 7: Business Rule Matrix CRUD Manager ([`RuleMatrixManager.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/views/RuleMatrixManager.jsx))
+### 6.9 View 7: Business Rule Matrix CRUD Manager (RuleMatrixManager.jsx)
 
 - Interactive CRUD editor for ground-truth business rules.
 - Manages permitted departments, SLA hours (P1-P4), escalation trigger keywords, prohibited actions, and mandatory SOP steps.
@@ -668,7 +668,7 @@ Implemented in [`frontend/src/components/ui/`](file:///c:/Users/M.A%20COM/Deskto
 
 ---
 
-### 6.10 View 8: Interactive Judge & Evaluator Guide Modal ([`JudgeGuideModal.jsx`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/frontend/src/components/JudgeGuideModal.jsx))
+### 6.10 View 8: Interactive Judge & Evaluator Guide Modal (JudgeGuideModal.jsx)
 
 - Opened via the **"Judge Guide"** button in the navbar.
 - Summarizes the core philosophy, 3-step visual architecture, and gives 1-click jump links to test all 6 evaluator traps.
@@ -746,7 +746,7 @@ Users can switch roles on the fly using the **Role Switcher modal** in the navig
 
 ## 9. Automated Verification & Test Suite
 
-The test suite in [`backend/tests/`](file:///c:/Users/M.A%20COM/Desktop/Support%20Nova/backend/tests/) contains **18 automated pytest test cases** across 3 modules executing in ~5.4 seconds:
+The test suite in `backend/tests/` contains **18 automated pytest test cases** across 3 modules executing in ~5.4 seconds:
 
 ```bash
 python -m pytest backend/tests/ -v
@@ -778,82 +778,82 @@ python -m pytest backend/tests/ -v
 
 ```
 Support Nova/
-├── .env                              # Active API keys (Gemini, Groq, OpenRouter)
-├── .env.example                      # Template environment variables
-├── .gitignore                        # Git exclusion rules
-├── README.md                         # Quickstart and overview
-├── AI_USAGE.md                       # AI usage disclosure and governance summary
-├── BLOG.md                           # Competition technical blog post
-├── docs/
-│   └── PROJECT_REPORT.md             # Master Architectural & Implementation Report
-├── backend/
-│   ├── support_nova.db               # SQLite database with pre-seeded data
-│   ├── requirements.txt              # Python dependencies
-│   ├── app/
-│   │   ├── main.py                   # FastAPI app entry point & lifespan
-│   │   ├── config.py                 # Pydantic configuration & env loader
-│   │   ├── database.py               # SQLAlchemy async & sync engines
-│   │   ├── models/                   # Relational database models
-│   │   │   ├── user.py               # User and RBAC roles
-│   │   │   ├── ticket.py             # Complaint tickets & dual-pipeline outputs
-│   │   │   ├── policy.py             # Policy documents & section chunks
-│   │   │   ├── rule_matrix.py        # Business rule matrix entries
-│   │   │   └── audit.py              # Audit logs & override history
-│   │   ├── schemas/                  # Pydantic validation schemas
-│   │   │   ├── complaint.py          # Complaint inputs & responses
-│   │   │   ├── genai.py              # GenAI structured outputs
-│   │   │   └── validation.py         # Validation results & discrepancies
-│   │   ├── services/                 # Core business logic & engines
-│   │   │   ├── genai_pipeline.py     # Pipeline 1 (GenAI Intelligence Hub)
-│   │   │   ├── validation_engine.py  # Pipeline 2 (Zero-AI Ground Truth)
-│   │   │   ├── diff_engine.py        # Diff synthesis & mathematical scoring
-│   │   │   ├── vector_store.py       # ChromaDB vector retrieval
-│   │   │   ├── document_parser.py    # PDF and DOCX text extractor
-│   │   │   ├── pii_masker.py         # Regex PII scrubber
-│   │   │   └── auth.py               # JWT authentication & hashing
-│   │   ├── routers/                  # REST API endpoints
-│   │   │   ├── complaints.py         # Multi-channel intake routes
-│   │   │   ├── tickets.py            # Workspace & ticket routes
-│   │   │   ├── policies.py           # Policy document routes
-│   │   │   ├── rule_matrix.py        # Rule matrix CRUD routes
-│   │   │   ├── dashboard.py          # Executive analytics routes
-│   │   │   ├── export.py             # CSV / Excel export routes
-│   │   │   └── auth.py               # Authentication routes
-│   │   └── seeds/
-│   │       └── seed_data.py          # Pre-seeding master data & benchmark traps
-│   └── tests/
-│       ├── test_dual_pipeline.py     # 9 dual-pipeline & trap tests
-│       └── test_auth_and_export.py   # 5 auth, RBAC, PII, export tests
-└── frontend/
-    ├── package.json                  # Dependencies (clsx, tailwind-merge, recharts, lucide-react)
-    ├── vite.config.js                # Vite build configuration
-    ├── index.html                    # Single Page App HTML entry point
-    └── src/
-        ├── main.jsx                  # React application bootstrap with ThemeProvider
-        ├── App.jsx                   # Main layout, router, role context, footer
-        ├── index.css                 # Tailwind v4 setup with @custom-variant dark
-        ├── context/
-        │   └── ThemeContext.jsx      # Light / Dark mode persistent context
-        ├── components/
-        │   ├── Navbar.jsx            # Header with role switcher & theme toggle
-        │   ├── StatusBadge.jsx       # Status, DiffPill, and Priority badges
-        │   ├── TraceablePolicyDrawer.jsx # Slide-out SQLite citation drawer
-        │   ├── JudgeGuideModal.jsx   # Interactive evaluation guide modal
-        │   └── ui/                   # Framework component primitives
-        │       ├── Button.jsx        # Universal Button primitive
-        │       ├── Card.jsx          # Universal Card primitive
-        │       ├── Badge.jsx         # Universal Badge primitive
-        │       └── ThemeToggle.jsx   # Instant Sun/Moon toggle button
-        ├── views/
-        │   ├── CustomerPortal.jsx    # NovaTech customer account & orders portal
-        │   ├── SupportAgentWorkspace.jsx # The Diff Inspector workspace
-        │   ├── ManualReviewQueue.jsx # Governance exception queue
-        │   ├── ExecutiveDashboard.jsx # Analytics, charts & CSV/Excel export
-        │   ├── PublicComplaintSubmission.jsx # Web, Email, Chat, Upload intake
-        │   ├── PolicyRegistryManager.jsx # Corporate policy manager
-        │   └── RuleMatrixManager.jsx # Ground-truth business rule editor
-        └── services/
-            └── api.js                # Axios REST client with full API bindings
+|-- .env                              # Active API keys (Gemini, Groq, OpenRouter)
+|-- .env.example                      # Template environment variables
+|-- .gitignore                        # Git exclusion rules
+|-- README.md                         # Quickstart and overview
+|-- AI_USAGE.md                       # AI usage disclosure and governance summary
+|-- BLOG.md                           # Competition technical blog post
+|-- docs/
+|   \-- PROJECT_REPORT.md             # Master Architectural & Implementation Report
+|-- backend/
+|   |-- support_nova.db               # SQLite database with pre-seeded data
+|   |-- requirements.txt              # Python dependencies
+|   |-- app/
+|   |   |-- main.py                   # FastAPI app entry point & lifespan
+|   |   |-- config.py                 # Pydantic configuration & env loader
+|   |   |-- database.py               # SQLAlchemy async & sync engines
+|   |   |-- models/                   # Relational database models
+|   |   |   |-- user.py               # User and RBAC roles
+|   |   |   |-- ticket.py             # Complaint tickets & dual-pipeline outputs
+|   |   |   |-- policy.py             # Policy documents & section chunks
+|   |   |   |-- rule_matrix.py        # Business rule matrix entries
+|   |   |   \-- audit.py              # Audit logs & override history
+|   |   |-- schemas/                  # Pydantic validation schemas
+|   |   |   |-- complaint.py          # Complaint inputs & responses
+|   |   |   |-- genai.py              # GenAI structured outputs
+|   |   |   \-- validation.py         # Validation results & discrepancies
+|   |   |-- services/                 # Core business logic & engines
+|   |   |   |-- genai_pipeline.py     # Pipeline 1 (GenAI Intelligence Hub)
+|   |   |   |-- validation_engine.py  # Pipeline 2 (Zero-AI Ground Truth)
+|   |   |   |-- diff_engine.py        # Diff synthesis & mathematical scoring
+|   |   |   |-- vector_store.py       # ChromaDB vector retrieval
+|   |   |   |-- document_parser.py    # PDF and DOCX text extractor
+|   |   |   |-- pii_masker.py         # Regex PII scrubber
+|   |   |   \-- auth.py               # JWT authentication & hashing
+|   |   |-- routers/                  # REST API endpoints
+|   |   |   |-- complaints.py         # Multi-channel intake routes
+|   |   |   |-- tickets.py            # Workspace & ticket routes
+|   |   |   |-- policies.py           # Policy document routes
+|   |   |   |-- rule_matrix.py        # Rule matrix CRUD routes
+|   |   |   |-- dashboard.py          # Executive analytics routes
+|   |   |   |-- export.py             # CSV / Excel export routes
+|   |   |   \-- auth.py               # Authentication routes
+|   |   \-- seeds/
+|   |       \-- seed_data.py          # Pre-seeding master data & benchmark traps
+|   \-- tests/
+|       |-- test_dual_pipeline.py     # 9 dual-pipeline & trap tests
+|       \-- test_auth_and_export.py   # 5 auth, RBAC, PII, export tests
+\-- frontend/
+    |-- package.json                  # Dependencies (clsx, tailwind-merge, recharts, lucide-react)
+    |-- vite.config.js                # Vite build configuration
+    |-- index.html                    # Single Page App HTML entry point
+    \-- src/
+        |-- main.jsx                  # React application bootstrap with ThemeProvider
+        |-- App.jsx                   # Main layout, router, role context, footer
+        |-- index.css                 # Tailwind v4 setup with @custom-variant dark
+        |-- context/
+        |   \-- ThemeContext.jsx      # Light / Dark mode persistent context
+        |-- components/
+        |   |-- Navbar.jsx            # Header with role switcher & theme toggle
+        |   |-- StatusBadge.jsx       # Status, DiffPill, and Priority badges
+        |   |-- TraceablePolicyDrawer.jsx # Slide-out SQLite citation drawer
+        |   |-- JudgeGuideModal.jsx   # Interactive evaluation guide modal
+        |   \-- ui/                   # Framework component primitives
+        |       |-- Button.jsx        # Universal Button primitive
+        |       |-- Card.jsx          # Universal Card primitive
+        |       |-- Badge.jsx         # Universal Badge primitive
+        |       \-- ThemeToggle.jsx   # Instant Sun/Moon toggle button
+        |-- views/
+        |   |-- CustomerPortal.jsx    # NovaTech customer account & orders portal
+        |   |-- SupportAgentWorkspace.jsx # The Diff Inspector workspace
+        |   |-- ManualReviewQueue.jsx # Governance exception queue
+        |   |-- ExecutiveDashboard.jsx # Analytics, charts & CSV/Excel export
+        |   |-- PublicComplaintSubmission.jsx # Web, Email, Chat, Upload intake
+        |   |-- PolicyRegistryManager.jsx # Corporate policy manager
+        |   \-- RuleMatrixManager.jsx # Ground-truth business rule editor
+        \-- services/
+            \-- api.js                # Axios REST client with full API bindings
 ```
 
 ---
@@ -865,5 +865,5 @@ SupportNova represents a complete, robust, and enterprise-grade software system 
 - It provides a **real-world business context (NovaTech Consumer Electronics)** with realistic order histories and issue filing.
 - It features an **enterprise design system** with standard framework primitives and a seamless **Light & Dark mode toggle**.
 - It passes **100% of automated tests**, compiles with **zero build errors**, and provides **1-click evaluation traps** that allow judges to verify its intelligence in seconds.
-- **Official Technical Whitepaper & Medium Article:** [Read on Medium](https://medium.com/@raomohsin213/engineering-supportnova-dual-pipeline-ai-governance-techwiz7)
-- **Official Formatted PDF Report:** [PROJECT_REPORT.pdf](file:///docs/PROJECT_REPORT.pdf) (Complete with DFD Level 0/1, Use Case, Activity, and Sequence diagrams).
+- **Official Technical Whitepaper & Medium Article:** [Read on Medium](https://medium.com/@raomohsin213/engineering-supportnova-dual-pipeline-ai-governance-and-deterministic-ground-truth-validation-for-42d0ed84dfbe)
+- **Official Formatted PDF Report:** `PROJECT_REPORT.pdf` (Complete with DFD Level 0/1, Use Case, Activity, and Sequence diagrams).

@@ -170,6 +170,70 @@ def build_report_pdf():
     # -------------------------------------------------------------
     # PARSE & RENDER MARKDOWN CONTENT
     # -------------------------------------------------------------
+    def sanitize_diagram_ascii(text: str) -> str:
+        """Replaces Unicode box-drawing characters and arrows with crisp ASCII equivalents."""
+        replacements = [
+            ('├── ', '|-- '),
+            ('└── ', '\\-- '),
+            ('│   ', '|   '),
+            ('│', '|'),
+            ('─', '-'),
+            ('═', '='),
+            ('║', '|'),
+            ('┌', '+'),
+            ('┐', '+'),
+            ('└', '+'),
+            ('┘', '+'),
+            ('├', '+'),
+            ('┤', '+'),
+            ('┬', '+'),
+            ('┴', '+'),
+            ('┼', '+'),
+            ('╔', '+'),
+            ('╗', '+'),
+            ('╚', '+'),
+            ('╝', '+'),
+            ('╠', '+'),
+            ('╣', '+'),
+            ('╦', '+'),
+            ('╩', '+'),
+            ('╬', '+'),
+            ('►', '>'),
+            ('◄', '<'),
+            ('▼', 'v'),
+            ('▲', '^'),
+            ('→', '->'),
+            ('←', '<-'),
+            ('•', '*'),
+            ('■', '#'),
+        ]
+        for orig, repl in replacements:
+            text = text.replace(orig, repl)
+        return text
+
+    def format_inline_markdown(text: str) -> str:
+        """Converts inline markdown formatting and strips unsightly local file paths."""
+        # 1. Strip local file:/// paths and file:/// links:
+        # e.g. ([`JudgeGuideModal.jsx`](file:///c:/Users/...)) -> (JudgeGuideModal.jsx)
+        text = re.sub(r'\(\s*\[`?([^\]`]+)`?\]\(file:///[^\)]+\)\s*\)', r'(\1)', text)
+        text = re.sub(r'\[`?([^\]`]+)`?\]\(file:///[^\)]+\)', r'\1', text)
+        text = re.sub(r'file:///[^\s\)\"\'>]+', '', text)
+
+        # 2. Convert web links [Label](https://...) -> <a href="..."><u>Label</u></a>
+        text = re.sub(r'\[([^\]]+)\]\((https?://[^\)]+)\)', r'<a href="\2" color="#4F46E5"><u>\1</u></a>', text)
+
+        # 3. Strip any internal relative markdown links [Label](relative/path) -> Label
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+
+        # 4. Bold, Italic, Code font
+        text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+        text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+        text = re.sub(r'`(.*?)`', r'<font face="Courier" size="8">\1</font>', text)
+
+        # 5. Clean up any empty parentheses left from stripped paths
+        text = text.replace(' ()', '').replace('()', '')
+        return text
+
     lines = md_text.splitlines()
     in_code_block = False
     code_lines = []
@@ -194,12 +258,12 @@ def build_report_pdf():
                 code_lines = []
             else:
                 in_code_block = False
-                diagram_code = "\n".join(code_lines)
+                diagram_code = sanitize_diagram_ascii("\n".join(code_lines))
                 
                 # Check line count
                 n_lines = len(code_lines)
-                font_sz = 6.5 if n_lines > 25 else 7.5
-                lead = 9 if n_lines > 25 else 10.5
+                font_sz = 5.8 if n_lines > 40 else (6.5 if n_lines > 25 else 7.5)
+                lead = 7.8 if n_lines > 40 else (9.0 if n_lines > 25 else 10.5)
                 
                 # Format code/diagram block cleanly
                 p_code = Preformatted(
@@ -242,8 +306,8 @@ def build_report_pdf():
         # Headings
         if line.startswith("## "):
             h_text = line[3:].strip()
-            # Clean anchors
             h_text = re.sub(r'\{#.*?\}', '', h_text).strip()
+            h_text = format_inline_markdown(h_text)
             story.append(Spacer(1, 14))
             story.append(Paragraph(
                 f'<font color="#1E1B4B"><b>{h_text}</b></font>',
@@ -255,6 +319,7 @@ def build_report_pdf():
 
         if line.startswith("### "):
             h_text = line[4:].strip()
+            h_text = format_inline_markdown(h_text)
             story.append(Spacer(1, 10))
             story.append(Paragraph(
                 f'<font color="#0F172A"><b>{h_text}</b></font>',
@@ -265,6 +330,7 @@ def build_report_pdf():
 
         if line.startswith("#### "):
             h_text = line[5:].strip()
+            h_text = format_inline_markdown(h_text)
             story.append(Spacer(1, 6))
             story.append(Paragraph(
                 f'<font color="#4F46E5"><b>{h_text}</b></font>',
@@ -276,9 +342,7 @@ def build_report_pdf():
         # Blockquote (> text)
         if line.startswith("> "):
             bq_text = line[2:].strip()
-            # Replace markdown bold
-            bq_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', bq_text)
-            bq_text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', bq_text)
+            bq_text = format_inline_markdown(bq_text)
             t_bq = Table([[Paragraph(bq_text, make_style(fontName="Helvetica-Oblique", fontSize=8.5, leading=13, textColor=SLATE))]], colWidths=["100%"])
             t_bq.setStyle(TableStyle([
                 ("BACKGROUND",    (0, 0), (-1, -1), colors.HexColor("#F1F5F9")),
@@ -306,10 +370,7 @@ def build_report_pdf():
                 formatted_cells = []
                 is_header = len(table_rows) == 0
                 for cell in cells:
-                    # Clean markdown formatting inside table cell
-                    cell_html = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', cell)
-                    cell_html = re.sub(r'\*(.*?)\*', r'<i>\1</i>', cell_html)
-                    cell_html = re.sub(r'`(.*?)`', r'<font face="Courier" size="7.5">\1</font>', cell_html)
+                    cell_html = format_inline_markdown(cell)
                     cell_html = cell_html.replace("<br>", "<br/>")
                     
                     font_style = make_style(
@@ -348,9 +409,7 @@ def build_report_pdf():
         # Bullet lists (- or *)
         if line.strip().startswith("- ") or line.strip().startswith("* "):
             b_text = line.strip()[2:].strip()
-            b_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', b_text)
-            b_text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', b_text)
-            b_text = re.sub(r'`(.*?)`', r'<font face="Courier" size="8">\1</font>', b_text)
+            b_text = format_inline_markdown(b_text)
             story.append(Paragraph(
                 f"&bull;  {b_text}",
                 make_style(fontName="Helvetica", fontSize=8.5, leading=13, textColor=SLATE, leftIndent=12, spaceAfter=2)
@@ -363,9 +422,7 @@ def build_report_pdf():
         if m_num:
             num = m_num.group(1)
             n_text = m_num.group(2)
-            n_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', n_text)
-            n_text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', n_text)
-            n_text = re.sub(r'`(.*?)`', r'<font face="Courier" size="8">\1</font>', n_text)
+            n_text = format_inline_markdown(n_text)
             story.append(Paragraph(
                 f"<b>{num}.</b>  {n_text}",
                 make_style(fontName="Helvetica", fontSize=8.5, leading=13, textColor=SLATE, leftIndent=12, spaceAfter=2)
@@ -428,11 +485,7 @@ def build_report_pdf():
 
         # Normal Paragraphs
         if line.strip():
-            p_text = line.strip()
-            # Clean markdown formatting
-            p_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', p_text)
-            p_text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', p_text)
-            p_text = re.sub(r'`(.*?)`', r'<font face="Courier" size="8">\1</font>', p_text)
+            p_text = format_inline_markdown(line.strip())
             story.append(Paragraph(
                 p_text,
                 make_style(fontName="Helvetica", fontSize=8.5, leading=13, textColor=SLATE, spaceAfter=4)
