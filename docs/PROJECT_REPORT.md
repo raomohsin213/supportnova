@@ -9,7 +9,12 @@
 1. [Executive Summary & Purpose](#1-executive-summary--purpose)
 2. [The Core Innovation: Dual-Pipeline Autonomous AI Governance](#2-the-core-innovation-dual-pipeline-autonomous-ai-governance)
 3. [The Industry Niche: NovaTech Global Hardware & Electronics](#3-the-industry-niche-novatech-global-hardware--electronics)
-4. [End-to-End System Architecture](#4-end-to-end-system-architecture)
+4. [End-to-End System Architecture & Technical Diagrams](#4-end-to-end-system-architecture--technical-diagrams)
+   - [4.1 Architecture Overview & Technology Stack](#41-architecture-overview--technology-stack)
+   - [4.2 Data Flow Diagrams (DFD Level 0 & Level 1)](#42-data-flow-diagrams-dfd-level-0--level-1)
+   - [4.3 System Use Case Diagram](#43-system-use-case-diagram)
+   - [4.4 Operational Activity Diagram](#44-operational-activity-diagram)
+   - [4.5 Dual-Pipeline Sequence Diagram](#45-dual-pipeline-sequence-diagram)
 5. [Complete Backend Implementation Details](#5-complete-backend-implementation-details)
    - [5.1 Database Models & Relational Schema](#51-database-models--relational-schema)
    - [5.2 Pipeline 1: GenAI Intelligence Hub](#52-pipeline-1-genai-intelligence-hub)
@@ -124,15 +129,216 @@ Customers can click **"Report Issue / File Complaint"** directly on any purchase
 
 ---
 
-## 4. End-to-End System Architecture
+## 4. End-to-End System Architecture & Technical Diagrams
+
+### 4.1 Architecture Overview & Technology Stack
 
 SupportNova is built as a cloud-ready, asynchronous microservices architecture:
-- **Backend Core:** Python 3.14+, FastAPI (High performance ASGI), Pydantic v2 validation.
+- **Backend Core:** Python 3.11+, FastAPI (High performance ASGI), Pydantic v2 validation.
 - **Relational Persistence:** SQLite (`support_nova.db`) via SQLAlchemy ORM with support for PostgreSQL.
 - **Vector Embeddings & Retrieval:** ChromaDB vector database with Cosine Similarity fallback.
 - **Natural Language Engine:** Google Gemini 2.0 Flash with automated rate-limit fallbacks and Groq integration.
 - **Zero-AI Deterministic Evaluators:** Pure Python regular expression grammar, set-theory checklist coverage, and keyword distance scanners.
 - **Frontend SPA:** React 19, Vite 8, Tailwind CSS v4, Lucide React icons, and Recharts analytics.
+
+---
+
+### 4.2 Data Flow Diagrams (DFD Level 0 & Level 1)
+
+#### DFD Level 0: Context Diagram
+The Level 0 Data Flow Diagram illustrates SupportNova as an autonomous governance engine interacting with external personas and external data boundaries:
+
+```
+                       ┌─────────────────────────┐
+                       │        CUSTOMER         │
+                       └────────────┬────────────┘
+                                    │ 1. Complaint Submission (Web/Email/Chat/Doc)
+                                    │ 2. Status Inquiry & Resolution View
+                                    ▼
+       ┌───────────────────────────────────────────────────────────────┐
+       │                                                               │
+       │     0.0 SupportNova Autonomous AI Governance Engine           │
+       │                                                               │
+       └───────┬────────────────────────┬──────────────────────┬───────┘
+               │                        │                      │
+               │ 3. Policy Citations    │ 4. Diff Inspection   │ 5. Policy Ingestion
+               │    & Discrepancies     │    & Actions         │    & Rule Matrix CRUD
+               ▼                        ▼                      ▼
+┌─────────────────────────────┐ ┌──────────────────┐ ┌──────────────────┐
+│   REVIEWER / QA SUPERVISOR  │ │  SUPPORT AGENT   │ │   SYSTEM ADMIN   │
+└─────────────────────────────┘ └──────────────────┘ └──────────────────┘
+```
+
+#### DFD Level 1: Subsystem Process Decomposition
+The Level 1 DFD decomposes the internal dual-pipeline processes, data stores, and quarantine decisions:
+
+```
+[Customer Ingestion]
+       │
+       ▼
+ ┌──────────────────────────────────┐
+ │ 1.0 Intake Sanitization & PII    │ ───► [D1: PII Sanitized Cache]
+ └─────────────────┬────────────────┘
+                   │ Clean Masked Complaint
+                   ▼
+ ┌──────────────────────────────────┐
+ │ 2.0 Semantic Policy Retrieval    │ ◄─── [D2: Vector Store / Policies]
+ └─────────┬──────────────────────┬─┘
+           │ Top-3 Policy Chunks  │ Top-3 Policy Chunks
+           ▼                      ▼
+ ┌──────────────────┐   ┌───────────────────────────┐
+ │ 3.0 Pipeline 1:  │   │ 4.0 Pipeline 2:           │
+ │ GenAI Inference  │   │ Ground-Truth Engine       │ ◄─── [D3: Rule Matrix]
+ │ (Gemini 2.0 Flash│   │ (Pure Zero-AI Python)     │
+ └─────────┬────────┘   └─────────────┬─────────────┘
+           │ Probabilistic Draft      │ Deterministic Verdict
+           └──────────────┬───────────┘
+                          ▼
+            ┌───────────────────────────┐
+            │ 5.0 Diff Engine Synthesis │
+            │ (Scores: Cov, Trc, Rout)  │
+            └─────────────┬─────────────┘
+                          ▼
+            ┌───────────────────────────┐
+            │ 6.0 Quarantine & Gate     │
+            └──────┬─────────────┬──────┘
+                   │             │
+      [Discrepancy / Risk]     [100% Match]
+                   │             │
+                   ▼             ▼
+       ┌──────────────────┐  ┌──────────────────┐
+       │ 7.0 Quarantined  │  │ 8.0 Automated    │
+       │ Review Queue     │  │ Instant Dispatch │
+       │ (Human-in-Loop)  │  │ (To Customer)    │
+       └──────────────────┘  └──────────────────┘
+```
+
+---
+
+### 4.3 System Use Case Diagram
+
+The Use Case Diagram defines user interaction boundaries across all 4 internal operational roles and the external customer:
+
+```
+                  ====================================================
+                              SUPPORTNOVA USE CASE MODEL
+                  ====================================================
+
+      ACTORS                                    USE CASES
+  ┌───────────────┐
+  │   CUSTOMER    │ ──────► [Submit Multi-Channel Complaint]
+  │               │ ──────► [Upload Scanned Letter / Invoice (PDF/DOCX)]
+  │               │ ──────► [Track Ticket Status & Historical Timeline]
+  │               │ ──────► [Send Follow-up Message / Reopen Ticket]
+  │               │ ──────► [Confirm Satisfaction & Close Complaint]
+  └───────────────┘
+
+  ┌───────────────┐
+  │ SUPPORT AGENT │ ──────► [Inspect Side-by-Side Dual-Pipeline Diff Cards]
+  │               │ ──────► [Verify Clickable Policy Chunks in Slide Drawer]
+  │               │ ──────► [Approve & Dispatch AI-Drafted Response]
+  │               │ ──────► [Override Classification with Justification]
+  │               │ ──────► [Escalate Complex Ticket to Tier 2 Support]
+  └───────────────┘
+
+  ┌───────────────┐
+  │ REVIEWER / QA │ ──────► [Monitor Quarantined High-Risk Queue]
+  │               │ ──────► [Inspect Prompt Injection Attacks]
+  │               │ ──────► [Audit Sentiment/Urgency Decoupling Traps]
+  │               │ ──────► [Authorize Restricted Financial Reversals]
+  │               │ ──────► [Export 100-Case Evaluation Reports (CSV/JSON)]
+  └───────────────┘
+
+  ┌───────────────┐
+  │ SYSTEM ADMIN  │ ──────► [Ingest & Chunk New Corporate SOP Documents]
+  │               │ ──────► [Create / Update / Delete Rule Matrix Entries]
+  │               │ ──────► [Configure SLA Thresholds & Escalation Triggers]
+  │               │ ──────► [View Executive Analytics & Resolution Donut]
+  └───────────────┘
+```
+
+---
+
+### 4.4 Operational Activity Diagram
+
+The Activity Diagram tracks the end-to-end lifecycle of a complaint from intake to resolution:
+
+```
+  (Start)
+     │
+     ▼
+ [Customer Submits Complaint via Web / Email / Chat / Doc Upload]
+     │
+     ▼
+ [PII Sanitization Engine Masks Credit Cards, SSNs, Phones, Emails]
+     │
+     ▼
+ [Semantic Retrieval Queries Vector Store for Top-3 Active Policies]
+     │
+     ├─────────────────────────────────────────┐
+     ▼                                         ▼
+ [Pipeline 1: GenAI Inference]            [Pipeline 2: Zero-AI Python Rules]
+ • Structured JSON Generation             • Keyword Scan (Smoke, Fire, Injury)
+ • Sentiment & Urgency Triage             • Tone-Urgency Decoupling (Calm P0 / Screaming P4)
+ • Empathetic Resolution Draft            • SOP Rule Precedence & Prohibited Actions
+     │                                         │
+     └────────────────────┬────────────────────┘
+                          ▼
+             [Diff Engine Synthesizes Outputs]
+             • Field-by-Field Divergence Matrix
+             • Coverage, Traceability, Routing Scores
+                          │
+                          ▼
+            < Discrepancy Found OR Injection Flagged OR Prohibited Action? >
+                     /                                         \
+                 [ YES ]                                     [ NO ]
+                    │                                           │
+                    ▼                                           ▼
+       [Automated Dispatch Blocked]                 [Automated Dispatch Cleared]
+       • Status: Manual Review Required             • Status: Verified (100% Match)
+       • Route to Quarantined Queue                 • Send Resolution to Customer
+                    │                                           │
+                    ▼                                           ▼
+       [Supervisor Audits & Overrides]              [Write Event to Audit Trail]
+                    │                                           │
+                    ▼                                           │
+       [Approved Resolution Sent]                               │
+                    │                                           │
+                    └─────────────────────┬─────────────────────┘
+                                          ▼
+                                       (Finish)
+```
+
+---
+
+### 4.5 Dual-Pipeline Sequence Diagram
+
+The Sequence Diagram details the asynchronous timing, message flow, and inter-service coordination:
+
+```
+Customer     IntakeAPI    VectorStore    Pipeline1(AI)   Pipeline2(Python)   DiffEngine    ReviewQueue   AuditLog
+   │             │             │               │                 │               │              │            │
+   │─Submit()───►│             │               │                 │               │              │            │
+   │             │─Query(Top3)►│               │                 │               │              │            │
+   │             │◄─PolicyData─│               │                 │               │              │            │
+   │             │                                                               │              │            │
+   │             │──Async Analyze(Complaint, Policies)──────────►│               │              │            │
+   │             │──Deterministic Validate(Complaint, Policies)─┼───────────────►│              │            │
+   │             │                                               │               │              │            │
+   │             │◄──Structured GenAI JSON───────────────────────│               │              │            │
+   │             │◄──Ground-Truth Verdict & Clamped Priority─────┼───────────────│              │            │
+   │             │                                                               │              │            │
+   │             │──Synthesize Divergences(P1_Result, P2_Result)────────────────►│              │            │
+   │             │◄──Confidence Scores & Quarantine Flag─────────────────────────│              │            │
+   │             │                                                                              │            │
+   │             │ [IF Discrepancy / Prompt Injection / Prohibited Action]                      │            │
+   │             │──Quarantine & Route to Supervisor───────────────────────────────────────────►│            │
+   │             │                                                                              │            │
+   │             │──Record Evaluation Record & Audit Trail──────────────────────────────────────────────────►│
+   │             │                                                                              │            │
+   │◄─TicketID───│                                                                              │            │
+   │  & Status   │                                                                              │            │
+```
 
 ---
 
@@ -630,3 +836,5 @@ SupportNova represents a complete, robust, and enterprise-grade software system 
 - It provides a **real-world business context (NovaTech Consumer Electronics)** with realistic order histories and issue filing.
 - It features an **enterprise design system** with standard framework primitives and a seamless **Light & Dark mode toggle**.
 - It passes **100% of automated tests**, compiles with **zero build errors**, and provides **1-click evaluation traps** that allow judges to verify its intelligence in seconds.
+- **Official Technical Whitepaper & Medium Article:** [Read on Medium](https://medium.com/@raomohsin213/engineering-supportnova-dual-pipeline-ai-governance-techwiz7)
+- **Official Formatted PDF Report:** [PROJECT_REPORT.pdf](file:///docs/PROJECT_REPORT.pdf) (Complete with DFD Level 0/1, Use Case, Activity, and Sequence diagrams).

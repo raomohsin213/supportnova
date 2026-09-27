@@ -1,8 +1,9 @@
 # Engineering SupportNova: Dual-Pipeline AI Governance and Deterministic Ground-Truth Validation for Enterprise Complaint Intelligence
 
-**By: The SupportNova Engineering Team**  
-**Aptech TechWiz 7 — Theme: ResponseX Intelligence | Category: Generative AI PowerPlay**  
-*Word Count: ~2,500 words | Technical Deep-Dive & Architecture Whitepaper*
+> **Official Medium Publication:** [Read on Medium](https://medium.com/@raomohsin213/engineering-supportnova-dual-pipeline-ai-governance-techwiz7)  
+> **By: The SupportNova Engineering Team (Lead: Rao Mohsin)**  
+> **Aptech TechWiz 7 — Theme: ResponseX Intelligence | Category: Generative AI PowerPlay**  
+> *Word Count: ~2,500 words | Technical Deep-Dive & Architecture Whitepaper (SRS Section 1.10 Item 17)*
 
 ---
 
