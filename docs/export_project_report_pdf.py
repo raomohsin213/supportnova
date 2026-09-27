@@ -16,9 +16,10 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-    PageBreak, HRFlowable, Preformatted, KeepTogether
+    PageBreak, HRFlowable, Preformatted, KeepTogether, Image as RLImage
 )
 from reportlab.pdfgen import canvas
+from PIL import Image as PILImage
 
 DOCS_DIR = Path(__file__).resolve().parent
 ROOT_DIR = DOCS_DIR.parent
@@ -369,6 +370,59 @@ def build_report_pdf():
                 f"<b>{num}.</b>  {n_text}",
                 make_style(fontName="Helvetica", fontSize=8.5, leading=13, textColor=SLATE, leftIndent=12, spaceAfter=2)
             ))
+            i += 1
+            continue
+
+        # Embedded Markdown Images: ![caption](image_path)
+        m_img = re.match(r'^!\[(.*?)\]\((.*?)\)$', line.strip())
+        if m_img:
+            caption = m_img.group(1).strip()
+            rel_path = m_img.group(2).strip()
+
+            img_file = (DOCS_DIR / rel_path).resolve()
+            if not img_file.exists():
+                img_file = (ROOT_DIR / rel_path).resolve()
+
+            if img_file.exists():
+                try:
+                    with PILImage.open(img_file) as pimg:
+                        pw, ph = pimg.size
+
+                    max_w = 16.0 * cm
+                    max_h = 9.2 * cm
+                    aspect = ph / pw
+                    target_w = max_w
+                    target_h = target_w * aspect
+                    if target_h > max_h:
+                        target_h = max_h
+                        target_w = target_h / aspect
+
+                    rl_img = RLImage(str(img_file), width=target_w, height=target_h)
+                    caption_para = Paragraph(
+                        f'<b>Figure:</b> {caption}',
+                        make_style(fontName="Helvetica-Oblique", fontSize=8, leading=11, textColor=MUTED, alignment=TA_CENTER)
+                    )
+
+                    fig_table = Table([[rl_img], [caption_para]], colWidths=[target_w])
+                    fig_table.setStyle(TableStyle([
+                        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("TOPPADDING", (0, 0), (-1, -1), 4),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                        ("BOX", (0, 0), (-1, -1), 0.75, BORDER),
+                        ("BACKGROUND", (0, 1), (-1, 1), LIGHT),
+                    ]))
+
+                    story.append(Spacer(1, 8))
+                    story.append(KeepTogether(fig_table))
+                    story.append(Spacer(1, 8))
+                except Exception as ex:
+                    print(f"[PDF Export] Warning: Failed to render image {img_file}: {ex}")
+            else:
+                print(f"[PDF Export] Warning: Image file not found: {img_file}")
+
             i += 1
             continue
 
