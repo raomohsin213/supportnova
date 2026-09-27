@@ -67,3 +67,8 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# User Local Custom Folders
+Documentations/
+documentation/
+

@@ -32,7 +32,7 @@ The SupportNova system strictly complies with this mandate.
 | **Files Affected** | `backend/app/services/genai_pipeline.py`<br>`backend/app/schemas/genai.py` |
 | **Modifications Made** | 1. Prompt engineering with explicit XML boundary constraints to neutralize prompt injection attacks.<br>2. Pydantic v2 structured output enforcement guaranteeing valid JSON typing.<br>3. Offline high-fidelity emulator mock supporting guaranteed deterministic benchmarks across all 6 adversarial test cases.<br>4. Temperature fixed at `0.2` and Top-P at `0.8` to suppress hallucinations. |
 | **Testing Performed** | 1. Automated unit and adversarial tests (`pytest backend/tests/test_dual_pipeline.py`).<br>2. Prompt injection jailbreak resistance verification (`test_case_a_prompt_injection`).<br>3. End-to-end integration tests over 100+ sample complaints. |
-| **Verifying Team Members** | Lead AI Architect & Full-Stack Engineering Team |
+| **Verifying Author** | Rao Mohsin (Lead Architect & Developer) |
 
 ---
 
@@ -43,9 +43,9 @@ The SupportNova system strictly complies with this mandate.
 | **Purpose** | Architectural scaffolding, full-stack component engineering, test suite authoring, and documentation validation. |
 | **Type of Assistance** | Code authoring, refactoring, Tailwind CSS v4 styling, test automation runner, and file synchronization. |
 | **Files Affected** | Entire repository (`backend/`, `frontend/`, `tests/`, `README.md`) |
-| **Modifications Made** | 1. Configured FastAPI asynchronous endpoints, SQLAlchemy 2.0 ORM, and SQLite database schema.<br>2. Built React 18 frontend with Tailwind CSS v4, Lucide icons, and Recharts visualization.<br>3. Implemented file intake parser supporting `.pdf`, `.docx`, and `.txt` via `pdfplumber` and `python-docx`.<br>4. Integrated real-time comparison engine (The Diff Inspector). |
-| **Testing Performed** | 1. Pytest test suite execution (9 passed in 2.89s).<br>2. Vite production build verification (`npm run build` cleanly bundled in 1.28s).<br>3. Headless browser end-to-end user journey validation. |
-| **Verifying Team Members** | Senior Software Engineer & QA Lead |
+| **Modifications Made** | 1. Configured FastAPI asynchronous endpoints, SQLAlchemy 2.0 ORM, and SQLite database schema.<br>2. Built React 19 frontend with Tailwind CSS v4, Lucide icons, and Recharts visualization.<br>3. Implemented file intake parser supporting `.pdf`, `.docx`, and `.txt` via `pdfplumber` and `python-docx`.<br>4. Integrated real-time comparison engine (The Diff Inspector). |
+| **Testing Performed** | 1. Pytest test suite execution (18 passed in 5.4s).<br>2. Vite production build verification (`npm run build` cleanly bundled).<br>3. Headless browser end-to-end user journey validation. |
+| **Verifying Author** | Rao Mohsin (Lead Architect & Developer) |
 
 ---
 
@@ -103,13 +103,14 @@ Text extraction from binary complaint files (`.pdf`, `.docx`, `.txt`) is execute
 
 ---
 
-## 5. Team Member Verification & Sign-Off
+## 5. Author Verification & Sign-Off
 
-The development team hereby certifies that:
-1. All AI-generated code snippets and templates were thoroughly reviewed, refactored, and tested by team engineers.
+The author hereby certifies that:
+1. All AI-generated code snippets and templates were thoroughly reviewed, refactored, and tested by Rao Mohsin.
 2. The core ground-truth validation engine operates strictly deterministically without AI dependencies.
 3. No API keys, credentials, or proprietary confidential datasets have been committed to the repository.
 4. The system is fully compliant with all Aptech TechWiz 7 specification guidelines.
 
-*Signed by the SupportNova Engineering Team*  
-*Date: September 23, 2026*
+*Verified and Signed by:*  
+**Rao Mohsin**  
+*Lead Architect & Full-Stack Developer*  
