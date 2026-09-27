@@ -24,10 +24,7 @@ class Settings(BaseSettings):
     SYNC_DATABASE_URL: str = f"sqlite:///{DATABASE_PATH.as_posix()}"
     
     # MongoDB Atlas (TechWiz 7 Primary NoSQL Database)
-    MONGODB_URI: str = os.getenv(
-        "MONGODB_URI",
-        "mongodb://raomohsin213_db_user:zTuFHnspVLwqjET3@ac-qxyian5-shard-00-00.tiiipht.mongodb.net:27017,ac-qxyian5-shard-00-01.tiiipht.mongodb.net:27017,ac-qxyian5-shard-00-02.tiiipht.mongodb.net:27017/?ssl=true&replicaSet=atlas-q1pse9-shard-0&authSource=admin&appName=Cluster0"
-    )
+    MONGODB_URI: str = os.getenv("MONGODB_URI", "")
     MONGODB_DB_NAME: str = os.getenv("MONGODB_DB_NAME", "support_nova")
     DATABASE_BACKEND: str = os.getenv("DATABASE_BACKEND", "mongodb")
     
