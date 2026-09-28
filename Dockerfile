@@ -58,8 +58,8 @@ EXPOSE 10000
 
 # Health check against FastAPI health endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-7860}/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 
-# Launch production server on dynamic $PORT (HuggingFace: 7860, Render: 10000, Railway: dynamic)
+# Launch production server on dynamic $PORT (Railway, Render, HuggingFace)
 WORKDIR /app/backend
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
