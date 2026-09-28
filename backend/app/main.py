@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from pathlib import Path
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import init_db, SyncSessionLocal
 from app.models.policy import PolicyChunk
@@ -81,18 +84,6 @@ app.include_router(analytics_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(benchmark_router, prefix="/api")
 
-@app.get("/")
-def root():
-    return {
-        "system": settings.PROJECT_NAME,
-        "theme": settings.THEME,
-        "version": settings.VERSION,
-        "status": "Operational",
-        "database": "MongoDB Atlas (Cluster0)",
-        "dual_pipeline_active": True,
-        "docs_url": "/docs"
-    }
-
 @app.get("/health")
 @app.get("/api/health")
 def health_check():
@@ -106,3 +97,65 @@ def health_check():
         "gemini_model": settings.GEMINI_MODEL,
         "vector_store_chunks": len(vector_store.chunks_db)
     }
+
+@app.get("/api")
+def api_status():
+    return {
+        "system": settings.PROJECT_NAME,
+        "theme": settings.THEME,
+        "version": settings.VERSION,
+        "status": "Operational",
+        "database": "MongoDB Atlas (Cluster0)",
+        "dual_pipeline_active": True,
+        "docs_url": "/docs"
+    }
+
+# -------------------------------------------------------------------------
+# Static Frontend & Single-Service SPA Routing for Railway / Production
+# -------------------------------------------------------------------------
+_candidate_dist_dirs = [
+    (settings.BASE_DIR.parent / "frontend" / "dist").resolve(),
+    (settings.BASE_DIR / "frontend_dist").resolve(),
+    (settings.BASE_DIR / "static").resolve(),
+    Path("/app/frontend/dist").resolve(),
+]
+
+frontend_dist_dir = None
+for candidate in _candidate_dist_dirs:
+    if candidate.exists() and (candidate / "index.html").exists():
+        frontend_dist_dir = candidate
+        break
+
+if frontend_dist_dir:
+    assets_dir = frontend_dist_dir / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    @app.get("/")
+    def serve_frontend_root():
+        return FileResponse(frontend_dist_dir / "index.html")
+
+    @app.get("/{full_path:path}")
+    def serve_frontend_spa(full_path: str):
+        if full_path.startswith("api/") or full_path == "api":
+            raise HTTPException(status_code=404, detail="API route not found")
+        if full_path in ("docs", "redoc", "openapi.json"):
+            raise HTTPException(status_code=404, detail="Documentation path not found")
+        
+        target_file = frontend_dist_dir / full_path
+        if target_file.is_file():
+            return FileResponse(target_file)
+        return FileResponse(frontend_dist_dir / "index.html")
+else:
+    @app.get("/")
+    def root():
+        return {
+            "system": settings.PROJECT_NAME,
+            "theme": settings.THEME,
+            "version": settings.VERSION,
+            "status": "Operational",
+            "database": "MongoDB Atlas (Cluster0)",
+            "dual_pipeline_active": True,
+            "docs_url": "/docs"
+        }
+
