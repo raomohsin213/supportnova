@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GenAIComplaintAnalysis",
+  "type": "object",
+  "required": [
+    "category",
+    "urgency",
+    "sentiment",
+    "summary",
+    "proposed_resolution"
+  ],
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": [
+        "Billing & Refunds",
+        "Delivery",
+        "Product Defects",
+        "Account Access",
+        "Safety & Compliance",
+        "Service Quality",
+        "General Inquiries"
+      ]
+    },
+    "urgency": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical",
+        "Emergency"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5"
+      ]
+    },
+    "department": {
+      "type": "string"
+    },
+    "sentiment": {
+      "type": "string",
+      "enum": [
+        "Positive",
+        "Neutral",
+        "Frustrated",
+        "Angry",
+        "Severely Distressed"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "key_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "escalation_required": {
+      "type": "boolean"
+    },
+    "escalation_tier": {
+      "type": "string"
+    },
+    "proposed_resolution": {
+      "type": "string"
+    },
+    "compensation_amount": {
+      "type": "number"
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

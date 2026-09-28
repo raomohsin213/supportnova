@@ -1,0 +1,27 @@
+{
+  "Emergency": {
+    "resolution_hours": 1,
+    "first_response_minutes": 15,
+    "escalation_tier": "Critical Management Escalation"
+  },
+  "Critical": {
+    "resolution_hours": 4,
+    "first_response_minutes": 30,
+    "escalation_tier": "Compliance Review"
+  },
+  "High": {
+    "resolution_hours": 12,
+    "first_response_minutes": 60,
+    "escalation_tier": "Department Manager"
+  },
+  "Medium": {
+    "resolution_hours": 24,
+    "first_response_minutes": 120,
+    "escalation_tier": "Supervisor Review"
+  },
+  "Low": {
+    "resolution_hours": 48,
+    "first_response_minutes": 240,
+    "escalation_tier": "No Escalation"
+  }
+}

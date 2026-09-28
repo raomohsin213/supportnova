@@ -1,0 +1,25 @@
+# SupportNova System Configuration
+# Aptech TechWiz 7 - ResponseX Intelligence
+project_name: "SupportNova AI Governance Engine"
+version: "1.0.0"
+environment: "production"
+theme: "ResponseX Intelligence (Generative AI PowerPlay)"
+
+genai:
+  provider: "gemini"
+  model: "gemini-2.5-flash"
+  temperature: 0.1
+  timeout_seconds: 30
+  retry_attempts: 3
+
+database:
+  backend: "sqlite"
+  sqlite_path: "supportnova.db"
+  mongodb_db_name: "support_nova"
+
+sla:
+  emergency_hours: 1
+  critical_hours: 4
+  high_hours: 12
+  medium_hours: 24
+  low_hours: 48

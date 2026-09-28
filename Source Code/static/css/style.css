@@ -1,0 +1,19 @@
+/* SupportNova Theme Stylesheet */
+:root {
+  --primary: #7B3FE4;
+  --primary-dark: #6328D4;
+  --accent: #FF4B72;
+  --bg-dark: #08090E;
+  --surface-dark: #12141F;
+  --border-dark: #23273D;
+  --text-primary: #F8FAFC;
+  --text-muted: #94A3B8;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+}

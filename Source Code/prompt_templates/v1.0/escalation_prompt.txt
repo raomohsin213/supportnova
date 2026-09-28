@@ -1,0 +1,1 @@
+Generate a concise internal escalation brief summarizing root causes, detected policy violations, and required managerial decision points.

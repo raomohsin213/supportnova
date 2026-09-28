@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "prompts": {
+    "analysis": "prompt_templates/v1.0/analysis_prompt.txt",
+    "response": "prompt_templates/v1.0/response_prompt.txt",
+    "clarification": "prompt_templates/v1.0/clarification_prompt.txt",
+    "escalation": "prompt_templates/v1.0/escalation_prompt.txt",
+    "followup": "prompt_templates/v1.0/followup_prompt.txt"
+  }
+}

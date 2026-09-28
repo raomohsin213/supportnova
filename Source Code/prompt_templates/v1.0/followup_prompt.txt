@@ -1,0 +1,1 @@
+Generate a scheduled 48-hour post-resolution satisfaction check-in message confirming the customer's issue remains resolved.

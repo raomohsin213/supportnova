@@ -1,0 +1,44 @@
+{
+  "rules": [
+    {
+      "trigger": "safety_hazard",
+      "keywords": [
+        "fire",
+        "smoke",
+        "spark",
+        "explosion",
+        "injury",
+        "burn",
+        "electric shock"
+      ],
+      "target_level": "Critical Management Escalation"
+    },
+    {
+      "trigger": "legal_threat",
+      "keywords": [
+        "lawyer",
+        "attorney",
+        "lawsuit",
+        "court",
+        "sue",
+        "litigation"
+      ],
+      "target_level": "Compliance Review"
+    },
+    {
+      "trigger": "financial_discrepancy",
+      "condition": "claim_amount > 500",
+      "target_level": "Department Manager"
+    },
+    {
+      "trigger": "repeat_complaint",
+      "condition": "previous_ticket_count >= 2",
+      "target_level": "Supervisor Review"
+    },
+    {
+      "trigger": "low_confidence",
+      "condition": "verification_score < 70",
+      "target_level": "Supervisor Review"
+    }
+  ]
+}

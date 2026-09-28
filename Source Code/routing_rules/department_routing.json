@@ -1,0 +1,39 @@
+{
+  "mappings": {
+    "Billing & Refunds": {
+      "department": "Finance & Billing",
+      "queue": "fin_refund_queue",
+      "sla_hours": 12
+    },
+    "Delivery": {
+      "department": "Logistics & Fulfillment",
+      "queue": "logistics_sla_queue",
+      "sla_hours": 24
+    },
+    "Product Defects": {
+      "department": "Quality Assurance & Hardware",
+      "queue": "hardware_defect_queue",
+      "sla_hours": 12
+    },
+    "Account Access": {
+      "department": "IT & Identity Management",
+      "queue": "it_security_queue",
+      "sla_hours": 8
+    },
+    "Safety & Compliance": {
+      "department": "Legal & Risk Management",
+      "queue": "executive_crisis_queue",
+      "sla_hours": 1
+    },
+    "Service Quality": {
+      "department": "Customer Experience",
+      "queue": "cx_feedback_queue",
+      "sla_hours": 48
+    },
+    "General Inquiries": {
+      "department": "Customer Support Tier 1",
+      "queue": "tier1_triage_queue",
+      "sla_hours": 48
+    }
+  }
+}

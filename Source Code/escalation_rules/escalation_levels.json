@@ -1,0 +1,40 @@
+{
+  "levels": [
+    {
+      "level": 0,
+      "name": "No Escalation",
+      "target": "Autonomous AI Agent",
+      "sla_hours": 48
+    },
+    {
+      "level": 1,
+      "name": "Supervisor Review",
+      "target": "Tier 2 Support Supervisor",
+      "sla_hours": 24
+    },
+    {
+      "level": 2,
+      "name": "Department Manager",
+      "target": "Operations Manager",
+      "sla_hours": 12
+    },
+    {
+      "level": 3,
+      "name": "Specialist Team",
+      "target": "Product Engineering / Forensic Hardware",
+      "sla_hours": 8
+    },
+    {
+      "level": 4,
+      "name": "Compliance Review",
+      "target": "Legal & Regulatory Compliance Officer",
+      "sla_hours": 4
+    },
+    {
+      "level": 5,
+      "name": "Critical Management Escalation",
+      "target": "Executive Crisis Committee",
+      "sla_hours": 1
+    }
+  ]
+}

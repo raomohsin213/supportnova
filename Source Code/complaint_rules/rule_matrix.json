@@ -1,0 +1,53 @@
+{
+  "rules": [
+    {
+      "rule_id": "RUL-REF-01",
+      "category": "Billing & Refunds",
+      "condition": "Days since delivery <= 14 AND proof of purchase verified",
+      "action": "Eligible for Full Refund",
+      "requires_manager": false
+    },
+    {
+      "rule_id": "RUL-REF-02",
+      "category": "Billing & Refunds",
+      "condition": "Days since delivery > 14 AND <= 30",
+      "action": "Store Credit Only (Max $50)",
+      "requires_manager": false
+    },
+    {
+      "rule_id": "RUL-REF-03",
+      "category": "Billing & Refunds",
+      "condition": "Days since delivery > 30",
+      "action": "Ineligible for Refund; Offer Troubleshooting or Repair",
+      "requires_manager": false
+    },
+    {
+      "rule_id": "RUL-DEF-01",
+      "category": "Product Defects",
+      "condition": "Hardware defect within 90 days warranty",
+      "action": "Free Advance Replacement after photo verification",
+      "requires_manager": false
+    },
+    {
+      "rule_id": "RUL-SAF-01",
+      "category": "Safety & Compliance",
+      "condition": "Fire, smoke, electrical shock, or physical injury reported",
+      "action": "Emergency Quarantine, Immediate Supervisor Recall, Legal Hold",
+      "requires_manager": true
+    },
+    {
+      "rule_id": "RUL-DEL-01",
+      "category": "Delivery",
+      "condition": "Courier delay > 72 hours without scan",
+      "action": "Issue $15 store credit courtesy & open carrier tracer",
+      "requires_manager": false
+    },
+    {
+      "rule_id": "RUL-ACC-01",
+      "category": "Account Access",
+      "condition": "Failed MFA / Lockout",
+      "action": "Send verified biometric/email identity challenge link",
+      "requires_manager": false
+    }
+  ]
+}

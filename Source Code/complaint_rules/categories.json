@@ -1,0 +1,114 @@
+{
+  "categories": [
+    {
+      "name": "Billing & Refunds",
+      "department": "Finance & Billing",
+      "keywords": [
+        "refund",
+        "charged",
+        "billing",
+        "invoice",
+        "overcharge",
+        "double charge",
+        "payment",
+        "bank",
+        "receipt"
+      ],
+      "default_sla": "High"
+    },
+    {
+      "name": "Delivery",
+      "department": "Logistics & Fulfillment",
+      "keywords": [
+        "delivery",
+        "shipping",
+        "courier",
+        "package",
+        "tracking",
+        "late",
+        "arrived",
+        "delay",
+        "carrier",
+        "lost package"
+      ],
+      "default_sla": "Medium"
+    },
+    {
+      "name": "Product Defects",
+      "department": "Quality Assurance & Hardware",
+      "keywords": [
+        "defect",
+        "broken",
+        "faulty",
+        "not working",
+        "damaged",
+        "scratched",
+        "cracked",
+        "malfunction",
+        "hardware"
+      ],
+      "default_sla": "High"
+    },
+    {
+      "name": "Account Access",
+      "department": "IT & Identity Management",
+      "keywords": [
+        "login",
+        "password",
+        "locked",
+        "2fa",
+        "authentication",
+        "account",
+        "access",
+        "reset",
+        "email"
+      ],
+      "default_sla": "Medium"
+    },
+    {
+      "name": "Safety & Compliance",
+      "department": "Legal & Risk Management",
+      "keywords": [
+        "fire",
+        "smoke",
+        "spark",
+        "explosion",
+        "injury",
+        "burn",
+        "electric shock",
+        "hospital",
+        "poison",
+        "toxic",
+        "hazard"
+      ],
+      "default_sla": "Emergency"
+    },
+    {
+      "name": "Service Quality",
+      "department": "Customer Experience",
+      "keywords": [
+        "agent",
+        "rude",
+        "unhelpful",
+        "wait time",
+        "call dropped",
+        "poor service",
+        "support"
+      ],
+      "default_sla": "Low"
+    },
+    {
+      "name": "General Inquiries",
+      "department": "Customer Support Tier 1",
+      "keywords": [
+        "question",
+        "info",
+        "inquire",
+        "hours",
+        "contact",
+        "pricing"
+      ],
+      "default_sla": "Low"
+    }
+  ]
+}
