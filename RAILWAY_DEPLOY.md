@@ -30,8 +30,11 @@ This repository is pre-configured for **instant 1-click single-service deploymen
    |---|---|---|
    | `GEMINI_API_KEY` | Your Google Gemini API Key | Recommended for AI classification |
    | `MONGODB_URI` | `mongodb+srv://...` (Atlas connection string) | Optional (SQLite works out of the box) |
-   | `JWT_SECRET_KEY` | Any random 32+ character string | Optional (Has secure default) |
+   | `JWT_SECRET` | Any random 32+ character string (read by `backend/app/services/auth.py`) | Strongly recommended (the built-in default is public in the repo) |
    | `ENVIRONMENT` | `production` | Set automatically by Docker |
+   | `PORT` | — | Injected by Railway; do not set |
+
+   > **Note:** The bundled SQLite database (`backend/support_nova.db`) lives inside the container, so tickets and uploads created on Railway are reset on every redeploy. Set `MONGODB_URI` if you need data to persist.
 
 5. **Generate Public Domain**:
    - Go to **Settings** -> **Networking** -> **Generate Domain**.

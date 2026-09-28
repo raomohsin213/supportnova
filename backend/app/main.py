@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from app.config import settings
+from app.config import settings, BASE_DIR
 from app.database import init_db, SyncSessionLocal
 from app.models.policy import PolicyChunk
 from app.services.vector_store import vector_store
@@ -114,9 +114,9 @@ def api_status():
 # Static Frontend & Single-Service SPA Routing for Railway / Production
 # -------------------------------------------------------------------------
 _candidate_dist_dirs = [
-    (settings.BASE_DIR.parent / "frontend" / "dist").resolve(),
-    (settings.BASE_DIR / "frontend_dist").resolve(),
-    (settings.BASE_DIR / "static").resolve(),
+    (BASE_DIR.parent / "frontend" / "dist").resolve(),
+    (BASE_DIR / "frontend_dist").resolve(),
+    (BASE_DIR / "static").resolve(),
     Path("/app/frontend/dist").resolve(),
 ]
 
