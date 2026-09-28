@@ -7,6 +7,11 @@
 
 ## 1. Executive Declaration of Architectural Governance
 
+> ### 🛡️ Important Authorship Declaration: Human-Led Engineering & Design
+> **We explicitly declare that while our team utilized modern AI development assistance tools (such as Large Language Models and coding assistants) for productivity acceleration, syntactic suggestions, boilerplate scaffolding, and brainstorming, THIS PROJECT WAS NOT ENTIRELY MADE OF AI.**
+>
+> All foundational architecture, dual-pipeline verification systems, deterministic rule matrices, security and prompt-injection defenses, database schemas, and end-to-end integration workflows were fundamentally conceptualized, authored, engineered, tested, and reviewed by our human team. AI tools served strictly as assistive productivity aids under rigorous human engineering oversight, not as the autonomous creator of this system.
+
 In strict accordance with the **Aptech TechWiz 7 Competition Integrity and Anti-Shortcut Requirements** (SRS Section 1.8, Items 17–19), this document provides a comprehensive, transparent record of all Artificial Intelligence (AI) tools, Large Language Models (LLMs), and development aids utilized during the engineering of the SupportNova system.
 
 ### Core Architectural Principle: Zero-AI Ground-Truth Independence
