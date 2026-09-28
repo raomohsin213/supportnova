@@ -47,16 +47,19 @@ COPY backend/ ./backend/
 # Copy compiled frontend from Stage 1 into frontend/dist
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Ensure upload and chroma directories exist with appropriate permissions
-RUN mkdir -p /app/backend/uploads/policies /app/backend/chroma_db
+# Ensure upload, chroma, and db directories have write permissions for any container user
+RUN mkdir -p /app/backend/uploads/policies /app/backend/chroma_db && \
+    chmod -R 777 /app
 
-# Expose default port (Railway injects $PORT dynamically)
+# Expose ports (7860 for Hugging Face Spaces, 10000 for Render, 8000 default)
+EXPOSE 7860
 EXPOSE 8000
+EXPOSE 10000
 
 # Health check against FastAPI health endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+    CMD curl -f http://localhost:${PORT:-7860}/health || exit 1
 
-# Launch production server on dynamic $PORT
+# Launch production server on dynamic $PORT (HuggingFace: 7860, Render: 10000, Railway: dynamic)
 WORKDIR /app/backend
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
