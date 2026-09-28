@@ -1,3 +1,13 @@
+---
+title: SupportNova AI Complaint Intelligence & Governance
+emoji: 🛡️
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # SupportNova — Enterprise AI Complaint Intelligence & Autonomous Governance System
 
 > **Aptech TechWiz 7 — ResponseX Intelligence (Theme: Generative AI PowerPlay)**  
